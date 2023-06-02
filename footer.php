@@ -9,7 +9,9 @@
  */
 ?>
 
-		<?php get_template_part( 'template-parts/components/header.php' ); ?>
+		<?php get_template_part( 'template-parts/modules/footer.php' ); ?>
+
+		</div><?php // end .site ?>
 
 		<?php wp_footer(); ?>
 	</body>

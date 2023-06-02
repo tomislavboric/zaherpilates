@@ -3,6 +3,7 @@
 
 @import 'settings';
 @import 'foundation';
+@import 'variables';
 @import 'motion-ui';
 
 @include foundation-global-styles;
@@ -59,6 +60,8 @@
 */
 
 // Global
+@import "global/helpers";
+@import "global/layout";
 @import "global/accessibility";
 @import "global/colors";
 @import "global/wp-admin";
@@ -66,10 +69,12 @@
 @import "global/gutenberg";
 
 // Modules
+@import "modules/header";
+@import "modules/footer";
 @import "modules/navigation";
 @import "modules/content";
-@import "modules/footer";
 @import "modules/editor-style";
+@import "modules/sections";
 
 // Components
 @import "components/buttons";
@@ -77,6 +82,10 @@
 @import "components/featured-image";
 @import "components/dividers";
 @import "components/links";
+
+// Loop
+@import "components/loop-hero";
+@import "components/loop-demo";
 
 // Templates
 // @import "templates/*";

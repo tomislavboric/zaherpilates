@@ -1,0 +1,96 @@
+.section {
+  padding: 50px 0;
+  @include breakpoint(medium) {
+    padding: 60px 0;
+  }
+  @include breakpoint(xlarge) {
+    padding: 80px 0;
+  }
+  &--nospacing-top {
+    padding-top: 0;
+  }
+  &--small {
+    padding: 30px 0;
+  }
+  &__header {
+    padding-bottom: 40px;
+    @include breakpoint(large) {
+      padding-bottom: 60px;
+    }
+    &--full {
+      .section__desc {
+        font-size: 18px;
+        @include breakpoint(xlarge) {
+          font-size: 20px;
+        }
+      }
+    }
+    &--center {
+      @include breakpoint(large) {
+        text-align: center;
+      }
+      &-all {
+        text-align: center;
+      }
+    }
+    &--small {
+      padding-bottom: 40px;
+    }
+    &--tiny {
+      font-size: 34px;
+      padding-bottom: 10px;
+    }
+    &--nospacing {
+      padding: 0;
+    }
+  }
+  &__title {
+    margin: 0 0 20px;
+    font-size: 26px;
+    @include breakpoint(large) {
+      font-size: 38px;
+    }
+    &--desktop {
+      @include show-for(large);
+    }
+    &--mobile {
+      @include hide-for(large);
+    }
+    &--small {
+      font-size: 25px;
+      @include breakpoint(large) {
+        font-size: 30px;
+      }
+    }
+    &--upp {
+      text-transform: uppercase;
+    }
+  }
+  &__subtitle {
+    margin: 0 0 10px;
+    color: $primary-color;
+    text-transform: uppercase;
+    font-weight: 700;
+    //letter-spacing: 3px;
+    letter-spacing: 1px;
+    font-size: 12px;
+    @include breakpoint(large) {
+      font-size: 15px;
+    }
+  }
+  &__desc {
+    font-size: 16px;
+    @include breakpoint(large) {
+      font-size: 18px;
+    }
+    &--small {
+      font-size: 18px !important;
+    }
+    &--large {
+      font-size: 18px !important;
+    }
+  }
+  &__button {
+    margin-top: 30px;
+  }
+}

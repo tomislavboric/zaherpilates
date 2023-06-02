@@ -1,0 +1,53 @@
+.header {
+  /* padding: 10px 0; */
+  user-select: none;
+  .grid-container {
+    display: flex;
+    align-items: center;
+    max-width: 100%;
+    padding-top: 3vw;
+    padding-bottom: 3vw;
+    padding-left: 3vw;
+    padding-right: 3vw;
+    pointer-events: auto;
+  }
+  &__logo {
+    a {
+      display: block;
+    }
+    img {
+      /*
+      Loop logo
+      width: 145px; */
+      width: 192px;
+    }
+  }
+  &__nav {
+    margin-left: auto;
+    .dropdown.menu {
+      display: flex;
+      gap: 30px;
+      > li {
+        > a {
+          color: #fff;
+          font-weight: 300;
+          padding: 6px 0 4px;
+        }
+        &.is-active > a {
+          color: #fff;
+          border-bottom: 1px solid #fff;
+        }
+      }
+    }
+
+  }
+  &__cta {
+    margin-left: 30px;
+  }
+  &--fixed {
+    position: fixed;
+    z-index: 10;
+    left: 0;
+    right: 0;
+  }
+}

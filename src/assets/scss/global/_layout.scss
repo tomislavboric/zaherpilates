@@ -1,0 +1,151 @@
+html {
+	scroll-behavior: smooth;
+	-webkit-overflow-scrolling: touch;
+}
+body {
+	min-width: 320px;
+	overflow-x: hidden;
+	height: 100%;
+	/*&:not(.blank) {
+		.site {
+			padding-top: 65px;
+			@include breakpoint(1070) {
+				padding-top: 71px;
+			}
+		}
+	}*/
+	.site {
+		display: flex;
+		min-height: 100vh;
+		flex-direction: column;
+    /* max-width: 1900px;
+    margin: 0 auto; */
+	}
+	&.top-banner-visible .site {
+		padding-top: 123px;
+		//padding-top: 154px;
+		@include breakpoint(576) {
+			padding-top: 119px;
+			//padding-top: 150px;
+		}
+		@include breakpoint(1070) {
+			//padding-top: 125px;
+			padding-top: 156px;
+		}
+	}
+	&.admin-bar {
+		/*margin-top: 46px;
+		@include breakpoint(783) {
+			margin-top: 32px;
+		}*/
+		.site {
+			//min-height: calc(100vh - 46px);
+			padding-top: 111px;
+			//padding-top: 142px;
+			@include breakpoint(783) {
+				//min-height: calc(100vh - 32px);
+				padding-top: 97px;
+				//padding-top: 128px;
+			}
+			@include breakpoint(1070) {
+				//padding-top: 103px;
+				padding-top: 134px;
+			}
+		}
+		&.top-banner-visible .site {
+			padding-top: 165px;
+			//padding-top: 196px;
+			@include breakpoint(783) {
+				padding-top: 151px;
+				//padding-top: 182px;
+			}
+			@include breakpoint(1070) {
+				//padding-top: 157px;
+				padding-top: 188px;
+			}
+		}
+	}
+}
+
+.main {
+	flex: 1;
+}
+.footer,
+.lp__footer {
+	flex-shrink: 0;
+}
+
+.sections-container {
+	padding-top: 20px;
+	padding-bottom: 40px;
+	@include breakpoint(xlarge) {
+		padding-top: 40px;
+	}
+}
+
+.main-container {
+	padding-top: 40px;
+	padding-bottom: 60px;
+	@include breakpoint(xlarge) {
+		padding-top: 60px;
+	}
+}
+
+.main-content {
+	overflow: hidden; // Mobile Blog carousel fix
+	@include breakpoint(large down) {
+		margin-bottom: 40px;
+	}
+}
+
+.grid-container {
+	width: 100%;
+	&--narrower {
+		max-width: 860px;
+	}
+	&--narrow {
+		max-width: 1040px;
+	}
+	&--wide {
+		max-width: 1280px;
+	}
+	&--wider {
+		max-width: 1410px;
+		@include breakpoint(xxlarge) {
+			padding: 0 70px;
+		}
+	}
+	&--boxed {
+		/* max-width: 1410px; */
+		max-width: 1300px;
+		@include breakpoint(large down) {
+			background-color: #f9fafb;
+		}
+		.section__wrap {
+			@include breakpoint(large down) {
+				padding-top: 60px;
+				padding-bottom: 60px;
+			}
+			@include breakpoint(xlarge) {
+				background-color: #f9fafb;
+				padding: 60px 50px;
+			}
+		}
+	}
+	&--image {
+		max-width: 1410px;
+		@include breakpoint(large down) {
+			padding: 0;
+		}
+		.section__wrap {
+			@include breakpoint(xlarge) {
+				padding: 0 50px;
+			}
+		}
+	}
+}
+
+.user-in,
+.user-out {
+	display: none;
+}

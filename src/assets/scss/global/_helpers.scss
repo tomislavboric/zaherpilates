@@ -1,0 +1,52 @@
+$transition:  color 200ms cubic-bezier(0.785, 0.135, 0.15, 0.86),
+              background-color 200ms cubic-bezier(0.785, 0.135, 0.15, 0.86),
+              border-color 200ms cubic-bezier(0.785, 0.135, 0.15, 0.86),
+              opacity 200ms cubic-bezier(0.785, 0.135, 0.15, 0.86);
+
+h1, h2, h3, h4, h5, h6, p, .button, button {
+  &:last-child {
+      margin-bottom: 0;
+  }
+}
+
+.clearfix {
+  &:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+}
+
+/* a {
+  outline: 0;
+} */
+
+img {
+  vertical-align: top;
+}
+
+.no-padding-top {
+  padding-top: 0 !important;
+}
+.no-padding-right {
+  padding-right: 0 !important;
+}
+.no-padding-bottom {
+  padding-bottom: 0 !important;
+}
+.no-padding-left {
+  padding-left: 0 !important;
+}
+
+.no-bg {
+  background: none !important;
+}
+
+// Foundation responsive video
+.responsive-embed {
+  margin: 0;
+}
+
+body.whatinput-types-mouse a {
+  outline: 0;
+}
