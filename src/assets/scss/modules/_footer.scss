@@ -1,4 +1,4 @@
-.footer-container {
+/* .footer-container {
   @include xy-grid-container;
   border-top: 1px solid $medium-gray;
   margin-top: rem-calc(60);
@@ -19,5 +19,28 @@
     list-style-type: none;
     margin: 0;
     padding: 0;
+  }
+}
+ */
+
+ .footer {
+  text-align: center;
+  .grid-container {
+    max-width: 100%;
+    padding-top: 3vw;
+    padding-bottom: 3vw;
+    padding-left: 3vw;
+    padding-right: 3vw;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  &__nav {
+    ul {
+      list-style: none;
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
   }
 }

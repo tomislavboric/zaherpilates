@@ -75,6 +75,13 @@
 @import "modules/content";
 @import "modules/editor-style";
 @import "modules/sections";
+@import "modules/learnpress";
+@import "modules/programi";
+
+// Loop
+@import "components/loop-hero";
+@import "components/loop-demo";
+@import "components/testimonials";
 
 // Components
 @import "components/buttons";
@@ -83,9 +90,6 @@
 @import "components/dividers";
 @import "components/links";
 
-// Loop
-@import "components/loop-hero";
-@import "components/loop-demo";
 
 // Templates
 // @import "templates/*";

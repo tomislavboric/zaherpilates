@@ -36,6 +36,12 @@ endif;
 if ( ! function_exists( 'foundationpress_scripts' ) ) :
 	function foundationpress_scripts() {
 
+		// Enqueue FancyBox Stylesheet.
+		wp_enqueue_style( 'fancybox', '//cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css', array(), '4.0', false );
+
+		// Enqueue Swiper Stylesheet.
+		wp_enqueue_style( 'swiper', '//cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css', array(), '9.4.1', false );
+
 		// Enqueue the main Stylesheet.
 		wp_enqueue_style( 'main-stylesheet', get_stylesheet_directory_uri() . '/dist/assets/css/' . foundationpress_asset_path( 'app.css' ), array(), '2.10.4', 'all' );
 
@@ -54,11 +60,14 @@ if ( ! function_exists( 'foundationpress_scripts' ) ) :
 		// Enqueue jQuery migrate. Uncomment the line below to enable.
 		// wp_enqueue_script( 'jquery-migrate' );
 
+		// Enqueue FancyBox script
+		wp_enqueue_script( 'fancybox-js', '//cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js', array(), '4.0', true );
+
+		// Enqueue Swiper script
+		wp_enqueue_script( 'swiper-js', 'https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js', array(), '9.4.1', true );
+
 		// Enqueue Foundation scripts
 		wp_enqueue_script( 'foundation', get_stylesheet_directory_uri() . '/dist/assets/js/' . foundationpress_asset_path( 'app.js' ), array( 'jquery' ), '2.10.4', true );
-
-		// Enqueue FontAwesome from CDN. Uncomment the line below if you need FontAwesome.
-		//wp_enqueue_script( 'fontawesome', 'https://use.fontawesome.com/5016a31c8c.js', array(), '4.7.0', true );
 
 		// Add the comment-reply library on pages where it is necessary
 		if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {

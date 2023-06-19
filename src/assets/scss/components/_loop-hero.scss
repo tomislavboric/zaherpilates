@@ -3,10 +3,12 @@
   background-image: url('../images/hero-loop.webp');
   background-size: cover;
   background-position: center bottom;
-  height: 90vh;
   display: flex;
   align-items: center;
   text-align: center;
+  height: 90vh;
+  max-height: 900px;
+  min-height: 520px;
   &__content {
     position: relative;
     display: flex;

@@ -60,6 +60,7 @@ require_once( 'library/responsive-images.php' );
 // Custom
 require_once( 'custom/web-settings.php' );
 require_once( 'custom/acf-json.php' );
+require_once( 'custom/learnpress.php' );
 // require_once( 'custom/scripts.php' );
 // require_once( 'custom/wp-functions.php' );
 // require_once( 'custom/acf-admin-styling.php' );
@@ -69,3 +70,5 @@ require_once( 'custom/acf-json.php' );
 // require_once( 'custom/seopress.php' );
 // require_once( 'custom/wordpress-seo.php' );
 // require_once( 'custom/hide-wpadminbar.php' );
+
+// LearnPress

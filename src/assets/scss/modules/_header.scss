@@ -1,5 +1,4 @@
 .header {
-  /* padding: 10px 0; */
   user-select: none;
   .grid-container {
     display: flex;
@@ -24,20 +23,25 @@
   }
   &__nav {
     margin-left: auto;
-    .dropdown.menu {
+    > .dropdown.menu {
       display: flex;
       gap: 30px;
-      > li {
+      > li.menu-item {
         > a {
-          color: #fff;
           font-weight: 300;
           padding: 6px 0 4px;
         }
-        &.is-active > a {
-          color: #fff;
+        &.current_page_item > a {
           border-bottom: 1px solid #fff;
         }
+        &-has-children > a {
+          padding-right: 20px;
+        }
       }
+    }
+    .is-dropdown-submenu {
+      border-radius: 6px;
+      top: 100%;
     }
 
   }
@@ -49,5 +53,16 @@
     z-index: 10;
     left: 0;
     right: 0;
+  }
+  &--sticky {
+    position: sticky;
+    z-index: 10;
+    left: 0;
+    right: 0;
+  }
+  &--hero {
+    .header__nav > .dropdown.menu > li.menu-item > a {
+      color: #fff;
+    }
   }
 }

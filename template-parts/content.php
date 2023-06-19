@@ -19,7 +19,7 @@
 			the_title( '<h2 class="entry-title"><a href="' . esc_url( get_permalink() ) . '" rel="bookmark">', '</a></h2>' );
 		}
 	?>
-		<?php foundationpress_entry_meta(); ?>
+		<?php // foundationpress_entry_meta(); ?>
 	</header>
 	<div class="entry-content">
 		<?php the_content(); ?>

@@ -9,7 +9,7 @@
  */
 ?>
 
-		<?php get_template_part( 'template-parts/modules/footer.php' ); ?>
+		<?php get_template_part( 'template-parts/modules/footer' ); ?>
 
 		</div><?php // end .site ?>
 

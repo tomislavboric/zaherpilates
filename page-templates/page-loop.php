@@ -2,10 +2,14 @@
 /*
 Template Name: Loop
 */
-get_header();
+get_header(); ?>
 
-	get_template_part( 'template-parts/components/loop-hero' );
+	<main class="main">
 
-	get_template_part( 'template-parts/components/loop-demo' );
+		<?php get_template_part( 'template-parts/components/loop-hero' ); ?>
 
-get_footer();
+		<?php  // get_template_part( 'template-parts/components/loop-demo' ); ?>
+
+	</main>
+
+<?php get_footer();

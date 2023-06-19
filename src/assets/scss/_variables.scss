@@ -1,3 +1,8 @@
+// 1. Global
+// ---------
+
+$global-width: rem-calc(1240);
+
 // Typography
 $body-antialiased: true;
 
@@ -34,7 +39,7 @@ $light-gray: #f6f6f6;
 $medium-gray: #d7d7d7;
 $gray: #737373;
 $dark: #262626;
-$content: $gray-600;
+$content-color: $gray-600;
 
 // Breakpoints
 $breakpoints: (
@@ -48,7 +53,7 @@ $breakpoints: (
 $breakpoint-classes: (small medium large xlarge xxlarge);
 
 // Link Colors
-$anchor-color: $primary-color;
+$anchor-color: $content-color;
 $anchor-color-hover: scale-color($anchor-color, $lightness: -14%);
 
 // Layout

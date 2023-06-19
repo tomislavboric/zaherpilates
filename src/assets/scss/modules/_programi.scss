@@ -1,0 +1,230 @@
+.programi {
+  &__list {
+    display: flex;
+    gap: 40px;
+  }
+  &__cate {
+    display: flex;
+    flex-direction: column;
+    gap: 60px;
+  }
+  &__title {
+    font-size: 18px;
+    margin: 0;
+  }
+  &__link {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  &__cat {
+    position: relative;
+    &-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    &-title {
+      margin: 0;
+      font-size: 21px;
+    }
+  }
+  &__item {
+    user-select: none;
+    img {
+      width: 100%;
+      border-radius: 3px;
+    }
+  }
+  &__title {
+    font-size: 13px;
+  }
+  &__desc {
+    font-size: 14px;
+  }
+  &__grid {
+    display: grid;
+    grid-row-gap: 35px;
+    @include breakpoint(large) {
+      grid-column-gap: 2%;
+      grid-template-columns: repeat(4,23.5%);
+    }
+  }
+}
+
+.section__video {
+  img {
+    width: 100%;
+  }
+}
+
+.video-play-button {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  //inset: 0;
+  margin: auto;
+  display: block;
+  cursor: pointer;
+  width: 32px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  padding: 0 20px 0 28px;
+
+  &:before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  margin: auto;
+  display: block;
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(45deg, rgba($primary-color, 0.9) 15%, rgba($primary-color, 0.95) 70%);
+  border-radius: 50%;
+  -webkit-animation: pulse-border 1500ms ease-out infinite;
+  animation: pulse-border 1500ms ease-out infinite;
+  }
+  &:after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  margin: auto;
+  display: block;
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(45deg, rgba($primary-color, 1), rgba($primary-color, .9));
+  border-radius: 50%;
+  transition: all 200ms;
+  box-shadow: 0 2px 7px $primary-color;
+  }
+  &:hover:after {
+  background-color: $primary-color;
+  }
+}
+.video-play-button {
+  span {
+      display: block;
+      position: relative;
+      z-index: 3;
+      width: 0;
+      height: 0;
+      border-left: 30px solid #fff;
+      border-top: 18px solid transparent;
+      border-bottom: 18px solid transparent;
+      border-radius: 4px;
+  }
+}
+
+@-webkit-keyframes pulse-border {
+  0% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    -webkit-transform: scale(1.75);
+    transform: scale(1.75);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-border {
+  0% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    -webkit-transform: scale(1.75);
+    transform: scale(1.75);
+    opacity: 0;
+  }
+}
+
+.swiper-pagination-fraction {
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: none;
+}
+/*.swiper {
+  position: initial;
+  overflow: visible;
+  &:before {
+    left: -3vw;
+  }
+  &:after {
+    right: -3vw;
+    transform: rotate(180deg);
+  }
+  &:before,
+  &:after {
+    content: '';
+    position: absolute;
+    width: 3vw;
+    height: 100%;
+    top: 0;
+    pointer-events: none;
+    background: linear-gradient(to right, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%);
+    z-index: 10;
+  }
+}
+.swiper-container {
+  position: relative;
+}
+.swiper-button-next {
+  right: -2vw;
+}
+.swiper-button-prev {
+  left: -2vw;
+}
+*/
+.swiper {
+  position: initial;
+  overflow: visible;
+}
+.swiper-container {
+  position: relative;
+}
+.swiper-button-next,
+.swiper-button-prev {
+  height: 100%;
+  top: 0;
+  width: 3vw;
+}
+.swiper-button-next {
+  right: -3vw;
+  background: linear-gradient(90deg,hsla(0,0%,100%,0),hsla(0,0%,100%,.6) 20px,hsla(0,0%,100%,.6));
+  &:after {
+    margin-right: -1.5vw;
+  }
+}
+.swiper-button-prev {
+  left: -3vw;
+  background: linear-gradient(270deg,hsla(0,0%,100%,0),hsla(0,0%,100%,.6) 20px,hsla(0,0%,100%,.6));
+  &:after {
+    margin-left: -1.5vw;
+  }
+}
+.swiper-button-next:after,
+.swiper-button-prev:after {
+  color: #fff;
+  font-size: 21px;
+  font-weight: 700;
+}
+.swiper-slide {
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+.swiper-no-click {
+  pointer-events: none;
+}
+.swiper-no-click .swiper-slide {
+  pointer-events: auto;
+}
