@@ -4,20 +4,54 @@ if (is_front_page()) :
 else :
 	$sticky = 'header--sticky';
 endif;
+
+$current_user = wp_get_current_user();
 ?>
 
 <header class="header <?php echo $sticky; ?>">
 	<div class="grid-container">
+
 		<div class="header__logo">
 			<a href="<?php echo home_url(); ?>">
-				<img src="<?php echo get_stylesheet_directory_uri(); ?>/dist/assets/images/logo-zaherpilates.png" alt="Zaher Pilates">
+				<img class="header__logo-zaherpilates" src="<?php echo get_stylesheet_directory_uri(); ?>/dist/assets/images/zaherpilates-logo.png" alt="Zaher Pilates">
+				<img class="header__logo-loop" src="<?php echo get_stylesheet_directory_uri(); ?>/dist/assets/images/loop-logo.svg" alt="LOOP by Zaher Pilates">
 			</a>
 		</div>
+
 		<nav class="header__nav">
+
 			<?php foundationpress_top_bar_r(); ?>
+
+			<div class="header__account">
+				<?php if ( !is_user_logged_in() ) : ?>
+					<a href="<?php echo home_url(); ?>/login/">Prijavi se</a>
+					<?php if (!is_front_page()) : ?>
+						<a href="<?php echo home_url(); ?>/plans/" class="button button--small">Isprobaj besplatno</a>
+					<?php endif; ?>
+				<?php else : ?>
+					<div class="header__account-user">
+						<?php echo 'Bok, ' . $current_user->user_login . '!'; ?>
+						<a href="<?php echo home_url(); ?>/account/">
+							<?php echo get_avatar( $current_user->user_email, 40 ); ?>
+						</a>
+					</div>
+				<?php endif; ?>
+			</div>
 		</nav>
-		<div class="header__cta">
-			<a href="<?php echo home_url(); ?>/programi/" class="button button--small">Isprobaj LOOP</a>
-		</div>
+
+		<div class="burger">
+			<div class="burger-box">
+				<div class="burger-inner">
+					<div class="top-bun"></div>
+					<div class="bottom-bun"></div>
+				</div>
+			</div>
+    </div>
+
 	</div>
+
+	<div class="header-menu">
+			<?php foundationpress_top_bar_r(); ?>
+	</div>
+
 </header>

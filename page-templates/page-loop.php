@@ -10,6 +10,8 @@ get_header(); ?>
 
 		<?php  // get_template_part( 'template-parts/components/loop-demo' ); ?>
 
+		<?php  // get_template_part( 'template-parts/components/loop-pricing-plans' ); ?>
+
 	</main>
 
 <?php get_footer();

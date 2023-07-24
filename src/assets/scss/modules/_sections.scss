@@ -82,6 +82,7 @@
   }
   &__desc {
     font-size: 16px;
+    text-wrap: balance;
     @include breakpoint(large) {
       font-size: 18px;
     }

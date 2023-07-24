@@ -1,13 +1,13 @@
 {
-    "key": "group_648788b56863a",
-    "title": "Program",
+    "key": "group_64953460353b2",
+    "title": "Catalog",
     "fields": [
         {
-            "key": "field_648788b53e37f",
-            "label": "Video",
-            "name": "video",
+            "key": "field_64953460bccd1",
+            "label": "Image",
+            "name": "image",
             "aria-label": "",
-            "type": "oembed",
+            "type": "image",
             "instructions": "",
             "required": 0,
             "conditional_logic": 0,
@@ -16,15 +16,23 @@
                 "class": "",
                 "id": ""
             },
-            "width": "",
-            "height": ""
+            "return_format": "array",
+            "library": "all",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": "",
+            "preview_size": "medium"
         },
         {
-            "key": "field_64a57412857df",
-            "label": "Video length",
-            "name": "video_length",
+            "key": "field_649e16721a252",
+            "label": "Description",
+            "name": "description",
             "aria-label": "",
-            "type": "text",
+            "type": "wysiwyg",
             "instructions": "",
             "required": 0,
             "conditional_logic": 0,
@@ -34,29 +42,29 @@
                 "id": ""
             },
             "default_value": "",
-            "maxlength": "",
-            "placeholder": "",
-            "prepend": "",
-            "append": ""
+            "tabs": "all",
+            "toolbar": "full",
+            "media_upload": 0,
+            "delay": 0
         }
     ],
     "location": [
         [
             {
-                "param": "post_type",
+                "param": "taxonomy",
                 "operator": "==",
-                "value": "programs"
+                "value": "catalog"
             }
         ]
     ],
     "menu_order": 0,
     "position": "normal",
-    "style": "default",
+    "style": "seamless",
     "label_placement": "top",
     "instruction_placement": "label",
     "hide_on_screen": "",
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1688567100
+    "modified": 1688940735
 }

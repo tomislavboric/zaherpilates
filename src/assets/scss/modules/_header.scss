@@ -12,27 +12,52 @@
   }
   &__logo {
     a {
-      display: block;
+      display: flex;
+      gap: 10px;
+      align-items: center;
     }
-    img {
-      /*
-      Loop logo
-      width: 145px; */
-      width: 192px;
+    &-zaherpilates {
+      width: 120px;
+      @include breakpoint(large) {
+        width: 192px;
+      }
+    }
+    &-loop {
+      width: 50px;
+      @include breakpoint(large) {
+        width: 90px;
+      }
     }
   }
   &__nav {
     margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 2vw;
+    @include show-for(xlarge);
     > .dropdown.menu {
       display: flex;
-      gap: 30px;
+      gap: 2vw;
+      list-style: none;
+      margin: 0;
       > li.menu-item {
         > a {
           font-weight: 300;
           padding: 6px 0 4px;
+          &:focus {
+            background-image: linear-gradient(currentColor,currentColor);
+            background-repeat: repeat-x;
+            background-size: 1px 1px;
+            background-position: 0 100%;
+            background-position: 0 calc(100% - 0.1em);
+          }
         }
-        &.current_page_item > a {
-          border-bottom: 1px solid #fff;
+        &.is-active > a {
+          background-image: linear-gradient(currentColor,currentColor);
+          background-repeat: repeat-x;
+          background-size: 1px 1px;
+          background-position: 0 100%;
+          background-position: 0 calc(100% - 0.1em);
         }
         &-has-children > a {
           padding-right: 20px;
@@ -45,9 +70,9 @@
     }
 
   }
-  &__cta {
+  /* &__cta {
     margin-left: 30px;
-  }
+  } */
   &--fixed {
     position: fixed;
     z-index: 10;
@@ -60,9 +85,34 @@
     left: 0;
     right: 0;
   }
+  &__account {
+    display: flex;
+    gap: 2vw;
+    align-items: center;
+    img {
+      border-radius: 50%;
+    }
+    &-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+  }
   &--hero {
     .header__nav > .dropdown.menu > li.menu-item > a {
       color: #fff;
     }
+    .header__account {
+      color: #fff;
+      a {
+        color: #fff;
+      }
+    }
+    .burger .top-bun,
+    .burger .bottom-bun {
+      background-color: #fff;
+    }
   }
 }
+
+

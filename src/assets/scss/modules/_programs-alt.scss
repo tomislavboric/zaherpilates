@@ -1,4 +1,4 @@
-.programi {
+.programs {
   &__list {
     display: flex;
     gap: 40px;
@@ -53,9 +53,23 @@
   }
 }
 
-.section__video {
-  img {
-    width: 100%;
+.video {
+  margin-bottom: 60px;
+  &__section {
+    margin-bottom: 15px;
+    img {
+      width: 100%;
+    }
+  }
+  &__header {
+
+  }
+  &__title {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  &__desc {
+
   }
 }
 
@@ -147,45 +161,7 @@
   }
 }
 
-.swiper-pagination-fraction {
-  position: absolute;
-  right: 0;
-  top: 0;
-  display: none;
-}
-/*.swiper {
-  position: initial;
-  overflow: visible;
-  &:before {
-    left: -3vw;
-  }
-  &:after {
-    right: -3vw;
-    transform: rotate(180deg);
-  }
-  &:before,
-  &:after {
-    content: '';
-    position: absolute;
-    width: 3vw;
-    height: 100%;
-    top: 0;
-    pointer-events: none;
-    background: linear-gradient(to right, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%);
-    z-index: 10;
-  }
-}
-.swiper-container {
-  position: relative;
-}
-.swiper-button-next {
-  right: -2vw;
-}
-.swiper-button-prev {
-  left: -2vw;
-}
-*/
-.swiper {
+/* .swiper {
   position: initial;
   overflow: visible;
 }
@@ -227,4 +203,26 @@
 }
 .swiper-no-click .swiper-slide {
   pointer-events: auto;
+} */
+
+.cards {
+  display: grid;
+  grid-column-gap: 2%;
+  grid-row-gap: 10%;
+  grid-template-columns: repeat(4,23.5%);
+  @include breakpoint(xlarge) {
+    grid-template-columns: repeat(4,23.5%);
+  }
+  &__item {
+
+  }
+  &__title {
+    font-size: 21px;
+  }
+  figure {
+    margin-bottom: 2%;
+    img {
+      border-radius: 12px;
+    }
+  }
 }

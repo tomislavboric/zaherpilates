@@ -9,10 +9,15 @@
  */
 ?>
 
-		<?php get_template_part( 'template-parts/modules/footer' ); ?>
+			<?php if (!is_singular('programs')) : ?>
+				<?php get_template_part( 'template-parts/modules/footer' ); ?>
+			<?php endif; ?>
 
 		</div><?php // end .site ?>
 
 		<?php wp_footer(); ?>
+
+		<script src="https://vjs.zencdn.net/8.3.0/video.min.js"></script>
+
 	</body>
 </html>

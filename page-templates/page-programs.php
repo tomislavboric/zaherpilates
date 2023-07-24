@@ -1,12 +1,12 @@
 <?php
 /*
-Template Name: Programi
+Template Name: Programs
 */
 get_header(); ?>
 
 <main class="main-container full">
 
-	<div class="programi__cate">
+	<div class="programs__cate">
 
 		<?php
 		$terms = get_terms( array(
@@ -17,16 +17,16 @@ get_header(); ?>
 		if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) :
 				foreach ( $terms as $term ) : ?>
 
-					<section class="programi__cat">
+					<section class="programs__cat">
 
-						<header class="programi__cat-header">
-							<h2 class="programi__cat-title"><a href="<?php echo get_term_link($term); ?>"><?php echo $term->name; ?></a></h2>
+						<header class="programs__cat-header">
+							<h2 class="programs__cat-title"><a href="<?php echo get_term_link($term); ?>"><?php echo $term->name; ?></a></h2>
 							<a href="<?php echo get_term_link($term); ?>">See All</a>
 						</header>
 
 						<?php
 						$args = array(
-								'post_type' => 'programi',
+								'post_type' => 'programs',
 								'orderby'   => 'menu_order',
 								'order'     => 'ASC', // Use 'DESC' for descending order
 								'tax_query' => array(
@@ -53,8 +53,8 @@ get_header(); ?>
 									$videoId = getVimeoVideoId($vimeoUrl);
 									?>
 										<div class="swiper-slide">
-											<div class="programi__item">
-												<a class="programi__link" href="<?php the_permalink(); ?>">
+											<div class="programs__item">
+												<a class="programs__link" href="<?php the_permalink(); ?>">
 													<figure>
 														<img
 															srcset="
@@ -70,8 +70,8 @@ get_header(); ?>
 															height="360"
 														/>
 													</figure>
-													<div class="programi__content">
-														<h3 class="programi__title"><?php the_title(); ?></h3>
+													<div class="programs__content">
+														<h3 class="programs__title"><?php the_title(); ?></h3>
 													</div>
 												</a>
 											</div>
