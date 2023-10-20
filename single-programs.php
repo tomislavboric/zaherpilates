@@ -77,7 +77,11 @@ get_header(); ?>
 							?>
 					</div>
 
-					<div class="video__desc">Lorem ipsum dolor sit amet</div>
+					<?php if ( get_the_content() ) : ?>
+						<div class="video__desc">
+							<?php the_content(); ?>
+						</div>
+					<?php endif; ?>
 
 					<div class="video__instructor">
 
