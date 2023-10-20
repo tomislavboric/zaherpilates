@@ -115,4 +115,34 @@
   }
 }
 
+// Sticky Behavior
+/*body {
+  .header {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 99;
+  }
+
+  &.scroll-down .header {
+    transform: translate3d(0, -100%, 0);
+  }
+  &.scroll-up .header {
+    background-color: rgba($white, .9);
+    &.header--hero .header__nav > .dropdown.menu > li.menu-item > a {
+      color: $content;
+    }
+  }
+
+  &.admin-bar {
+    .header {
+      top: 46px;
+      @include breakpoint(783px) {
+        top: 32px;
+      }
+    }
+  }
+}*/
+
 

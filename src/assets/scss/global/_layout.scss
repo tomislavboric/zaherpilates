@@ -44,6 +44,12 @@ body {
   flex-shrink: 0;
 }
 
+.grid-container {
+  &--narrow {
+    max-width: 1040px;
+  }
+}
+
 /*.grid-container {
 	width: 100%;
   padding-right: 3vw;
@@ -92,8 +98,3 @@ body {
 	}
 }
 */
-
-.user-in,
-.user-out {
-	display: none;
-}

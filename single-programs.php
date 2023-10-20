@@ -21,7 +21,7 @@ get_header(); ?>
 
 			<article class="video">
 				<div class="video__section">
-					<?php //if(current_user_can('administrator')) : ?>
+
 					<?php if(current_user_can('mepr-active','memberships:148')): ?>
 						<div style="padding:56.25% 0 0 0;position:relative;">
 							<iframe src="https://player.vimeo.com/video/<?php echo $videoId; ?>?h=0aaecdaa4d" width="640" height="360" frameborder="0" allow="autoplay; fullscreen;" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
@@ -62,11 +62,25 @@ get_header(); ?>
 						<?php the_favorites_button(); ?>
 					</header>
 
+					<div class="video__category">
+							<?php
+							$terms = get_the_terms( $post->ID, 'catalog' );
+
+							if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
+									foreach ( $terms as $term ) {
+											$term_link = esc_url( get_term_link( $term->term_id, 'catalog' ) );
+											echo '<a href="' . $term_link . '">' . esc_html( $term->name ) . '</a>';
+									}
+							} else {
+									echo 'No Catalog Assigned.';
+							}
+							?>
+					</div>
+
 					<div class="video__desc">Lorem ipsum dolor sit amet</div>
 
 					<div class="video__instructor">
-						Instruktor:
-						Ivana Zaher
+
 					</div>
 
 

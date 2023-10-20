@@ -76,10 +76,14 @@
 @import "modules/sections";
 @import "modules/programs";
 
+// Home
+@import "home/hero";
+
 // Loop
-@import "components/loop-hero";
-@import "components/loop-demo";
-@import "components/testimonials";
+// @import "loop/loop-hero";
+// @import "loop/loop-icons";
+// @import "loop/loop-video";
+// @import "loop/loop-about";
 
 // Components
 @import "components/buttons";
@@ -89,7 +93,8 @@
 @import "components/links";
 @import "components/pricing-plans";
 @import "components/tabs";
-
+@import "components/testimonials";
+@import "components/faq";
 
 // Templates
 // @import "templates/*";

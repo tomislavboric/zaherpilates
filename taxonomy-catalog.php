@@ -1,8 +1,4 @@
-<?php
-/*
-Template Name: category
-*/
-get_header();
+<?php get_header();
 
 // vars
 $term = get_queried_object(); // This gets the current taxonomy term object
@@ -15,6 +11,11 @@ $description = get_field('description', $term);
 
 	<header class="category__header">
 		<div class="grid-container full">
+			<?php /* <div class="category__breadcrumbs">
+				<div class="breadcrumbs">
+					<?php if (function_exists('rank_math_the_breadcrumbs')) rank_math_the_breadcrumbs(); ?>
+				</div>
+			</div> */ ?>
 			<h1 class="category__title"><?php single_term_title(); ?></h1>
 			<div class="category__description">
 				<?php echo $description; ?>

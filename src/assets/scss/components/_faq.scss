@@ -1,0 +1,17 @@
+.faq {
+  &__question {
+    text-decoration: underline;
+    font-size: 18px;
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+  &__answer {
+
+  }
+  &__main {
+    margin-bottom: 40px;
+  }
+  &__item {
+    margin-bottom: 40px;
+  }
+}
