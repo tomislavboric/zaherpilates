@@ -8,6 +8,7 @@ get_header(); ?>
 
 		<?php get_template_part( 'page-templates/home/hero' ); ?>
 
+		<?php /*
 		<section class="section">
 			<div class="grid-container">
 				<h2>Postpartum programi</h2>
@@ -48,6 +49,7 @@ get_header(); ?>
 				Button
 			</div>
 		</section>
+		*/ ?>
 
 	</main>
 
