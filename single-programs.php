@@ -104,9 +104,10 @@ get_header(); ?>
 							<div class="video__prev">
 									<a href="<?php echo get_permalink($prev_post->ID); ?>">
 										<figure>
-											<img src="https://vumbnail.com/<?php echo $videoId; ?>_small.jpg" alt="<?php echo $prev_post->post_title; ?>" width="100" height="75">
+											<img src="https://vumbnail.com/<?php echo $videoId; ?>_medium.jpg" alt="<?php echo $prev_post->post_title; ?>" width="200" height="150">
 										</figure>
-											<span>Prethodni: <?php the_title(); ?></span>
+										<div>Prethodni:</div>
+										<strong><?php echo $prev_post->post_title; ?></strong>
 									</a>
 							</div>
 					<?php
@@ -121,9 +122,10 @@ get_header(); ?>
 							<div class="video__next">
 									<a href="<?php echo get_permalink($next_post->ID); ?>">
 										<figure>
-											<img src="https://vumbnail.com/<?php echo $videoId; ?>_small.jpg" alt="<?php echo $prev_post->post_title; ?>" width="100" height="75">
+											<img src="https://vumbnail.com/<?php echo $videoId; ?>_medium.jpg" alt="<?php echo $next_post->post_title; ?>" width="200" height="150">
 										</figure>
-										<span>Sljedeći: <?php the_title(); ?></span>
+										<div>Sljedeći:</div>
+										<strong><?php echo $next_post->post_title; ?></strong>
 									</a>
 							</div>
 					<?php
