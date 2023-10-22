@@ -121,7 +121,15 @@
         top: 0;
       }
     }
-    .
+    div {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      span {
+        //font-size: 21px;
+      }
+    }
     a {
       display: flex;
       flex-direction: column;
@@ -198,4 +206,26 @@
   width: 24px;
   height: 24px;
   display: block;
+}
+
+.instructor {
+  margin-top: 40px;
+  &__header {
+    margin-bottom: 20px;
+  }
+  &__figure {
+    img {
+      border-radius: 50px;
+    }
+  }
+  &__title {
+    font-size: 16px;
+  }
+  &__about {
+    display: flex;
+    gap: 20px;
+  }
+  &__name {
+
+  }
 }
