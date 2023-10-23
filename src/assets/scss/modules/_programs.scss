@@ -210,22 +210,30 @@
 
 .instructor {
   margin-top: 40px;
+  &__about {
+    display: flex;
+    gap: 20px;
+    flex-direction: column;
+    @include breakpoint(medium) {
+      flex-direction: row;
+    }
+  }
   &__header {
     margin-bottom: 20px;
   }
   &__figure {
+    max-width: 120px;
     img {
-      border-radius: 50px;
+      border-radius: 100%;
     }
   }
   &__title {
     font-size: 16px;
   }
-  &__about {
-    display: flex;
-    gap: 20px;
-  }
   &__name {
-
+    font-size: 18px;
+  }
+  &__desc {
+    font-size: 14px;
   }
 }

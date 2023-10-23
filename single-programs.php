@@ -95,18 +95,18 @@ get_header(); ?>
 
 				?>
 				<div class="instructor">
-					<header class="instructor__header">
-						<h3 class="instructor__title">Instruktor:</h3>
-					</header>
 					<div class="instructor__about">
 
-						<?php if ( the_post_thumbnail() ) : ?>
+						<?php if ( has_post_thumbnail() ) : ?>
 							<figure class="instructor__figure">
 								<img src="<?php the_post_thumbnail_url(); ?>" alt="<?php the_title(); ?>">
 							</figure>
 						<?php endif; ?>
 
 						<div class="instructor__content">
+							<!-- <header class="instructor__header">
+								<h3 class="instructor__title">Instruktor:</h3>
+							</header> -->
 							<h3 class="instructor__name"><?php the_title(); ?></h3>
 
 							<?php if ($about) : ?>
