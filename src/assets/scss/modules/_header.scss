@@ -70,35 +70,11 @@
     }
 
   }
-  /* &__cta {
-    margin-left: 30px;
-  } */
-  &--fixed {
-    position: fixed;
-    z-index: 10;
-    left: 0;
-    right: 0;
-  }
-  &--sticky {
-    position: sticky;
-    z-index: 10;
-    left: 0;
-    right: 0;
-  }
-  &__account {
-    display: flex;
-    gap: 2vw;
-    align-items: center;
-    img {
-      border-radius: 50%;
-    }
-    &-user {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-  }
   &--hero {
+    position: absolute;
+    z-index: 10;
+    left: 0;
+    right: 0;
     .header__nav > .dropdown.menu > li.menu-item > a {
       color: #fff;
     }
@@ -113,11 +89,24 @@
       background-color: #fff;
     }
   }
+  &__account {
+    display: flex;
+    gap: 2vw;
+    align-items: center;
+    img {
+      border-radius: 50%;
+    }
+    &-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+  }
 }
 
 // Sticky Behavior
 /*body {
-  .header {
+  .header--fixed {
     position: fixed;
     width: 100%;
     top: 0;
@@ -125,10 +114,10 @@
     z-index: 99;
   }
 
-  &.scroll-down .header {
+  &.scroll-down .header--fixed {
     transform: translate3d(0, -100%, 0);
   }
-  &.scroll-up .header {
+  &.scroll-up .header--fixed {
     background-color: rgba($white, .9);
     &.header--hero .header__nav > .dropdown.menu > li.menu-item > a {
       color: $content;
@@ -136,13 +125,12 @@
   }
 
   &.admin-bar {
-    .header {
+    .header--fixed {
       top: 46px;
       @include breakpoint(783px) {
         top: 32px;
       }
     }
   }
-}*/
-
-
+}
+*/

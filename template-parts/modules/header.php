@@ -1,14 +1,15 @@
 <?php
-if (is_front_page()) :
-	$sticky = 'header--fixed header--hero';
+if (is_front_page() || is_page_template( 'page-templates/page-loop.php' ) ) :
+	$hero = 'header--hero';
+	//$sticky = 'header--fixed header--hero';
 else :
-	$sticky = 'header--sticky';
+	$hero = 'header--hero';
 endif;
 
 $current_user = wp_get_current_user();
 ?>
 
-<header class="header <?php echo $sticky; ?>">
+<header class="header <?php echo $hero; ?>">
 	<div class="grid-container">
 
 		<div class="header__logo">
@@ -24,13 +25,13 @@ $current_user = wp_get_current_user();
 
 			<div class="header__account">
 				<?php if ( !is_user_logged_in() ) : ?>
-					<a href="<?php echo home_url(); ?>/login/">Prijavi se</a>
-					<?php if (!is_front_page()) : ?>
-						<a href="<?php echo home_url(); ?>/plans/" class="button button--small">Isprobaj besplatno</a>
+					<a class="button button--small" href="<?php echo home_url(); ?>/login/">Prijavi se</a>
+					<?php if (!is_front_page() && !is_page_template( 'page-templates/page-loop.php' ) ) : ?>
+						<a class="button button--small" href="<?php echo home_url(); ?>/plans/">Isprobaj besplatno</a>
 					<?php endif; ?>
 				<?php else : ?>
 					<div class="header__account-user">
-						<?php echo 'Bok, ' . $current_user->user_login . '!'; ?>
+						<?php // echo 'Bok, ' . $current_user->user_login . '!'; ?>
 						<a href="<?php echo home_url(); ?>/account/">
 							<?php echo get_avatar( $current_user->user_email, 40 ); ?>
 						</a>
