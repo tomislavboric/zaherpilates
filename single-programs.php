@@ -47,7 +47,7 @@ get_header(); ?>
 							/>
 							<?php endif; ?>
 							<figcaption class="locked__figcaption">
-								<a class="button button--small" href="<?php echo home_url(); ?>/plans/"><span class="material-icons-outlined">lock</span> Pretplati se</a>
+								<a class="button button--small" href="<?php echo home_url(); ?>/pretplate/"><span class="material-icons-outlined">lock</span> Pretplati se</a>
 							<div>ili <a href="/login">prijavi se</a>.</div>
 							</figcaption>
 					</figure>

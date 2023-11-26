@@ -8,7 +8,7 @@
 				</div>
 			</header>
 			<div class="hero__cta">
-				<a href="<?php echo home_url(); ?>/plans/" class="button button--large">Isprobaj LOOP besplatno</a>
+				<a href="<?php echo home_url(); ?>/pretplate/" class="button button--large">Isprobaj LOOP besplatno</a>
 			</div>
 		</div>
 	</div>
