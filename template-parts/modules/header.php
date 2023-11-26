@@ -1,9 +1,8 @@
 <?php
 if (is_front_page() || is_page_template( 'page-templates/page-loop.php' ) ) :
 	$hero = 'header--hero';
-	//$sticky = 'header--fixed header--hero';
 else :
-	$hero = 'header--hero';
+	$hero = '';
 endif;
 
 $current_user = wp_get_current_user();
