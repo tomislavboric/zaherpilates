@@ -11,12 +11,6 @@
 </section>
 
 <section class="section">
-	<h2>Radi s Ivanom</h2>
-	<p>Zakaži si privatni trening online ili u ? studiju u Zürichu</p>
-</section>
-
-
-<section class="section">
 	<h2>Testimonijali</h2>
 </section>
 

@@ -8,7 +8,7 @@
 			</div>
 		</header>
 		<div class="loop-video__main">
-			<img src="<?php echo get_stylesheet_directory_uri(); ?>/dist/assets/images/loop-hands.webp" alt="Vježbanje preko mobitela">
+			<img src="<?php echo get_stylesheet_directory_uri(); ?>/dist/assets/images/hands-mobile-video.jpg" alt="Vježbanje preko mobitela">
 		</div>
 	</div>
 </section>

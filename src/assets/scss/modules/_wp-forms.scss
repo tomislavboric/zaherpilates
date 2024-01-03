@@ -1,0 +1,146 @@
+.wpforms-container input.wpforms-field-medium,
+.wpforms-container select.wpforms-field-medium,
+.wpforms-container .wpforms-field-row.wpforms-field-medium {
+    max-width: 100% !important;
+}
+
+.wpforms-field-container {
+
+}
+.wpforms-field {
+    input[type="text"],
+    input[type="email"],
+    textarea {
+        border-radius: 3px;
+        &:focus {
+            border-width: 2px;
+        }
+    }
+    textarea {
+      resize: none;
+    }
+}
+
+.wpforms-form {
+
+    input[type=checkbox],
+    input[type=radio] {
+        width: 16px;
+        height: 16px;
+        margin: 0;
+        position: absolute;
+        left: 0;
+        top: 1px;
+        cursor: pointer;
+    }
+
+    .wpforms-field-label {
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.3;
+      color: $gray;
+      user-select: none;
+      padding: 0 0 6px;
+    }
+    .wpforms-field-label-inline {
+      padding: 0 0 0 26px;
+    }
+
+    ul {
+        list-style: none;
+        margin: 0;
+        li {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            margin: 10px 0;
+        }
+    }
+
+    .wpforms-label-hide {
+        display: none;
+    }
+
+    .wpforms-submit {
+        @extend .button;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    input.wpforms-error {
+        border-color: $red;
+    }
+    label.wpforms-error {
+        color: $red;
+        font-weight: 400;
+        font-size: 12px;
+        margin: 4px 0 0;
+        letter-spacing: 0.03em;
+    }
+    .wpforms-field-gdpr-checkbox {
+        label {
+            margin-bottom: 10px;
+        }
+    }
+    .wpforms-field-sublabel {
+        display: block;
+        font-size: 13px;
+        float: none;
+        font-weight: 400;
+        line-height: 1.3;
+        margin: 4px 0 0;
+        padding: 0;
+    }
+    .wpforms-field-row {
+        display: flex;
+        gap: 20px;
+    }
+    .wpforms-one-half {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        .wpforms-field-label {
+            display: none;
+        }
+        .wpforms-field-sublabel {
+            order: 1;
+            display: block;
+            margin: 0 0 3px;
+            font-size: .875rem;
+            font-weight: 600;
+            line-height: 1.4;
+            color: #0a0a0a;
+        }
+        input {
+            order: 2;
+        }
+    }
+    div.wpforms-container-full {
+        margin-bottom: 0;
+    }
+    .wpforms-gdpr {
+        a {
+            color: $gray-900;
+            text-decoration: underline;
+        }
+    }
+}
+
+.wpforms-confirmation-container,
+.wpforms-error-container {
+    font-size: 14px;
+    font-weight: 700;
+    color: $white;
+    border-radius: 4px;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    p {
+        line-height: 1.4;
+    }
+}
+
+.wpforms-confirmation-container {
+    background-color: $green;
+}
+.wpforms-error-container {
+    background-color: $red;
+}

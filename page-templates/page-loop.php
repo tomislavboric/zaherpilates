@@ -6,21 +6,25 @@ get_header(); ?>
 
 	<main class="main">
 
-		<?php get_template_part( 'page-templates/loop/hero' ); ?>
+		<?php
 
-		<?php get_template_part( 'page-templates/loop/intro' ); ?>
+		get_template_part( 'page-templates/loop/hero' );
 
-		<?php get_template_part( 'page-templates/loop/about' ); ?>
+		get_template_part( 'page-templates/loop/intro' );
 
-		<?php get_template_part( 'page-templates/loop/testimonials' ); ?>
+		// get_template_part( 'page-templates/loop/about' );
 
-		<?php get_template_part( 'page-templates/loop/programs' ); ?>
+		// get_template_part( 'page-templates/loop/testimonials' );
 
-		<?php get_template_part( 'page-templates/loop/pricing-plans' ); ?>
+		get_template_part( 'page-templates/loop/programs' );
 
-		<?php get_template_part( 'page-templates/loop/video' ); ?>
+		get_template_part( 'page-templates/loop/pricing-plans' );
 
-		<?php get_template_part( 'page-templates/loop/faq' ); ?>
+		get_template_part( 'page-templates/loop/video' );
+
+		get_template_part( 'page-templates/loop/faq' );
+
+		?>
 
 	</main>
 

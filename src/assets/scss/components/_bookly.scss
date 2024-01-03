@@ -1,0 +1,12 @@
+.bookly-service-step {
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+}
+.bookly-box.bookly-nav-steps button {
+  @include button;
+}
+.bookly-btn, .bookly-btn > span {
+  text-transform: none !important;
+  font-weight: 300 !important;
+}

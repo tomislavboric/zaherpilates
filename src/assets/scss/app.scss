@@ -12,9 +12,9 @@
 @include foundation-xy-grid-classes;
 @include foundation-typography;
 @include foundation-button;
-// @include foundation-forms;
+@include foundation-forms;
 // @include foundation-range-input;
-// @include foundation-accordion;
+@include foundation-accordion;
 // @include foundation-accordion-menu;
 // @include foundation-badge;
 // @include foundation-breadcrumbs;
@@ -74,16 +74,9 @@
 @import "modules/content";
 @import "modules/editor-style";
 @import "modules/sections";
+@import "modules/page-header";
 @import "modules/programs";
-
-// Home
-@import "home/hero";
-
-// Loop
-@import "loop/hero";
-@import "loop/icons";
-@import "loop/video";
-@import "loop/about";
+@import "modules/wp-forms";
 
 // Components
 @import "components/buttons";
@@ -91,10 +84,24 @@
 @import "components/featured-image";
 @import "components/dividers";
 @import "components/links";
-@import "components/pricing-plans";
 @import "components/tabs";
-@import "components/testimonials";
-@import "components/faq";
+@import "components/bookly";
+@import "components/wp-forms";
+
+// Sections
+@import "sections/hero";
+@import "sections/features";
+@import "sections/about";
+@import "sections/booking";
+@import "sections/newsletter";
+@import "sections/pricing-plans";
+@import "sections/icons";
+@import "sections/video";
+@import "sections/faq";
+@import "sections/testimonials";
+
+// Pages
+@import "contact/contact";
 
 // Templates
 // @import "templates/*";

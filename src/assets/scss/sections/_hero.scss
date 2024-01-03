@@ -1,0 +1,36 @@
+.hero {
+  position: relative;
+  background-image: url('../images/hero-loop.webp');
+  background-size: cover;
+  background-position: center bottom;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  height: 90vh;
+  max-height: 900px;
+  min-height: 520px;
+  &__content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    z-index: 2;
+  }
+  &:before {
+    content: '';
+    background-color: $overlay;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+  }
+  &__title {
+    color: #fff;
+  }
+  &__desc {
+    color: #fff;
+    font-size: 24px;
+    text-wrap: balance;
+  }
+}

@@ -1,4 +1,4 @@
-<section class="testimonials">
+<section class="testimonials section">
 	<div class="grid-container">
 
 		<header class="section__header section__header--small">
