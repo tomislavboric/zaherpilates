@@ -4,7 +4,7 @@
 		<header class="section__header section__header--center">
 			<h2 class="section__title">Članstvo po tvojoj mjeri!</h2>
 			<div class="section__desc">
-				<p>Cijene mjesečnih članarina u fitness centrima se kreću od €30 pa gore. S LOOPom nema ograničenja u količini treniranja, nema radnoga vremena - <strong>tvoj trening je na jedan klik dalje!</strong></p>
+				<p>Cijene mjesečnih članarina u fitness centrima se kreću od €30. S LOOPom nema ograničenja u količini treniranja, nema radnoga vremena - <strong>tvoj trening je na jedan klik dalje!</strong></p>
 			</div>
 		</header>
 

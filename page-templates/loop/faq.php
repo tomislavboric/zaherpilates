@@ -59,7 +59,7 @@
 
 				</ul>
 
-				<!-- <div class="faq__list">
+				<?php /* <div class="faq__list">
 					<div class="faq__item">
 						<h3 class="faq__question">Mogu li trenirati na LOOP-u ako sam trudna?</h3>
 						<div class="faq__answer">
@@ -96,13 +96,14 @@
 						</div>
 					</div>
 
-				</div> -->
+				</div>
 
 				<footer class="section__footer">
 					<div class="buttons">
 						<a class="button" href="<?php echo home_url(); ?>/pretplate/">Započni trenirati na LOOP-u</a>
 					</div>
 				</footer>
+				*/ ?>
 
 		</div>
 

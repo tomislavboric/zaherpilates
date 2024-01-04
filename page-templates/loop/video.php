@@ -1,6 +1,7 @@
 <section class="loop-video section">
 	<div class="grid-container grid-container--narrow">
 		<header class="section__header section__header--center">
+			<div class="section__subtitle">Ali ja već treniram</div>
 			<h2 class="section__title">LOOP kao dodatak tvojoj trenutnoj fitness rutini!</h2>
 			<div class="section__desc">
 				<p>Rijetko koji sportski centar na jednom mjestu nudi raznolikost treninga. <strong>Zašto LOOP ne bi kombinirala sa svojom već uhodanom fitness rutinom?</strong></p>

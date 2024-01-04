@@ -2,17 +2,17 @@
 	<div class="grid-container">
 
 		<header class="section__header">
-			<h2 class="section__title">Kako bi ti maksimalno olakšali i skratili put do vježbanja kreirali smo ti prijedlog treninga za prva tri mjeseca</h2>
+			<div class="section__subtitle">Krenimo!</div>
+			<h2 class="section__title">Prijedlog treninga</h2>
 			<div class="section__desc">
-				<p>Već nakon prva tri mjeseca na LOOPu primjetit ćeš benefite kao što su: <strong>izostanak bolova, vidljive promjene na tijelu, veće zadovoljstvo svojim izgledom i osjećajem u tijelu, bolju izdržljivost i snagu.</strong></p>
+				<p>Kako bi ti maksimalno olakšali i skratili put do vježbanja kreirali smo ti prijedlog treninga za prva tri mjeseca</p>
 			</div>
 		</header>
 
 		<main class="loop-programs__main">
+			<p>Već nakon prva tri mjeseca na LOOPu primjetit ćeš benefite kao što su: <strong>izostanak bolova, vidljive promjene na tijelu, veće zadovoljstvo svojim izgledom i osjećajem u tijelu, bolju izdržljivost i snagu.</strong></p>
 			<p>Naš prijedlog treninga za prva tri mjeseca možeš slijediti ili treninge možeš birati po vlastitim preferencama. Na platformi te čeka skoro 200 tjelovježbi pilatesa, snage, joge i HIIT. Bitno je da znaš u kojoj si fazi ciklusa i da trening biraš u skladu sa svojim energetskim nivoom.</p>
-
 			<p>Tu smo za tebe ako ćeš imati pitanja. Šalji ih na <a href="mailto:info@zaherpilates.ch">info@zaherpilates.ch</a></p>
-
 			<p>Uživaj u treningu!</p>
 
 			<?php
@@ -22,7 +22,7 @@
 		) );
 
 		if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) : ?>
-			<div class="cards">
+			<div class="cards" style="padding: 30px 0">
 				<?php foreach ( $terms as $term ) :
 
 				// vars
@@ -51,6 +51,12 @@
 
 
 		</main>
+
+		<footer class="section__footer">
+			<div class="buttons buttons--center">
+				<a class="button" href="<?php echo home_url(); ?>/programs/">Zaviri u katalog treninga na LOOPu</a>
+			</div>
+		</footer>
 
 	</div>
 </section>

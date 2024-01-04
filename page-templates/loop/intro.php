@@ -24,6 +24,7 @@
 	<div class="grid-container">
 
 		<header class="section__header">
+			<div class="section__subtitle">Ali ja nemam vremena</div>
 			<h2 class="section__title">Imaš dojam da u moru obaveza nikako da nađeš vrijeme za trening?</h2>
 			<div class="section__desc">
 				<p>Odlaske na treninge izvan stana je naprosto nemoguće ugurati u raspored?<br>
