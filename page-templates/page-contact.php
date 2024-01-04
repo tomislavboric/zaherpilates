@@ -23,7 +23,7 @@ get_header(); ?>
 				<div class="contact__form">
 					<div class="contact__form-item">
 						<h3>Javi mi se!</h3>
-						<?php echo do_shortcode('[wpforms id="268" title="false"]'); ?>
+						<?php echo do_shortcode('[wpforms id="423" title="false"]'); ?>
 					</div>
 				</div>
 
