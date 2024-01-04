@@ -12,7 +12,7 @@ get_header(); ?>
 			<div class="contact__grid">
 
 				<div class="contact__content">
-					<p class="lead" style="margin-bottom: 60px">" In everyday life, we often forget to really be in the moment. We are moving from one task to another without putting much attention to our breath and how our bodies move. But body is always present. Gift yourself with an hour of mindful movement."</p>
+					<p class="lead" style="margin-bottom: 60px">"U svakodnevnom životu često zaboravljamo biti zaista prisutni u trenutku. Premještamo se s jednog zadatka na drugi bez da posvećujemo puno pažnje našem disanju i načinu kako se naše tijelo kreće. No, tijelo je uvijek prisutno. Poklonite sebi sat vremena svjesnog kretanja."</p>
 					<p><strong>Bleicherweg 45, 8002 -  the entrance is from Dreikönigstrasse<br>
 						The studio is on -1.</strong></p>
 					<figure class="contact__figure">
