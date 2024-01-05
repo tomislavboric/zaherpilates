@@ -9,8 +9,10 @@
 
 register_nav_menus(
 	array(
-		'top-bar-r'  => esc_html__( 'Right Top Bar', 'foundationpress' ),
+		'top-bar-r'  => esc_html__( 'Main Menu', 'foundationpress' ),
+		'top-bar-loop'  => esc_html__( 'LOOP Menu', 'foundationpress' ),
 		'mobile-nav' => esc_html__( 'Mobile', 'foundationpress' ),
+		'mobile-nav-loop' => esc_html__( 'LOOP Mobile', 'foundationpress' ),
 	)
 );
 
@@ -20,7 +22,7 @@ register_nav_menus(
  *
  * @link http://codex.wordpress.org/Function_Reference/wp_nav_menu
  */
-if ( ! function_exists( 'foundationpress_top_bar_r' ) ) {
+if ( ! function_exists( 'foundationpress_top_bar_loop' ) ) {
 	function foundationpress_top_bar_r() {
 		wp_nav_menu(
 			array(
@@ -36,18 +38,53 @@ if ( ! function_exists( 'foundationpress_top_bar_r' ) ) {
 	}
 }
 
+if ( ! function_exists( 'foundationpress_top_bar_loop' ) ) {
+	function foundationpress_top_bar_loop() {
+		wp_nav_menu(
+			array(
+				'container'      => false,
+				'menu_class'     => 'dropdown menu desktop-menu',
+				'items_wrap'     => '<ul id="%1$s" class="%2$s" data-dropdown-menu>%3$s</ul>',
+				'theme_location' => 'top-bar-loop',
+				'depth'          => 3,
+				'fallback_cb'    => false,
+				'walker'         => new Foundationpress_Top_Bar_Walker(),
+			)
+		);
+	}
+}
+
 
 /**
  * Mobile navigation - topbar (default) or offcanvas
  */
-if ( ! function_exists( 'foundationpress_mobile_nav' ) ) {
-	function foundationpress_mobile_nav() {
+if ( ! function_exists( 'foundationpress_mobile_nav_loop' ) ) {
+	function foundationpress_mobile_nav_loop() {
 		wp_nav_menu(
 			array(
 				'container'      => false,                         // Remove nav container
 				'menu'           => __( 'mobile-nav', 'foundationpress' ),
 				'menu_class'     => 'vertical menu',
 				'theme_location' => 'mobile-nav',
+				'items_wrap'     => '<ul id="%1$s" class="%2$s" data-accordion-menu data-submenu-toggle="true">%3$s</ul>',
+				'fallback_cb'    => false,
+				'walker'         => new Foundationpress_Mobile_Walker(),
+			)
+		);
+	}
+}
+
+/**
+ * Mobile navigation - topbar (default) or offcanvas
+ */
+if ( ! function_exists( 'foundationpress_mobile_nav_loop' ) ) {
+	function foundationpress_mobile_nav_loop() {
+		wp_nav_menu(
+			array(
+				'container'      => false,                         // Remove nav container
+				'menu'           => __( 'mobile-nav-loop', 'foundationpress' ),
+				'menu_class'     => 'vertical menu',
+				'theme_location' => 'mobile-nav-loop',
 				'items_wrap'     => '<ul id="%1$s" class="%2$s" data-accordion-menu data-submenu-toggle="true">%3$s</ul>',
 				'fallback_cb'    => false,
 				'walker'         => new Foundationpress_Mobile_Walker(),
