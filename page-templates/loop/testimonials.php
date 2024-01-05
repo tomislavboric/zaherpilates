@@ -1,5 +1,5 @@
 <section class="testimonials section">
-	<div class="grid-container">
+	<div class="grid-container full">
 
 		<header class="section__header section__header--small">
 			<h2 class="section__title section__title--small">Što kažu korisnice o LOOP-u!</h2>

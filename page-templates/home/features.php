@@ -2,9 +2,11 @@
 	<div class="grid-container full">
 
 		<header class="section__header section__header--center">
-			<h2 class="section__title">Pilates programi</h2>
-			<div class="section__desc">
-				<p>Pilates je odličan za sve koji žele ojačati svoje tijelo, poboljšati držanje, smanjiti bolove u leđima, poboljšati fleksibilnost i pokretljivost, te se osjećati bolje u svom tijelu.</p>
+			<div class="grid-container">
+				<h2 class="section__title">Pilates programi</h2>
+				<div class="section__desc">
+					<p>Pilates je odličan za sve koji žele ojačati svoje tijelo, poboljšati držanje, smanjiti bolove u leđima, poboljšati fleksibilnost i pokretljivost, te se osjećati bolje u svom tijelu.</p>
+				</div>
 			</div>
 		</header>
 

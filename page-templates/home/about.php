@@ -1,9 +1,10 @@
 <section class="section about">
-	<div class="grid-container">
+	<div class="grid-container grid-container--wide">
 		<div class="about__grid">
 
 			<div class="about__content">
 				<header class="section__header">
+					<div class="section__subtitle">O meni</div>
 					<h2 class="section__title">Ivana Zaher</h2>
 					<div class="section__desc">
 						<p>Hej! Ja sam Ivana, pilates instruktorica, poduzetnica i majka dvoje dječice. Odrasla sam u Metkoviću, studirala u Zagrebu i sada živim u Zurichu.</p>

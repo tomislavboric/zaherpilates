@@ -1,4 +1,4 @@
-<section class="loop-video section">
+<section class="loop-video section no-padding-bottom">
 	<div class="grid-container grid-container--narrow">
 		<header class="section__header section__header--center">
 			<div class="section__subtitle">Ali ja već treniram</div>
