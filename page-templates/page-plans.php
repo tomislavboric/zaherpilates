@@ -6,10 +6,9 @@ get_header(); ?>
 
 	<main class="main">
 
-		<section class="section pricing-plans">
+		<section class="pricing-plans">
 			<div class="grid-container">
 				<header class="section__header section__header--center">
-					<div class="section__subtitle">Cjenik</div>
 					<h2 class="section__title">Članstvo po tvojoj mjeri!</h2>
 					<div class="section__desc">
 						<p>S LOOPom nema ograničenja u količini treniranja, nema radnoga vremena - tvoj trening je na jedan klik dalje!</p>

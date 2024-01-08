@@ -3,6 +3,9 @@
     display: flex;
     gap: 6vw;
     align-items: center;
+    @include breakpoint(large down) {
+      flex-direction: column;
+    }
     > div {
       flex: 1;
     }

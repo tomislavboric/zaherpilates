@@ -13,6 +13,7 @@
   visibility: hidden;
   opacity: 0;
   transition: opacity 0.5s, visibility 0.5s;
+  z-index: 999;
   @include breakpoint(xlarge) {
     visibility: hidden !important;
     opacity: 0 !important;
@@ -73,7 +74,7 @@
   &__nav,
   &
    {
-    z-index: 1;
+    z-index: 9999;
   }
 }
 
@@ -124,9 +125,8 @@
   }
   &--active {
     .top-bun,
-
     .bottom-bun {
-      background-color: #000;
+      background-color: #000 !important;
     }
     .top-bun {
       transform: translatex(3.5px) rotate(-135deg);

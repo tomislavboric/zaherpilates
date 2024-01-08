@@ -59,7 +59,11 @@ $current_user = wp_get_current_user();
 	</div>
 
 	<div class="header-menu">
-			<?php foundationpress_top_bar_r(); ?>
+			<?php if ( is_page_template( 'page-templates/page-loop.php' ) || is_archive( 'programs' ) || is_singular( 'programs' ) ) : ?>
+				<?php foundationpress_top_bar_loop(); ?>
+			<?php else : ?>
+				<?php foundationpress_top_bar_r(); ?>
+			<?php endif; ?>
 	</div>
 
 </header>

@@ -1,6 +1,9 @@
 <?php get_header(); ?>
 
+
 <main class="main-container full">
+
+		<?php get_template_part( 'template-parts/modules/page-header' ); ?>
 
 		<?php
 		$terms = get_terms( array(

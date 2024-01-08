@@ -2,6 +2,9 @@
   &__grid {
     display: flex;
     gap: 50px;
+    @include breakpoint(large down) {
+      flex-direction: column;
+    }
   }
   &__item {
     position: relative;
@@ -9,23 +12,22 @@
     border-radius: $box-radius;
     overflow: hidden;
   }
-  &__content {
-    /* background-color: #333; */
-    /*
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    color: #fff;
-    */
-    background-color: #fff;
-    padding: 20px;
-    p {
-      font-size: 14px;
-    }
-  }
   &__title {
-    /* color: #fff; */
+    color: #fff;
+  }
+  &__content {
+    background-color: rgba($gray-700, .3);
+    background: linear-gradient(to top, rgba($gray-700, .8) 0%, transparent 90%);
+    padding: 20px;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 1;
+    color: #fff;
+    p {
+      font-size: 16px;
+    }
   }
   &__figure {
     position: relative;
