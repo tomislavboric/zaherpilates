@@ -9,15 +9,15 @@ $description = get_field('description', $term);
 
 <main class="main">
 
-	<header class="category__header">
+	<header class="page__header">
 		<div class="grid-container full">
 			<?php /* <div class="category__breadcrumbs">
 				<div class="breadcrumbs">
 					<?php if (function_exists('rank_math_the_breadcrumbs')) rank_math_the_breadcrumbs(); ?>
 				</div>
 			</div> */ ?>
-			<h1 class="category__title"><?php single_term_title(); ?></h1>
-			<div class="category__description">
+			<h1 class="page__title"><?php single_term_title(); ?></h1>
+			<div class="page__description">
 				<?php echo $description; ?>
 			</div>
 		</div>

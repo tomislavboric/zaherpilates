@@ -5,9 +5,11 @@ Template Name: Contact
 get_header(); ?>
 
 	<main class="main contact">
+
+		<?php get_template_part( 'template-parts/modules/page-header' ); ?>
+
 		<div class="grid-container full">
 
-			<?php get_template_part( 'template-parts/modules/page-header' ); ?>
 
 			<div class="contact__grid">
 

@@ -20,18 +20,6 @@
       grid-template-columns: repeat(4,23.5%);
     }
   } */
-  &__breadcrumbs {
-    margin-bottom: 20px;
-  }
-  &__header {
-    margin-bottom: 4vh;
-    background-color: #f1f1f1;
-    padding: 3vmax 0;
-  }
-  &__title {
-    font-size: 36px;
-    margin: 0;
-  }
   &__item {
     user-select: none;
     img {
