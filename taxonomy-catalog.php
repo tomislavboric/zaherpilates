@@ -31,11 +31,11 @@ $description = get_field('description', $term);
 
 				<?php while ( have_posts() ) : the_post();
 
-				// vars
-				$vimeoUrl = get_field('video', get_the_ID());
-				$video_length = get_field('video_length', get_the_ID());
-				$videoId = getVimeoVideoId($vimeoUrl);
-				?>
+					// vars
+					$vimeoUrl = get_field('video', get_the_ID());
+					$video_length = get_field('video_length', get_the_ID());
+					$videoId = getVimeoVideoId($vimeoUrl);
+					?>
 
 					<div class="cards__item">
 						<a href="<?php the_permalink(); ?>">
