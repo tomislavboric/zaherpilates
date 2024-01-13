@@ -16,7 +16,7 @@ get_header(); ?>
 
 		<?php get_template_part( 'page-templates/home/testimonials' ); ?>
 
-		<?php // get_template_part( 'page-templates/home/newsletter' ); ?>
+		<?php get_template_part( 'page-templates/home/newsletter' ); ?>
 
 	</main>
 
