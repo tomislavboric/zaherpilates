@@ -6,6 +6,7 @@
 				<p>U tjednom newsletteru s tobom dijelim...</p>
 			</div>
 		</header>
-		<?php echo do_shortcode('[wpforms id="263" title="false"]'); ?>
+		<?php // Mailerlite Newsletter Form ?>
+		<div class="ml-embedded" data-form="sPVPsN"></div>
 	</div>
 </section>
