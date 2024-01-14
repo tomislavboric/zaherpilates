@@ -5,7 +5,7 @@
 
 		<?php get_template_part( 'template-parts/modules/page-header' ); ?>
 
-		<div class="grid-container full" style="margin-bottom: 40px !important">
+		<div class="grid-container full" style="margin-bottom: 60px !important">
 
 		<?php $user_favorites = get_user_favorites(); // Gets current user's favorite post IDs ?>
 
