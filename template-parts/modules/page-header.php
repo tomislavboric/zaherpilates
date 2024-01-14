@@ -22,8 +22,12 @@
 						}
 				?>
 		</h1>
-		<div class="page__description">
-			<?php echo $description; ?>
-		</div>
+
+		<?php if ($description) : ?>
+			<div class="page__desc">
+				<?php echo $description; ?>
+			</div>
+		<?php endif; ?>
+
 	</div>
 </header>

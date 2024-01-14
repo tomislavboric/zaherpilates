@@ -32,6 +32,10 @@ body {
 .main-container,
 .grid-container {
   /* padding-bottom: 6.6vmax; */
+  @include breakpoint(xlarge down) {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
   &.full {
     margin: 0 auto !important;
     max-width: 2000px;
@@ -41,8 +45,8 @@ body {
     padding-left: 6vw;
     padding-right: 6vw;
     @include breakpoint(xlarge down) {
-      padding-left: 0.9375rem;
-      padding-right: 0.9375rem;
+      padding-left: 20px;
+      padding-right: 20px;
     }
   }
 }

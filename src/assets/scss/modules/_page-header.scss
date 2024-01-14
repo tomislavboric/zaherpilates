@@ -24,10 +24,25 @@
     margin-bottom: 4vh;
     background-color: #f1f1f1;
     padding: 3vmax 0;
+    &-grid {
+      @include breakpoint(xlarge) {
+        display: flex;
+        gap: 40px;
+      }
+    }
+    &-content {}
+    &-figure {
+      @include show-for(xlarge);
+      img {
+        border-radius: 12px;
+      }
+    }
   }
   &__title {
-    font-size: 36px;
-    margin: 0;
+    font-size: 28px;
+    @include breakpoint(large) {
+      font-size: 36px;
+    }
   }
   &__desc {
     margin-bottom: 1rem;

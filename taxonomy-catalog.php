@@ -11,15 +11,32 @@ $description = get_field('description', $term);
 
 	<header class="page__header">
 		<div class="grid-container full">
-			<?php /* <div class="category__breadcrumbs">
-				<div class="breadcrumbs">
-					<?php if (function_exists('rank_math_the_breadcrumbs')) rank_math_the_breadcrumbs(); ?>
+
+			<div class="page__header-grid">
+
+				<div class="page__header-content">
+					<?php /* <div class="category__breadcrumbs">
+						<div class="breadcrumbs">
+							<?php if (function_exists('rank_math_the_breadcrumbs')) rank_math_the_breadcrumbs(); ?>
+						</div>
+					</div> */ ?>
+					<h1 class="page__title"><?php single_term_title(); ?></h1>
+
+					<?php if ($description) : ?>
+						<div class="page__desc">
+							<?php echo $description; ?>
+						</div>
+					<?php endif; ?>
 				</div>
-			</div> */ ?>
-			<h1 class="page__title"><?php single_term_title(); ?></h1>
-			<div class="page__description">
-				<?php echo $description; ?>
+
+				<?php if ($image) : ?>
+					<figure class="page__header-figure">
+						<img src="<?php echo $image['sizes']['fp-small']; ?>" alt="<?php single_term_title(); ?>">
+					</figure>
+				<?php endif; ?>
+
 			</div>
+
 		</div>
 	</header>
 

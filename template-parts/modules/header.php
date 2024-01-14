@@ -31,7 +31,7 @@ $current_user = wp_get_current_user();
 
 			<div class="header__account">
 				<?php if ( !is_user_logged_in() ) : ?>
-					<?php if ( is_page_template( 'page-templates/page-loop.php' ) ) : ?>
+					<?php if ( is_page_template( 'page-templates/page-loop.php' ) || is_archive( 'programs' ) || is_singular( 'programs' ) ) : ?>
 						<a class="button button--small" href="<?php echo home_url(); ?>/prijava/">Prijavi se</a>
 					<?php else : ?>
 						<?php /* <a class="button button--small" href="<?php echo home_url(); ?>/pretplate/">Isprobaj besplatno</a> */ ?>
