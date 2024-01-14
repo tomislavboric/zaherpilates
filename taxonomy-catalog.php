@@ -29,7 +29,7 @@ $description = get_field('description', $term);
 					<?php endif; ?>
 				</div>
 
-				<?php if ($image) : ?>
+				<?php if ($image && $description) : ?>
 					<figure class="page__header-figure">
 						<img src="<?php echo $image['sizes']['fp-small']; ?>" alt="<?php single_term_title(); ?>">
 					</figure>
