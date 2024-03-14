@@ -3,9 +3,9 @@
 
 		<header class="section__header section__header--center">
 			<div class="grid-container">
-				<h2 class="section__title">Pilates programi</h2>
+				<h2 class="section__title">Fitness platforma za žene koja nudi kratke treninge pilatesa, joge, snage i HIIT na jednom mjestu.</h2>
 				<div class="section__desc">
-					<p>Pilates je odličan za sve koji žele ojačati svoje tijelo, poboljšati držanje, smanjiti bolove u leđima, poboljšati fleksibilnost i pokretljivost, te se osjećati bolje u svom tijelu.</p>
+					<p>Postigni izgled kojem težiš i sjećaj se dobro u svom tijelu, uz pomoć kratkih treninga iz svog doma!</p>
 				</div>
 			</div>
 		</header>
@@ -18,7 +18,7 @@
 					</figure>
 					<div class="features__content">
 						<h3 class="features__title">Postpartum</h2>
-						<p>Programi za podršku i oporavak nakon poroda: Jačanje tijela i duha</p>
+						<p>Programi za podršku, oporavak i jačanje tijela nakon poroda.</p>
 					</div>
 				</a>
 			</div>

@@ -7,7 +7,7 @@ get_header(); ?>
 	<main class="main">
 
 		<section class="pricing-plans">
-			<div class="grid-container">
+			<div class="grid-container full">
 				<header class="section__header section__header--center">
 					<h2 class="section__title">Članstvo po tvojoj mjeri!</h2>
 					<div class="section__desc">

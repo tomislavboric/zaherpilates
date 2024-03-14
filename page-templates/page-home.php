@@ -12,7 +12,7 @@ get_header(); ?>
 
 		<?php get_template_part( 'page-templates/home/about' ); ?>
 
-		<?php get_template_part( 'page-templates/home/booking' ); ?>
+		<?php // get_template_part( 'page-templates/home/booking' ); ?>
 
 		<?php get_template_part( 'page-templates/home/testimonials' ); ?>
 

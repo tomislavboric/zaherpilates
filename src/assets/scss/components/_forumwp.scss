@@ -1,0 +1,34 @@
+.fmwp-archive-forums-wrapper .fmwp-forums-wrapper {
+  font-size: 16px !important;
+}
+.fmwp-forums-search {
+  display: flex;
+  gap: 6px;
+  input {
+    border-radius: $global-radius;
+  }
+}
+.fmwp {
+  input[type="button"],
+  input[type="submit"] {
+    @extend .button;
+  }
+}
+.fmwp-forums-list-head.fmwp-align-right {
+  margin: 0 !important;
+  padding: 0 0 20px !important;
+}
+.fmwp-archive-forums-wrapper.fmwp-unlogged-data .fmwp-forums-wrapper-heading {
+  padding: 20px 5px !important;
+}
+.fmwp-archive-forums-wrapper .fmwp-forums-wrapper-heading {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+}
+.fmwp-archive-forums-wrapper .fmwp-forums-wrapper-heading .fmwp-forum-head-line {
+  gap: 16px;
+}
+.fmwp-archive-forums-wrapper .fmwp-forums-wrapper-heading .fmwp-forum-head-line > span {
+    width: auto !important;
+    padding: 0 !important;
+}

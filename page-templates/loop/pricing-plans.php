@@ -1,5 +1,5 @@
 <section class="pricing-plans section section--bg">
-	<div class="grid-container">
+	<div class="grid-container full">
 
 		<header class="section__header section__header--center">
 			<div class="section__subtitle">Cjenik</div>

@@ -8,6 +8,9 @@
 .mepr-price-boxes {
   display: flex;
   gap: 60px;
+  @include breakpoint(xlarge down) {
+    gap: 40px;
+  }
   @include breakpoint(medium down) {
     flex-direction: column;
   }
@@ -17,11 +20,10 @@
   position: relative;
   border: 2px solid $primary-color;
   border-top: 4px solid $primary-color;
-  padding: 60px 10px;
+  padding: 60px 15px 30px;
   border-radius: 8px;
-  /* display: flex;
+  display: flex;
   flex-direction: column;
-  gap: 20px; */
   text-align: center;
   flex: 1;
   background-color: #fff;
@@ -49,20 +51,33 @@
 
 .mepr-price-box-title {
   font-weight: 600;
-  font-size: 21px;
-  color: $gray-900;
-  margin-bottom: 10px;
+  font-size: 26px;
+  color: #1C1917;
+  margin-bottom: 20px;
 }
 
 .mepr-price-box-price {
   color: $gray-600;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+.mepr-price-box-benefits-item {
+  font-size: 14px;
+}
+.mepr-price-box-footer {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+.mepr-price-box-foot {
+  font-size: 12px;
+  margin-top: auto;
 }
 
 .mepr-price-box-button a {
   @extend .button;
-  @extend .button--large;
-  margin: 20px 0;
-}
-.mepr-price-box-foot {
-
+  margin-top: 10px;
 }
