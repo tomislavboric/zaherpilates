@@ -10,5 +10,12 @@
 				<li><a href="<?php echo home_url(); ?>/pravila-privatnosti/">Pravila privatnosti</a></li>
 			</ul>
 		</nav>
+		<div class="footer__social">
+			<ul>
+				<li><a href="https://www.instagram.com/ivana_zaher/" target="_blank">Instagram</a></li>
+				<li><a href="https://www.facebook.com/zaherpilateszurich" target="_blank">Facebook</a></li>
+				<li><a href="https://www.instagram.com/ivana_zaher/" target="_blank">YouTube</a></a</li>
+			</ul>
+		</div>
 	</div>
 </footer>

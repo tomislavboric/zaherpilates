@@ -43,4 +43,12 @@
       justify-content: center;
     }
   }
+  &__social {
+    ul {
+      list-style: none;
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+  }
 }
