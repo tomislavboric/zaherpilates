@@ -1,3 +1,7 @@
+<?php
+$description = get_field('description');
+?>
+
 <header class="page__header">
 	<div class="grid-container full">
 		<?php /* <div class="category__breadcrumbs">
