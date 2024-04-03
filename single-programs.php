@@ -18,16 +18,22 @@ get_header(); ?>
 		$vimeo_url = get_field('video');
 		$vimeo_length = get_field('video_lenght');
 		$videoId = getVimeoVideoId($vimeo_url);
+		$user_id = get_current_user_id();
+		$mepr_user = new MeprUser( $user_id );
 		?>
 
 		<article class="video">
 			<div class="video__section">
 
-				<?php if(current_user_can('mepr-active','memberships:147')): ?>
+				<?php if( $mepr_user->is_active() ) : ?>
 					<div style="padding:56.25% 0 0 0;position:relative;">
 						<iframe src="https://player.vimeo.com/video/<?php echo $videoId; ?>?h=0aaecdaa4d" width="640" height="360" frameborder="0" allow="autoplay; fullscreen;" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
 					</div>
-				<?php else : ?>
+				<?php
+				// Membership expired
+				elseif($mepr_user->has_expired()) :
+				// Never a member
+				else : ?>
 					<figure class="locked__figure">
 						<?php if ( has_post_thumbnail( $post->ID ) ) : ?>
 							<img src="<?php the_post_thumbnail_url(); ?>" alt="<?php the_title(); ?>">
