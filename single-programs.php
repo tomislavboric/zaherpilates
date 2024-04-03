@@ -23,7 +23,7 @@ get_header(); ?>
 		<article class="video">
 			<div class="video__section">
 
-				<?php if(current_user_can('mepr-active','memberships:148')): ?>
+				<?php if(MeprRule::is_locked_for_user()) : ?>
 					<div style="padding:56.25% 0 0 0;position:relative;">
 						<iframe src="https://player.vimeo.com/video/<?php echo $videoId; ?>?h=0aaecdaa4d" width="640" height="360" frameborder="0" allow="autoplay; fullscreen;" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
 					</div>
