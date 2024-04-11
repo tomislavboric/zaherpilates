@@ -1,7 +1,14 @@
 .contact {
+  &__content {
+
+  }
   &__grid {
     display: flex;
-    gap: 120px;
+    gap: 40px 120px;
+    flex-direction: column;
+    @include breakpoint(xlarge) {
+      flex-direction: row;
+    }
   }
   &__content {
     flex: 1;
