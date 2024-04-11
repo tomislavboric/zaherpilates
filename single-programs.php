@@ -25,13 +25,13 @@ get_header(); ?>
 		<article class="video">
 			<div class="video__section">
 
-				<?php if( $mepr_user->is_active() ) : ?>
+				<?php if($mepr_user->is_active() || current_user_can('administrator')) : ?>
 					<div style="padding:56.25% 0 0 0;position:relative;">
 						<iframe src="https://player.vimeo.com/video/<?php echo $videoId; ?>?h=0aaecdaa4d" width="640" height="360" frameborder="0" allow="autoplay; fullscreen;" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
 					</div>
 				<?php
 				// Membership expired
-				elseif($mepr_user->has_expired()) :
+				// elseif($mepr_user->has_expired()) :
 				// Never a member
 				else : ?>
 					<figure class="locked__figure">

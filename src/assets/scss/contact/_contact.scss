@@ -1,11 +1,9 @@
 .contact {
-  &__content {
-
-  }
   &__grid {
     display: flex;
     gap: 40px 120px;
     flex-direction: column;
+    padding: 30px 0;
     @include breakpoint(xlarge) {
       flex-direction: row;
     }

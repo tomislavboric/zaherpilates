@@ -8,7 +8,6 @@ get_header(); ?>
 
 		<?php get_template_part( 'template-parts/modules/page-header' ); ?>
 
-		<section class="section">
 			<div class="grid-container">
 
 				<div class="contact__grid">
@@ -25,7 +24,7 @@ get_header(); ?>
 				</div>
 
 			</div>
-		</section>
+
 	</main>
 
 <?php get_footer();
