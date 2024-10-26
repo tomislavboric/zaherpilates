@@ -1,12 +1,10 @@
-<section class="section features">
+<section class="features section">
 	<div class="grid-container full">
 
 		<header class="section__header section__header--center">
-			<div class="grid-container">
-				<h2 class="section__title">Fitness platforma za žene koja nudi kratke treninge pilatesa, joge, snage i HIIT na jednom mjestu.</h2>
-				<div class="section__desc">
-					<p>Postigni izgled kojem težiš i sjećaj se dobro u svom tijelu, uz pomoć kratkih treninga iz svog doma!</p>
-				</div>
+			<h2 class="section__title">Fitness platforma za žene koja nudi kratke treninge pilatesa, joge, snage i HIIT na jednom mjestu.</h2>
+			<div class="section__desc">
+				<p>Postigni izgled kojem težiš i sjećaj se dobro u svom tijelu, uz pomoć kratkih treninga iz svog doma!</p>
 			</div>
 		</header>
 

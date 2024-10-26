@@ -1,0 +1,22 @@
+.image-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.placeholder {
+  filter: blur(10px); /* Adjust blur level */
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.5s ease; /* Fade-out effect */
+}
+
+.full-image {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.5s ease; /* Fade-in effect */
+}

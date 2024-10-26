@@ -7,6 +7,7 @@ import './lib/foundation-explicit-pieces';
 import './lib/sticky-header.js';
 import './lib/mobile-menu.js';
 import './lib/tabs.js';
+// import './lib/lazy-loading.js';
 
 $(document).foundation();
 

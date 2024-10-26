@@ -1,4 +1,4 @@
-<section class="section about">
+<section class="about section">
 	<div class="grid-container grid-container--wide">
 		<div class="about__grid">
 

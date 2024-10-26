@@ -16,39 +16,6 @@
 			<p>Početnica si i ne znaš odakle krenuti? Bez brige! Imamo posebnu kategoriju za tebe!</p>
 			<p>Uživaj u treningu!</p>
 
-			<?php /*
-			$terms = get_terms( array(
-				'taxonomy' => 'catalog',
-				'hide_empty' => false,
-			) );
-
-			if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) : ?>
-				<div class="cards" style="padding: 30px 0">
-					<?php foreach ( $terms as $term ) :
-
-					// vars
-					$image = get_field('image', $term);
-					?>
-						<div class="cards__item">
-							<a href="<?php echo esc_url( get_term_link( $term ) ); ?>">
-								<figure class="cards__figure">
-									<img src="<?php echo $image['url']; ?>" alt="<?php echo $term->name; ?>">
-									<div class="cards__count">
-										<span class="material-icons">video_library</span>
-										<?php echo $term->count; ?>
-									</div>
-								</figure>
-								<div class="cards__header">
-									<h3 class="cards__title"><?php echo $term->name; ?></h3>
-								</div>
-							</a>
-						</div>
-					<?php endforeach; ?>
-				</div>
-			<?php else : ?>
-				No categories found.
-			<?php endif; */ ?>
-
 		</main>
 
 		<footer class="section__footer">

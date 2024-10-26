@@ -1,4 +1,4 @@
-<section class="newsletter section section--small">
+<section class="newsletter section section--bg">
 	<div class="grid-container">
 		<header class="section__header section__header--tiny section__header--center">
 			<h2 class="section__title section__title--small">Newsletter</h2>
