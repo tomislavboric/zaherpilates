@@ -6,8 +6,10 @@
 
     <div class="grid-container full" style="margin-bottom: 60px !important">
 
-        <?php $user_favorites = get_user_favorites(); // Gets current user's favorite post IDs ?>
-        <?php $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeholder.jpg'; ?>
+        <?php
+        $user_favorites = get_user_favorites(); // Gets current user's favorite post IDs
+        $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeholder.jpg'; // Custom placeholder image URL
+        ?>
 
         <?php if ( $user_favorites ) : ?>
             <h2>Tvoji favoriti</h2>
@@ -20,7 +22,8 @@
                         <div class="cards__item">
                             <a href="<?php the_permalink(); ?>">
                                 <figure class="cards__figure">
-                                    <?php $thumbnail_url = has_post_thumbnail() ? get_the_post_thumbnail_url( get_the_ID(), 'fp-small' ) : $placeholder_url;
+                                    <?php
+                                    $thumbnail_url = has_post_thumbnail() ? get_the_post_thumbnail_url( get_the_ID(), 'fp-small' ) : $placeholder_url;
                                     ?>
                                     <img src="<?php echo esc_url( $thumbnail_url ); ?>" alt="<?php the_title_attribute(); ?>">
 
@@ -61,7 +64,7 @@
                 <?php foreach ( $terms as $term ) :
 
                     $image = get_field( 'image', $term );
-                    $term_image_url = $image ? $image['sizes']['fp-small'] : 'https://via.placeholder.com/1920x1080';
+                    $term_image_url = $image ? $image['sizes']['fp-small'] : $placeholder_url; // Use custom placeholder
                     ?>
                     <div class="cards__item">
                         <a href="<?php echo esc_url( get_term_link( $term ) ); ?>">
