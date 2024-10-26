@@ -21,9 +21,9 @@
     margin-bottom: 20px;
   }
   &__header {
-    margin-bottom: 4vh;
+    margin-bottom: 6vh;
     background-color: #f1f1f1;
-    padding: 3vmax 0;
+    padding: 6vh 0;
     &-grid {
       @include breakpoint(xlarge) {
         display: flex;
@@ -40,8 +40,11 @@
     }
   }
   &__title {
-    font-size: 28px;
+    font-size: 21px;
     @include breakpoint(large) {
+      font-size: 28px;
+    }
+    @include breakpoint(xlarge) {
       font-size: 36px;
     }
   }

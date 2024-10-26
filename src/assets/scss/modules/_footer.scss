@@ -27,8 +27,8 @@
   text-align: center;
   .grid-container {
     max-width: 100%;
-    padding-top: 3vh;
-    padding-bottom: 3vh;
+    padding-top: 6vh;
+    padding-bottom: 4vh;
     padding-left: 3vw;
     padding-right: 3vw;
     display: flex;
@@ -36,19 +36,25 @@
     gap: 20px;
   }
   &__nav {
+    font-size: 14px;
     ul {
       list-style: none;
       display: flex;
       gap: 16px;
       justify-content: center;
+      margin: 0;
+      padding: 0;
     }
   }
   &__social {
+    font-size: 14px;
     ul {
       list-style: none;
       display: flex;
       gap: 16px;
       justify-content: center;
+      margin: 0;
+      padding: 0;
     }
   }
 }

@@ -1,7 +1,7 @@
 <footer class="footer">
 	<div class="grid-container">
 		<div class="footer__copyright">
-			<p>© Zaher Pilates Gmbh <?php the_time('Y.') ?></p>
+			<p>© Zaher Pilates GmbH <?php echo date('Y'); ?>.</p>
 		</div>
 		<nav class="footer__nav">
 			<ul>
