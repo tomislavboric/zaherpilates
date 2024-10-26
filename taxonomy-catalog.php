@@ -29,7 +29,7 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
 
                     <?php if ($description) : ?>
                         <div class="page__desc">
-                            <?php echo esc_html($description); ?>
+                            <?php echo $description; ?>
                         </div>
                     <?php endif; ?>
                 </div>
