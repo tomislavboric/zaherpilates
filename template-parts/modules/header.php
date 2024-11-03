@@ -31,11 +31,11 @@ $current_user = wp_get_current_user();
 
 			<div class="header__account">
 				<?php if ( !is_user_logged_in() ) : ?>
-					<?php if ( is_page_template( 'page-templates/page-loop.php' ) || is_archive( 'programs' ) || is_singular( 'programs' ) ) : ?>
-						<a class="button button--small" href="<?php echo home_url(); ?>/prijava/">Prijavi se</a>
+					<a class="button button--small" href="<?php echo home_url(); ?>/prijava/">Prijavi se</a>
+					<?php /* if ( is_page_template( 'page-templates/page-loop.php' ) || is_archive( 'programs' ) || is_singular( 'programs' ) ) : ?>
 					<?php else : ?>
-						<?php /* <a class="button button--small" href="<?php echo home_url(); ?>/pretplate/">Isprobaj besplatno</a> */ ?>
-					<?php endif; ?>
+						<?php <a class="button button--small" href="<?php echo home_url(); ?>/pretplate/">Isprobaj besplatno</a> ?>
+					<?php endif; */ ?>
 				<?php else : ?>
 					<div class="header__account-user">
 						<?php // echo 'Bok, ' . $current_user->user_login . '!'; ?>
