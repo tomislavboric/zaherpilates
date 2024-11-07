@@ -30,21 +30,20 @@ $current_user = wp_get_current_user();
 
 
 			<div class="header__account">
-				<?php if ( !is_user_logged_in() ) : ?>
-					<a class="button button--small" href="<?php echo home_url(); ?>/prijava/">Prijavi se</a>
-					<?php /* if ( is_page_template( 'page-templates/page-loop.php' ) || is_archive( 'programs' ) || is_singular( 'programs' ) ) : ?>
+					<?php
+					$current_user = wp_get_current_user();
+					if ( is_user_logged_in() ) : ?>
+							<div class="header__account-user">
+									<?php // echo 'Hello, ' . $current_user->user_login . '!'; ?>
+									<a href="<?php echo home_url(); ?>/moj-racun/">
+											<?php echo get_avatar( $current_user->user_email, 40 ); ?>
+									</a>
+							</div>
 					<?php else : ?>
-						<?php <a class="button button--small" href="<?php echo home_url(); ?>/pretplate/">Isprobaj besplatno</a> ?>
-					<?php endif; */ ?>
-				<?php else : ?>
-					<div class="header__account-user">
-						<?php // echo 'Bok, ' . $current_user->user_login . '!'; ?>
-						<a href="<?php echo home_url(); ?>/moj-racun/">
-							<?php echo get_avatar( $current_user->user_email, 40 ); ?>
-						</a>
-					</div>
-				<?php endif; ?>
+							<a class="button button--small" href="<?php echo home_url(); ?>/prijava/">Log in</a>
+					<?php endif; ?>
 			</div>
+
 		</nav>
 
 		<div class="burger">
