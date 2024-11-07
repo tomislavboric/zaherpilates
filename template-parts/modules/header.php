@@ -40,7 +40,7 @@ $current_user = wp_get_current_user();
 									</a>
 							</div>
 					<?php else : ?>
-							<a class="button button--small" href="<?php echo home_url(); ?>/prijava/">Log in</a>
+							<a class="button button--small" href="<?php echo home_url(); ?>/prijava/">Prijavi se</a>
 					<?php endif; ?>
 			</div>
 
