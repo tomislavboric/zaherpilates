@@ -14,7 +14,7 @@ $current_user = wp_get_current_user();
 		<div class="header__logo">
 			<a href="<?php echo home_url(); ?>">
 				<img class="header__logo-zaherpilates" src="<?php echo get_stylesheet_directory_uri(); ?>/dist/assets/images/zaherpilates-logo.png" alt="Zaher Pilates">
-				<?php if ( is_page_template('page-templates/page-loop.php') || is_page_template('page-programs.php') || is_page_template('page-plans.php') ) : ?>
+				<?php if ( is_page_template('page-templates/page-loop.php') || is_archive('page-programs.php') || is_page_template('page-plans.php') ) : ?>
 					<img class="header__logo-loop" src="<?php echo get_stylesheet_directory_uri(); ?>/dist/assets/images/loop-logo.svg" alt="LOOP by Zaher Pilates">
 				<?php endif; ?>
 			</a>
