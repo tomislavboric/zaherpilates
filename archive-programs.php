@@ -48,7 +48,7 @@
 
     <div class="grid-container full">
 
-				<?php if ( $user_favorites_count ) : ?>
+				<?php if ( $user_favorites ) : ?>
             <h2>Sve kategorije</h2>
         <?php endif; ?>
 
