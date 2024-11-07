@@ -14,7 +14,9 @@
 		<?php if ( $user_favorites ) : ?>
 
 			<div class="grid-container full" style="margin-bottom: 60px !important">
-				<h2>Tvoji favoriti</h2>
+				<?php if($user_favorites_count) : ?>
+					<h2>Tvoji favoriti</h2>
+				<?php endif; ?>
 
 				<?php // Re-run the loop to display the favorite posts ?>
 				<?php while ( have_posts() ) : the_post(); ?>
@@ -48,7 +50,7 @@
 
     <div class="grid-container full">
 
-				<?php if ( $user_favorites ) : ?>
+				<?php if($user_favorites_count) : ?>
             <h2>Sve kategorije</h2>
         <?php endif; ?>
 
