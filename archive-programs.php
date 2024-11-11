@@ -14,37 +14,36 @@
 		<?php if ( $user_favorites ) : ?>
 
 			<div class="grid-container full" style="margin-bottom: 60px !important">
-				<?php if($user_favorites_count) : ?>
-					<h2>Tvoji favoriti</h2>
-				<?php endif; ?>
+				<h2>Tvoji favoriti</h2>
+
+				<div class="cards">
 
 				<?php // Re-run the loop to display the favorite posts ?>
 				<?php while ( have_posts() ) : the_post(); ?>
 						<?php if ( in_array( get_the_ID(), $user_favorites ) ) : ?>
-								<div class="cards">
-										<div class="cards__item">
-												<a href="<?php the_permalink(); ?>">
-														<figure class="cards__figure">
-																<?php
-																$thumbnail_url = has_post_thumbnail() ? get_the_post_thumbnail_url( get_the_ID(), 'fp-small' ) : $placeholder_url;
-																?>
-																<img src="<?php echo esc_url( $thumbnail_url ); ?>" alt="<?php the_title_attribute(); ?>">
+								<div class="cards__item">
+										<a href="<?php the_permalink(); ?>">
+												<figure class="cards__figure">
+														<?php
+														$thumbnail_url = has_post_thumbnail() ? get_the_post_thumbnail_url( get_the_ID(), 'fp-small' ) : $placeholder_url;
+														?>
+														<img src="<?php echo esc_url( $thumbnail_url ); ?>" alt="<?php the_title_attribute(); ?>">
 
-																<?php if ( $video_length = get_field( 'video_length', get_the_ID() ) ) : ?>
-																		<div class="cards__length">
-																				<?php echo esc_html( $video_length ); ?>
-																		</div>
-																<?php endif; ?>
-														</figure>
-														<div class="cards__header">
-																<h3 class="cards__title"><?php the_title(); ?></h3>
-														</div>
-												</a>
-										</div>
+														<?php if ( $video_length = get_field( 'video_length', get_the_ID() ) ) : ?>
+																<div class="cards__length">
+																		<?php echo esc_html( $video_length ); ?>
+																</div>
+														<?php endif; ?>
+												</figure>
+												<div class="cards__header">
+														<h3 class="cards__title"><?php the_title(); ?></h3>
+												</div>
+										</a>
 								</div>
 						<?php endif; ?>
 				<?php endwhile; ?>
-			</div>
+				</div>
+		</div>
 
 		<?php endif; ?>
 
