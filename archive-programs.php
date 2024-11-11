@@ -49,42 +49,49 @@
 
     <div class="grid-container full">
 
-				<?php if($user_favorites_count) : ?>
-            <h2>Sve kategorije</h2>
-        <?php endif; ?>
+			<?php if($user_favorites_count) : ?>
+					<h2>Sve kategorije</h2>
+			<?php endif; ?>
 
-        <?php
-        $terms = get_terms( array(
-            'taxonomy' => 'catalog',
-            'hide_empty' => true,
-        ) );
+			<?php
+			$terms = get_terms( array(
+					'taxonomy' => 'catalog',
+					'hide_empty' => true,
+			) );
 
-        if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) : ?>
-            <div class="cards">
-                <?php foreach ( $terms as $term ) :
+			if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) : ?>
+					<div class="cards">
+							<?php foreach ( $terms as $term ) :
 
-                    $image = get_field( 'image', $term );
-                    $term_image_url = $image ? $image['sizes']['fp-small'] : $placeholder_url; // Use custom placeholder
-                    ?>
-                    <div class="cards__item">
-                        <a href="<?php echo esc_url( get_term_link( $term ) ); ?>">
-                            <figure class="cards__figure">
-                                <img src="<?php echo esc_url( $term_image_url ); ?>" alt="<?php echo esc_attr( $term->name ); ?>">
-                                <div class="cards__count">
-                                    <span class="material-icons">video_library</span>
-                                    <?php echo esc_html( $term->count ); ?>
-                                </div>
-                            </figure>
-                            <div class="cards__header">
-                                <h3 class="cards__title"><?php echo esc_html( $term->name ); ?></h3>
-                            </div>
-                        </a>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        <?php else : ?>
-            <p>No categories found.</p>
-        <?php endif; ?>
+									// Check if the "Hide Category" field is set to true
+									$hide_category = get_field( 'hide_category', $term );
+									if ( $hide_category ) {
+											continue; // Skip this category if "Hide Category" is checked
+									}
+
+									$image = get_field( 'image', $term );
+									$term_image_url = $image ? $image['sizes']['fp-small'] : $placeholder_url; // Use custom placeholder
+									?>
+									<div class="cards__item">
+											<a href="<?php echo esc_url( get_term_link( $term ) ); ?>">
+													<figure class="cards__figure">
+															<img src="<?php echo esc_url( $term_image_url ); ?>" alt="<?php echo esc_attr( $term->name ); ?>">
+															<div class="cards__count">
+																	<span class="material-icons">video_library</span>
+																	<?php echo esc_html( $term->count ); ?>
+															</div>
+													</figure>
+													<div class="cards__header">
+															<h3 class="cards__title"><?php echo esc_html( $term->name ); ?></h3>
+													</div>
+											</a>
+									</div>
+							<?php endforeach; ?>
+					</div>
+			<?php else : ?>
+					<p>No categories found.</p>
+			<?php endif; ?>
+
 
     </div>
 
