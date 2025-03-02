@@ -22,7 +22,7 @@ $current_user = wp_get_current_user();
 
 		<nav class="header__nav">
 
-			<?php if ( is_page_template( 'page-templates/page-loop.php' ) || is_archive( 'programs' ) || is_singular( 'programs' ) ) : ?>
+			<?php if ( is_page_template( 'page-templates/page-loop.php' ) || is_page_template( 'page-templates/page-plans.php' ) || is_archive( 'programs' ) || is_singular( 'programs' ) ) : ?>
 				<?php foundationpress_top_bar_loop(); ?>
 			<?php else : ?>
 				<?php foundationpress_top_bar_r(); ?>
