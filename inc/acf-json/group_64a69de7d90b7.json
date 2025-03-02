@@ -17,7 +17,7 @@
                 "id": ""
             },
             "choices": {
-                "mjesecna": "Mjesecna pretplata",
+                "mjesecna": "Mjesečna pretplata",
                 "tromjesecna": "Tromjesečna pretplata",
                 "polugodisnja": "Polugodišnja pretplata"
             },
@@ -49,5 +49,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1730726122
+    "modified": 1740935938
 }

@@ -14,7 +14,7 @@
 		<?php if ( $user_favorites ) : ?>
 
 			<div class="grid-container full" style="margin-bottom: 60px !important">
-				<h2>Tvoji favoriti</h2>
+				<h2>Moji favoriti</h2>
 
 				<div class="cards">
 
