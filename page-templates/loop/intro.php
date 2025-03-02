@@ -49,7 +49,7 @@
 		</ul>
 
 		<div class="buttons" style="margin-top: 40px">
-			<a class="button" href="<?php echo home_url(); ?>/pretplate/">Pridruži nam se!</a>
+			<a class="button" href="<?php echo home_url(); ?>/cjenik/">Pridruži nam se!</a>
 		</div>
 
 	</div>

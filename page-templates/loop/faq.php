@@ -100,7 +100,7 @@
 
 				<footer class="section__footer">
 					<div class="buttons">
-						<a class="button" href="<?php echo home_url(); ?>/pretplate/">Započni trenirati na LOOP-u</a>
+						<a class="button" href="<?php echo home_url(); ?>/cjenik/">Započni trenirati na LOOP-u</a>
 					</div>
 				</footer>
 				*/ ?>

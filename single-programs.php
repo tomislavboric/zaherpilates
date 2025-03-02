@@ -40,7 +40,7 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
                         ?>
                         <img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php the_title_attribute(); ?>">
                         <figcaption class="locked__figcaption">
-                            <a class="button button--small" href="<?php echo esc_url(home_url('/pretplate/')); ?>"><span class="material-icons-outlined">lock</span> Pretplati se</a>
+                            <a class="button button--small" href="<?php echo esc_url(home_url('/cjenik/')); ?>"><span class="material-icons-outlined">lock</span> Pretplati se</a>
                             <div>ili <a href="<?php echo esc_url(home_url('/prijava')); ?>">prijavi se</a>.</div>
                         </figcaption>
                     </figure>
