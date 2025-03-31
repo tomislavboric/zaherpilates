@@ -120,13 +120,26 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
                 setup_postdata( $post );
 
                 $about = get_field('about');
-                $instructor_thumbnail_url = has_post_thumbnail() ? get_the_post_thumbnail_url() : $placeholder_url;
+								if ( has_post_thumbnail() ) {
+										$thumb = wp_get_attachment_image_src( get_post_thumbnail_id(), 'thumbnail' );
+										$instructor_thumbnail_url = $thumb[0];
+										$instructor_thumbnail_width = $thumb[1];
+										$instructor_thumbnail_height = $thumb[2];
+								} else {
+										$instructor_thumbnail_url = $placeholder_url;
+										$instructor_thumbnail_width = 150; // fallback width
+										$instructor_thumbnail_height = 150; // fallback height
+								}
                 ?>
                 <div class="instructor">
                     <div class="instructor__about">
 
                         <figure class="instructor__figure">
-                            <img src="<?php echo esc_url($instructor_thumbnail_url); ?>" alt="<?php the_title_attribute(); ?>">
+												<img
+													src="<?php echo esc_url($instructor_thumbnail_url); ?>"
+													width="<?php echo esc_attr($instructor_thumbnail_width); ?>"
+													height="<?php echo esc_attr($instructor_thumbnail_height); ?>"
+													alt="<?php the_title_attribute(); ?>">
                         </figure>
 
                         <div class="instructor__content">

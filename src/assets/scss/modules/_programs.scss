@@ -31,8 +31,10 @@
 
 .video {
   margin-bottom: 60px;
-  figure {
-    aspect-ratio: 16/9;
+  &__section {
+    figure {
+      aspect-ratio: 16/9;
+    }
   }
   &__section {
     img {
@@ -88,6 +90,7 @@
   &__nav {
     display: flex;
     margin-top: 60px;
+    gap: 20px;
   }
   &__prev,
   &__next {
@@ -113,14 +116,17 @@
       align-items: center;
       gap: 6px;
       font-size: 14px;
-      span {
-        //font-size: 21px;
-      }
     }
     a {
       display: flex;
       flex-direction: column;
       gap: 10px;
+      strong {
+        font-size: 14px;
+        @include breakpoint(medium) {
+          font-size: 16px;
+        }
+      }
     }
   }
   &__next {
@@ -200,16 +206,17 @@
   &__about {
     display: flex;
     gap: 20px;
-    flex-direction: column;
-    @include breakpoint(medium) {
+    flex-direction: row;
+    //flex-direction: column;
+    /* @include breakpoint(medium) {
       flex-direction: row;
-    }
+    } */
   }
   &__header {
     margin-bottom: 20px;
   }
   &__figure {
-    max-width: 120px;
+    min-width: 120px;
     img {
       border-radius: 100%;
     }
