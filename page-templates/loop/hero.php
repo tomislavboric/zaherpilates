@@ -11,7 +11,7 @@
 				</div>
 			</header>
 			<div class="hero__cta">
-				<a href="<?php echo home_url(); ?>/cjenik/" class="button button--large">Isprobaj LOOP besplatno</a>
+				<a href="<?php echo home_url(); ?>/cjenik/" class="button button--large">Priključi se LOOPu</a>
 			</div>
 		</div>
 	</div>

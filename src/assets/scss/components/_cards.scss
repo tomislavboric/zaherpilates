@@ -12,6 +12,7 @@
     grid-template-columns: repeat(4, 1fr);
   }
   &__count {
+    display: none !important;
     color: #fff;
     display: inline-flex;
     align-items: center;
