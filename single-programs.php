@@ -50,7 +50,7 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
 											$membership_map = [
 													'mjesecna' => 387,
 													'tromjesecna' => 111,
-													'polugodisnja' => 333,
+													'polugodisnja' => 148,
 											];
 
 											// Check if user has any of the required memberships
