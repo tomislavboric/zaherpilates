@@ -12,38 +12,7 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
 
 <main class="main">
 
-    <header class="page__header">
-        <div class="grid-container full">
-
-            <div class="page__header-grid">
-
-                <div class="page__header-content">
-                    <?php /* Breadcrumbs
-                    <div class="category__breadcrumbs">
-                        <div class="breadcrumbs">
-                            <?php if (function_exists('rank_math_the_breadcrumbs')) rank_math_the_breadcrumbs(); ?>
-                        </div>
-                    </div>
-                    */ ?>
-                    <h1 class="page__title"><?php single_term_title(); ?></h1>
-
-                    <?php if ($description) : ?>
-                        <div class="page__desc">
-                            <?php echo $description; ?>
-                        </div>
-                    <?php endif; ?>
-                </div>
-
-                <?php if ($image && $description) : ?>
-                    <figure class="page__header-figure">
-                        <img src="<?php echo esc_url($image['sizes']['fp-small']); ?>" alt="<?php echo esc_attr(single_term_title('', false)); ?>">
-                    </figure>
-                <?php endif; ?>
-
-            </div>
-
-        </div>
-    </header>
+		<?php get_template_part( 'template-parts/modules/page-header' ); ?>
 
     <?php if ( have_posts() ) : ?>
 

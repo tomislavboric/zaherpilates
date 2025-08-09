@@ -132,3 +132,8 @@ function zaher_add_gtm_body() {
   <!-- End Google Tag Manager (noscript) -->
   <?php
 }
+
+function remove_memberpress_meta_boxes() {
+    remove_meta_box('mepr_metabox_postbox', 'post', 'normal');
+}
+add_action('add_meta_boxes', 'remove_memberpress_meta_boxes', 20);

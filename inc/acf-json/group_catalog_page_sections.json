@@ -1,0 +1,120 @@
+{
+    "key": "group_catalog_page_sections",
+    "title": "Catalog Page Sections",
+    "fields": [
+        {
+            "key": "field_catalog_sections",
+            "label": "Sections",
+            "name": "catalog_sections",
+            "aria-label": "",
+            "type": "flexible_content",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layouts": [
+                {
+                    "key": "layout_video_category_block",
+                    "name": "video_category_block",
+                    "label": "Video Category Block",
+                    "display": "block",
+                    "sub_fields": [
+                        {
+                            "key": "field_category",
+                            "label": "Select Category",
+                            "name": "category",
+                            "aria-label": "",
+                            "type": "taxonomy",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "taxonomy": "catalog",
+                            "add_term": 1,
+                            "save_terms": 0,
+                            "load_terms": 0,
+                            "return_format": "object",
+                            "field_type": "select",
+                            "allow_null": 0,
+                            "allow_in_bindings": 1,
+                            "bidirectional": 0,
+                            "multiple": 0,
+                            "bidirectional_target": []
+                        }
+                    ],
+                    "min": "",
+                    "max": ""
+                },
+                {
+                    "key": "layout_collection_block",
+                    "name": "collection_block",
+                    "label": "Collection Block",
+                    "display": "block",
+                    "sub_fields": [
+                        {
+                            "key": "field_collection",
+                            "label": "Select Collection",
+                            "name": "collection",
+                            "aria-label": "",
+                            "type": "post_object",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "post_type": [
+                                "collection"
+                            ],
+                            "post_status": "",
+                            "taxonomy": "",
+                            "return_format": "object",
+                            "multiple": 0,
+                            "allow_null": 0,
+                            "allow_in_bindings": 0,
+                            "bidirectional": 0,
+                            "ui": 1,
+                            "bidirectional_target": []
+                        }
+                    ],
+                    "min": "",
+                    "max": ""
+                }
+            ],
+            "button_label": "Add Section",
+            "min": "",
+            "max": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_template",
+                "operator": "==",
+                "value": "page-templates\/page-catalog.php"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": [
+        "the_content"
+    ],
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "modified": 1754426923
+}

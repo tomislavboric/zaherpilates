@@ -1,6 +1,6 @@
 {
     "key": "taxonomy_64a6a97ae8bdb",
-    "title": "Catalog",
+    "title": "Category",
     "menu_order": 0,
     "active": true,
     "taxonomy": "catalog",
@@ -11,8 +11,8 @@
     "import_source": "",
     "import_date": "",
     "labels": {
-        "name": "Catalog",
-        "singular_name": "Catalog",
+        "name": "Category",
+        "singular_name": "Category",
         "menu_name": "Catalog",
         "all_items": "All Catalog",
         "edit_item": "Edit Catalog",
@@ -20,8 +20,8 @@
         "update_item": "Update Catalog",
         "add_new_item": "Add New Catalog",
         "new_item_name": "New Catalog Name",
-        "parent_item": "",
-        "parent_item_colon": "",
+        "parent_item": "Parent Video",
+        "parent_item_colon": "Parent Video:",
         "search_items": "Search Catalog",
         "most_used": "",
         "not_found": "No catalog found",
@@ -30,7 +30,7 @@
         "slug_field_description": "",
         "parent_field_description": "",
         "desc_field_description": "",
-        "filter_by_item": "",
+        "filter_by_item": "Filter by video",
         "items_list_navigation": "Catalog list navigation",
         "items_list": "Catalog list",
         "back_to_items": "← Go to catalog",
@@ -71,5 +71,5 @@
     "meta_box": "default",
     "meta_box_cb": "",
     "meta_box_sanitize_cb": "",
-    "modified": 1688644309
+    "modified": 1753795389
 }
