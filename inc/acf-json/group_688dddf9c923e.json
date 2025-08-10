@@ -25,10 +25,10 @@
         },
         {
             "key": "field_688dddf991745",
-            "label": "Videos",
-            "name": "videos",
+            "label": "Categories",
+            "name": "categories",
             "aria-label": "",
-            "type": "relationship",
+            "type": "taxonomy",
             "instructions": "",
             "required": 0,
             "conditional_logic": 0,
@@ -37,20 +37,16 @@
                 "class": "",
                 "id": ""
             },
-            "post_type": [
-                "programs"
-            ],
-            "post_status": "",
-            "taxonomy": "",
-            "filters": [
-                "search"
-            ],
+            "taxonomy": "catalog",
+            "add_term": 0,
+            "save_terms": 1,
+            "load_terms": 1,
             "return_format": "object",
-            "min": "",
-            "max": "",
+            "field_type": "multi_select",
+            "allow_null": 0,
             "allow_in_bindings": 0,
-            "elements": "",
             "bidirectional": 0,
+            "multiple": 0,
             "bidirectional_target": []
         }
     ],
@@ -74,5 +70,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1754427846
+    "modified": 1754818729
 }

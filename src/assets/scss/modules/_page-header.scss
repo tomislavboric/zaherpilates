@@ -29,11 +29,14 @@
         display: flex;
         gap: 40px;
         justify-content: space-between;
+        align-items: center;
       }
     }
     &-content {}
     &-figure {
       @include show-for(xlarge);
+      width: 33%;
+      min-width: 33%;
       img {
         border-radius: 12px;
       }
