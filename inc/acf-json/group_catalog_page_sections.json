@@ -3,6 +3,27 @@
     "title": "Catalog Page Sections",
     "fields": [
         {
+            "key": "field_68986fe64c4f6",
+            "label": "Description",
+            "name": "description",
+            "aria-label": "",
+            "type": "wysiwyg",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "allow_in_bindings": 0,
+            "tabs": "all",
+            "toolbar": "full",
+            "media_upload": 0,
+            "delay": 0
+        },
+        {
             "key": "field_catalog_sections",
             "label": "Sections",
             "name": "catalog_sections",
@@ -116,5 +137,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1754426923
+    "modified": 1754820610
 }
