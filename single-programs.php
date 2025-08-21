@@ -91,11 +91,11 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
 
                 <div class="video__category">
                     <?php
-                    $terms = get_the_terms( get_the_ID(), 'category' );
+                    $terms = get_the_terms( get_the_ID(), 'catalog' );
 
                     if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
                         foreach ( $terms as $term ) {
-                            $term_link = esc_url( get_term_link( $term->term_id, 'category' ) );
+                            $term_link = esc_url( get_term_link( $term->term_id, 'catalog' ) );
                             echo '<a href="' . $term_link . '">' . esc_html( $term->name ) . '</a>';
                         }
                     } else {
