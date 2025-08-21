@@ -16,43 +16,61 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
 
     <?php if ( have_posts() ) : ?>
 
-        <div class="grid-container full">
+		<div class="catalog">
+			<div class="grid-container full">
 
-            <div class="cards">
+				<?php
+				global $wp_query;
 
-                <?php while ( have_posts() ) : the_post();
+				// Keep existing taxonomy filters; just change order (and preserve pagination)
+				$paged = max( 1, get_query_var('paged'), get_query_var('page') );
+				$q = new WP_Query( array_merge( $wp_query->query_vars, [
+					'orderby'             => ['menu_order' => 'ASC', 'date' => 'DESC'],
+					'order'               => 'ASC',
+					'paged'               => $paged,
+					'ignore_sticky_posts' => 1,
+				] ) );
+				?>
 
-                    // Variables for video information
-                    $vimeoUrl = get_field('video', get_the_ID());
-                    $video_length = get_field('video_length', get_the_ID());
-                    $videoId = getVimeoVideoId($vimeoUrl);
+				<div class="cards">
+					<?php while ( $q->have_posts() ) : $q->the_post();
 
-                    // Thumbnail or placeholder URL
-                    $thumbnail_url = has_post_thumbnail() ? get_the_post_thumbnail_url(get_the_ID(), 'fp-small') : $placeholder_url;
-                    ?>
+						// Variables for video information
+						$vimeoUrl     = get_field('video', get_the_ID());
+						$video_length = get_field('video_length', get_the_ID());
+						$videoId      = getVimeoVideoId($vimeoUrl);
 
-                    <div class="cards__item">
-                        <a href="<?php the_permalink(); ?>">
-                            <figure class="cards__figure">
-                                <img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php the_title_attribute(); ?>">
+						// Thumbnail or placeholder URL
+						$thumbnail_url = has_post_thumbnail()
+							? get_the_post_thumbnail_url(get_the_ID(), 'fp-small')
+							: $placeholder_url; ?>
 
-                                <?php if ($video_length) : ?>
-                                    <div class="cards__length">
-                                        <?php echo esc_html($video_length); ?>
-                                    </div>
-                                <?php endif; ?>
-                            </figure>
-                            <div class="cards__header">
-                                <h3 class="cards__title"><?php the_title(); ?></h3>
-                            </div>
-                        </a>
-                    </div>
+						<div class="cards__item">
+							<a href="<?php the_permalink(); ?>">
+								<figure class="cards__figure">
+									<img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php the_title_attribute(); ?>">
+									<?php if ($video_length) : ?>
+										<div class="cards__length"><?php echo esc_html($video_length); ?></div>
+									<?php endif; ?>
+								</figure>
+								<div class="cards__header">
+									<h3 class="cards__title"><?php the_title(); ?></h3>
+								</div>
+							</a>
+						</div>
 
-                <?php endwhile; ?>
+					<?php endwhile; ?>
+				</div>
 
-            </div>
+				<?php
+				// Optional: pagination (if you use it on this archive)
+				// echo paginate_links([ 'total' => $q->max_num_pages, 'current' => $paged ]);
 
-        </div>
+				wp_reset_postdata();
+				?>
+
+			</div>
+		</div>
 
     <?php endif; // End have_posts() check. ?>
 
