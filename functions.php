@@ -137,3 +137,55 @@ function remove_memberpress_meta_boxes() {
     remove_meta_box('mepr_metabox_postbox', 'post', 'normal');
 }
 add_action('add_meta_boxes', 'remove_memberpress_meta_boxes', 20);
+
+// Comments
+
+// 1) Minimal, modern defaults
+add_filter('comment_form_defaults', function ($d) {
+  $d['title_reply']         = '';
+  $d['comment_notes_before']= '';
+  $d['comment_notes_after'] = '';
+  $d['label_submit']        = 'Post comment';
+  // We'll output our own comment field markup below
+  return $d;
+});
+
+// 2) Replace the comment textarea with our custom wrapper
+add_filter('comment_form_field_comment', function($field){
+  ob_start(); ?>
+  <div id="zp-comment" class="zp-comment is-collapsed">
+    <div class="zp-comment__input">
+      <textarea id="comment" name="comment" cols="45" rows="3" maxlength="3000"
+        placeholder="Add a quick thought…" required></textarea>
+
+      <button type="button" class="zp-comment__emoji-btn" aria-label="Insert emoji" title="Insert emoji">😊</button>
+
+      <!-- Native web-component emoji picker (hidden by default) -->
+      <emoji-picker class="zp-emoji" style="display:none"></emoji-picker>
+    </div>
+
+    <div class="zp-comment__actions">
+      <div class="zp-comment__meta">
+        <span class="zp-comment__counter" aria-live="polite">0/3000</span>
+      </div>
+      <div class="zp-comment__buttons">
+        <button type="button" class="zp-comment__cancel">Cancel</button>
+        <input name="submit" type="submit" id="submit" class="submit" value="Post comment" />
+      </div>
+    </div>
+  </div>
+  <?php
+  return ob_get_clean();
+});
+
+// 3) Enqueue CSS & JS (uses a tiny native emoji picker web-component via CDN)
+add_action('wp_enqueue_scripts', function () {
+  // CSS
+  wp_enqueue_style('zp-comments', get_stylesheet_directory_uri() . '/assets/zp-comments.css', [], null);
+
+  // Emoji Picker web-component (MIT) – modern browsers
+  wp_enqueue_script('emoji-picker-element', 'https://unpkg.com/emoji-picker-element@^1/index.js?module', [], null, true);
+
+  // Our behaviour
+  wp_enqueue_script('zp-comments', get_stylesheet_directory_uri() . '/assets/zp-comments.js', ['emoji-picker-element'], null, true);
+});

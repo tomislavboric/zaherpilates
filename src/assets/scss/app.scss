@@ -107,3 +107,118 @@
 
 // Templates
 // @import "templates/*";
+
+/* Container */
+.zp-comment {
+  --ring: rgba(59,130,246,.55);
+  --border: #e5e7eb;
+  --muted: #6b7280;
+  --bg: #fff;
+  --bg2: #f9fafb;
+
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px;
+  background: var(--bg);
+  box-shadow: 0 1px 0 rgba(0,0,0,.03);
+  transition: box-shadow .2s ease, border-color .2s ease;
+}
+
+.zp-comment.is-collapsed .zp-comment__actions { display:none; }
+
+.zp-comment:focus-within {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 4px rgba(59,130,246,.12);
+}
+
+/* Input row */
+.zp-comment__input {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.zp-comment textarea {
+  flex: 1 1 auto;
+  resize: none;
+  min-height: 44px;        /* compact */
+  max-height: 320px;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  line-height: 1.4;
+  padding: 8px 40px 8px 10px; /* leave room for emoji btn */
+  background: transparent;
+}
+
+.zp-comment.is-expanded textarea {
+  min-height: 140px;       /* expand target */
+}
+
+/* Emoji button */
+.zp-comment__emoji-btn {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  border: none;
+  background: var(--bg2);
+  border-radius: 10px;
+  padding: 6px 8px;
+  cursor: pointer;
+  transition: background .15s ease;
+}
+.zp-comment__emoji-btn:hover { background: #eef2ff; }
+
+/* Actions row */
+.zp-comment__actions {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.zp-comment__counter {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.zp-comment__buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.zp-comment__cancel {
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+#submit.submit {
+  border: none;
+  background: #111827;
+  color: #fff;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  cursor: pointer;
+}
+#submit.submit:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+/* Emoji picker panel */
+.zp-emoji {
+  position: absolute;
+  right: 0;
+  top: 50px;
+  top: calc(100% + 6px);
+  z-index: 50;
+  box-shadow: 0 10px 30px rgba(0,0,0,.12);
+  border-radius: 12px;
+  overflow: hidden;
+}
