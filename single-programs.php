@@ -111,6 +111,15 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
 
             </div>
 
+						<div class="video__comments">
+							<?php
+							if (comments_open() || get_comments_number()) {
+									comments_template();
+							}
+							?>
+
+						</div>
+
             <?php
             $instructor = get_field('instructor');
 
