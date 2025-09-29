@@ -63,6 +63,15 @@ $current_user = wp_get_current_user();
 			<?php else : ?>
 				<?php foundationpress_top_bar_r(); ?>
 			<?php endif; ?>
+			<div class="header-menu__divider"></div>
+			<div class="header-menu__account">
+				<?php if ( is_user_logged_in() ) : ?>
+					<a href="<?php echo home_url(); ?>/moj-racun/" class="button button--hollow">Moj račun</a>
+					<a href="<?php echo wp_logout_url( home_url() ); ?>" class="button button--hollow">Logout</a>
+				<?php else : ?>
+					<a href="<?php echo home_url(); ?>/prijava/" class="button button--hollow">Prijavi se</a>
+				<?php endif; ?>
+			</div>
 	</div>
 
 </header>

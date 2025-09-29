@@ -111,15 +111,6 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
 
             </div>
 
-						<div class="video__comments">
-							<?php
-							if (comments_open() || get_comments_number()) {
-									comments_template();
-							}
-							?>
-
-						</div>
-
             <?php
             $instructor = get_field('instructor');
 
@@ -166,7 +157,7 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
                 <?php wp_reset_postdata(); // Reset the $post object ?>
             <?php endif; ?>
 
-            <div class="video__nav">
+						<div class="video__nav">
                 <?php
                 $prev_post = get_previous_post();
                 $next_post = get_next_post();
@@ -193,6 +184,12 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
                     </div>
                 <?php endif; ?>
             </div>
+
+						<? /*
+						<div class="video__comments">
+							<?php video_comments(); ?>
+						</div>
+						*/ ?>
 
         </article>
 

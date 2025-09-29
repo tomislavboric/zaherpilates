@@ -5,15 +5,15 @@
   left: 0;
   width: 100%;
   height: 100%;
-  /* background-color: rgba(0, 0, 0, 0.9); */
   background-color: #fff;
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  align-items: center;
   visibility: hidden;
   opacity: 0;
   transition: opacity 0.5s, visibility 0.5s;
   z-index: 999;
+  padding: 0 40px;
   @include breakpoint(xlarge) {
     visibility: hidden !important;
     opacity: 0 !important;
@@ -24,21 +24,18 @@
     position: relative;
     display: flex;
     width: 100%;
-    flex-grow: 1;
-    flex-shrink: 0;
-    justify-content: center;
     flex-direction: column;
     li {
       position: relative;
       width: 100%;
-      box-sizing: border-box;
-      padding-left: 3vw;
-      padding-right: 3vw;
+      /* padding-left: 3vw;
+      padding-right: 3vw; */
       font-weight: 300;
       a {
         position: relative;
         display: block;
-        margin: 3vw 5vw;
+        /* margin: 3vw 5vw; */
+        margin: 3vw 0;
         transition: opacity 250ms cubic-bezier(.4,0,.2,1);
         opacity: 1;
         line-height: 1;
@@ -66,6 +63,17 @@
       }
     }
   }
+  &__divider {
+    height: 1px;
+    background-color: $gray-200;
+    margin: 20px 0;
+    width: 100%;
+  }
+  &__account {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 .header {
@@ -79,7 +87,7 @@
 }
 
 .burger {
-  width: 30px;
+  width: 35px;
   height: 20px;
   display: flex;
   flex-direction: column;
