@@ -1,4 +1,4 @@
-$(function() {
+jQuery(function ($) {
   $('.burger').click(function() {
       // Toggle 'burger--active' class
       $(this).toggleClass('burger--active');
