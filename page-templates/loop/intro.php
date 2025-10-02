@@ -12,7 +12,7 @@
 
 		<footer class="pricing-plans__footer">
 			<div class="buttons">
-				<a class="button" href="<?php echo home_url(); ?>/programs/">Zaviri u katalog treninga na LOOPu</a>
+				<a class="button" href="<?php echo home_url(); ?>/katalog/">Zaviri u katalog treninga na LOOPu</a>
 			</div>
 		</footer>
 
