@@ -68,6 +68,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const link = document.querySelector('.mepr-invoice-print ~ a'); // selektira link nakon gumba "Ispiši"
   if (link) {
     link.textContent = 'Započni trenirati';
-    link.setAttribute('href', '/programs/');
+    link.setAttribute('href', '/katalog/');
   }
 });
