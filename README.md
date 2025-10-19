@@ -170,3 +170,155 @@ Pull requests are highly appreciated. Please follow these guidelines:
 2. Make sure that your code is bug-free and does not introduce new bugs
 3. Create a [pull request](https://help.github.com/articles/creating-a-pull-request)
 4. Verify that all the Travis-CI build checks have passed
+
+
+# Comments System - Complete Package
+
+## 📦 Files Included
+
+1. **comments.php** - WordPress comments template
+2. **comments-styles.scss** - Complete styling (compile to CSS)
+3. **functions.php** - AJAX handler code (add to your theme's functions.php)
+
+## ✨ Features
+
+### 1. **Reply to Comments**
+- Click "Odgovori" on any comment
+- Form moves under the comment with special styling
+- Different title: "Odgovorite korisniku [Name]"
+- Shorter placeholder: "Napišite svoj odgovor..."
+- Button changes to: "Objavi odgovor"
+- Cancel link: "← Odustani od odgovora"
+
+### 2. **Edit Comments**
+- "Uredi" button appears only for comment author
+- Inline editing with textarea
+- Save or cancel changes
+- Success message appears after saving
+- AJAX save - no page reload
+
+### 3. **Emoji Picker**
+- 3 categories of emojis
+- Easy insertion into comments
+- Brand-colored hover effects
+
+### 4. **Nested Comments**
+- Up to 3 levels deep
+- Subtle background and left border for replies
+- "Odgovor za [Name]" indicator
+- Proper indentation (52px desktop, 32px mobile)
+
+### 5. **Brand Styling**
+- Rose/terracotta color scheme (#c79288)
+- Clean, modern design
+- Fully responsive
+- Smooth transitions and animations
+
+## 🚀 Installation
+
+### Step 1: Add Comments Template
+Replace your theme's `comments.php` with the provided file.
+
+### Step 2: Add Styles
+Add the SCSS to your theme's styles and compile, or convert to CSS and enqueue.
+
+```php
+// In functions.php
+wp_enqueue_style('comments-style', get_template_directory_uri() . '/css/comments.css');
+```
+
+### Step 3: Add AJAX Handler
+Copy the entire function from `functions.php` artifact and paste it into your theme's `functions.php` file.
+
+### Step 4: Ensure Comment Reply Script
+Make sure WordPress comment reply script is loaded:
+
+```php
+// In functions.php
+if (is_singular() && comments_open() && get_option('thread_comments')) {
+    wp_enqueue_script('comment-reply');
+}
+```
+
+## 📱 Responsive Design
+
+- **Desktop**: Full 52px indentation for nested comments
+- **Mobile**: Reduced 32px indentation
+- Edit form buttons stack vertically on mobile
+- Smaller avatars on mobile (36px vs 40px)
+
+## 🔒 Security Features
+
+- WordPress nonce verification
+- User ownership check (can only edit own comments)
+- Content sanitization
+- Optional time limit for editing (commented out)
+
+## 🎨 Customization
+
+### Colors
+Change these variables in SCSS:
+```scss
+$brand-primary: #c79288;    // Main brand color
+$brand-secondary: #d4a296;  // Secondary accent
+```
+
+### Time Limit for Editing
+To enable 30-minute edit limit, uncomment these lines in `functions.php`:
+```php
+if ((time() - $comment_time) > $time_limit) {
+    wp_send_json_error('Komentar se može uređivati samo 30 minuta nakon objavljivanja');
+    return;
+}
+```
+
+### Nesting Depth
+Change `max_depth` in comments.php:
+```php
+'max_depth' => 3,  // Change to 2, 4, or 5
+```
+
+## 🐛 Troubleshooting
+
+**Edit button not appearing:**
+- Make sure you're logged in and viewing your own comment
+- Check that `get_current_user_id()` works on your site
+
+**AJAX not working:**
+- Verify functions.php code is added correctly
+- Check browser console for JavaScript errors
+- Ensure admin-ajax.php is accessible
+
+**Styles not applying:**
+- Compile SCSS to CSS if needed
+- Check CSS is properly enqueued
+- Clear browser cache
+
+## 📝 Croatian Translations
+
+All text is in Croatian:
+- "Uredi" = Edit
+- "Spremi" = Save
+- "Odustani" = Cancel
+- "Odgovori" = Reply
+- "Odgovor za" = Reply to
+- Success/error messages in Croatian
+
+## 💡 Tips
+
+1. Test editing on a staging site first
+2. Backup your comments before deployment
+3. Consider adding edit history tracking
+4. Monitor for spam/abuse with edit feature
+5. Use caching plugin? Make sure AJAX works
+
+## 🎯 Browser Support
+
+- ✅ Chrome/Edge (modern)
+- ✅ Firefox (modern)
+- ✅ Safari (modern)
+- ✅ Mobile browsers (iOS/Android)
+
+## 📄 License
+
+Use freely in your projects. No attribution required.

@@ -27,25 +27,12 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
         <article class="video">
             <div class="video__section">
 
-							<?php /* if( current_user_can('administrator')) : ?>
-								<p>Ovo vidi samo admin</p>
-								<?php
-								if(current_user_can('mepr-active','membership:387')): ?>Mjesečna pretplata<?php endif; ?>
-								<?php if(current_user_can('mepr-active','membership:111')): ?>Tromjesečna pretplata<?php endif; ?>
-								<?php if(current_user_can('mepr-active','membership:148')): ?>Polugodišnja pretplata<?php endif; ?>
-								<br>
-								<?php if(current_user_can('mepr-active','memberships:111,222,333')): ?>Može sve<?php endif;
-								 ?>
-
-							<?php endif;  */ ?>
-
                 <?php if( current_user_can('administrator')) : ?>
-                    <div style="padding:56.25% 0 0 0;position:relative;">
-                        <iframe src="https://player.vimeo.com/video/<?php echo esc_attr($videoId); ?>?h=0aaecdaa4d" width="640" height="360" frameborder="0" allow="autoplay; fullscreen;" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
-                    </div>
+									<div style="padding:56.25% 0 0 0;position:relative;">
+											<iframe src="https://player.vimeo.com/video/<?php echo esc_attr($videoId); ?>?h=0aaecdaa4d" width="640" height="360" frameborder="0" allow="autoplay; fullscreen;" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
+									</div>
 
-									<?php
-									elseif ($subscription_type) :
+									<?php elseif ($subscription_type) :
 											// Map ACF values to MemberPress Membership IDs
 											$membership_map = [
 													'mjesecna' => 387,
@@ -185,11 +172,9 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
                 <?php endif; ?>
             </div>
 
-						<? /*
 						<div class="video__comments">
 							<?php video_comments(); ?>
 						</div>
-						*/ ?>
 
         </article>
 

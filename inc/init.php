@@ -63,6 +63,7 @@ require_once( 'custom/acf-json.php' );
 require_once( 'custom/memberpress.php' );
 require_once( 'custom/comments-loggedin-only.php' );
 require_once( 'custom/comments-croatian.php' );
+require_once( 'custom/comments-reply-ajax.php' );
 
 // require_once( 'custom/wp-blocks.php' );
 // require_once( 'custom/scripts.php' );

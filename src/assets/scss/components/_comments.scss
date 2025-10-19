@@ -93,6 +93,17 @@ $border-radius-lg: 12px;
   font-weight: 600;
   color: $color-text;
   margin-bottom: $spacing-sm;
+
+  // Add a subtle indicator when in reply mode
+  .comment-item .comment-respond & {
+    color: $brand-primary;
+
+    &::before {
+      content: "↩ ";
+      opacity: 0.7;
+      margin-right: 4px;
+    }
+  }
 }
 
 .comment-respond {
@@ -101,6 +112,37 @@ $border-radius-lg: 12px;
   border-radius: 8px;
   padding: 20px;
   margin-bottom: 30px;
+  transition: all 0.3s ease;
+
+  // When reply form is moved under a comment
+  .comment-item & {
+    margin-top: $spacing-sm;
+    margin-left: 52px; // Match comment indentation
+    background: rgba($brand-primary, 0.05);
+    border-left: 3px solid $brand-primary;
+    box-shadow: 0 2px 8px rgba($brand-primary, 0.1);
+  }
+}
+
+// Cancel reply button styling
+.cancel-reply-wrapper {
+  margin-top: 8px;
+  margin-bottom: 12px;
+
+  a {
+    color: $brand-primary;
+    font-size: 0.85rem;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: inline-block;
+    font-weight: 500;
+
+    &:hover {
+      background: rgba($brand-primary, 0.1);
+    }
+  }
 }
 
 .comment-form-v5 {
@@ -242,6 +284,21 @@ $border-radius-lg: 12px;
     border-bottom: 1px solid #f0f0f0;
   }
 
+  // Nested replies styling
+  &.is-reply {
+    background: rgba($brand-primary, 0.02);
+    border-left: 2px solid rgba($brand-primary, 0.3);
+    padding: $spacing-sm;
+    border-radius: 4px;
+    margin-bottom: $spacing-sm;
+    padding-bottom: $spacing-sm;
+    border-bottom: none !important;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
   .comment-avatar {
     flex-shrink: 0;
 
@@ -297,6 +354,10 @@ $border-radius-lg: 12px;
   }
 
   .comment-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+
     .like-button {
       background: none;
       border: none;
@@ -320,6 +381,164 @@ $border-radius-lg: 12px;
   }
 }
 
+// Edit comment button
+.edit-comment-btn {
+  background: none;
+  border: none;
+  color: $color-text-light;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba($brand-primary, 0.1);
+    color: $brand-primary;
+  }
+}
+
+// Edit comment form
+.comment-edit-form {
+  margin-top: $spacing-xs;
+  margin-bottom: $spacing-sm;
+
+  .comment-edit-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid $brand-primary;
+    border-radius: $border-radius;
+    font-family: inherit;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    resize: vertical;
+    background: rgba($brand-primary, 0.02);
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba($brand-primary, 0.2);
+    }
+  }
+
+  .comment-edit-actions {
+    margin-top: $spacing-xs;
+    display: flex;
+    gap: $spacing-xs;
+  }
+
+  .save-edit-btn {
+    background: $brand-primary;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: $border-radius;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: darken($brand-primary, 5%);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  .cancel-edit-btn {
+    background: transparent;
+    color: $color-text-muted;
+    border: 1px solid $color-border;
+    padding: 8px 16px;
+    border-radius: $border-radius;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba($color-text, 0.05);
+      border-color: $color-text-muted;
+    }
+  }
+}
+
+// Success message
+.comment-edit-success {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #10b981;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 6px 12px;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: $border-radius;
+  margin-bottom: $spacing-xs;
+  animation: slideInDown 0.3s ease;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Reply-to indicator
+.comment-reply-to {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: $brand-primary;
+  margin-bottom: $spacing-xs;
+  padding: 4px 8px;
+  background: rgba($brand-primary, 0.08);
+  border-radius: 4px;
+  width: fit-content;
+
+  .reply-arrow {
+    font-size: 0.9rem;
+    opacity: 0.8;
+  }
+
+  strong {
+    font-weight: 600;
+  }
+}
+
+// Reply button styling
+.reply-button {
+  background: none;
+  border: none;
+  color: $brand-primary;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba($brand-primary, 0.1);
+  }
+}
+
+// Nested comment container
+.comment-replies {
+  margin-top: 0;
+  margin-left: 52px; // Avatar width (40px) + gap (12px)
+  padding-top: $spacing-sm;
+}
+
 // Responsive
 @media (max-width: 768px) {
   .comments-section {
@@ -335,12 +554,37 @@ $border-radius-lg: 12px;
     padding: $spacing-sm;
   }
 
+  .comment-respond {
+    padding: 16px;
+
+    // Reply form on mobile - smaller indent
+    .comment-item & {
+      margin-left: 20px;
+      padding: 12px;
+    }
+  }
+
   .comment-item {
+    gap: 12px;
+
     .comment-avatar {
       img, .avatar-initial {
-        width: 40px;
-        height: 40px;
+        width: 36px;
+        height: 36px;
       }
+    }
+  }
+
+  .comment-reply-to {
+    font-size: 0.75rem;
+  }
+
+  // Reduce nesting indent on mobile
+  .comment-replies {
+    margin-left: 32px; // Smaller indent for mobile
+
+    .comment-item {
+      padding: 12px;
     }
   }
 }
