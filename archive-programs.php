@@ -1,8 +1,5 @@
 <?php get_header();
 
-$user_id = get_current_user_id();
-$user_favorites = get_user_favorites($user_id); // Get the user's favorite post IDs
-$user_favorites_count = get_user_favorites_count($user_id);
 $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeholder.jpg'; // Custom placeholder image URL
 
 ?>
