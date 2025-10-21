@@ -23,6 +23,8 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
 				// 1) Get ALL favorite IDs for this user (works both single/multisite)
 				$fav_ids = get_user_favorites( get_current_user_id() ); // returns array of post IDs
 
+				var_dump($fav_ids);
+
 				// 2) Are there any published 'programs' among those IDs?
 				$has_favorited_programs = false;
 
