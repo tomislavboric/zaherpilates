@@ -8,8 +8,6 @@ get_header(); ?>
 
 		<?php get_template_part( 'template-parts/modules/page-header' ); ?>
 
-		    <?php get_template_part( 'template-parts/modules/page-header' ); ?>
-
 		<section class="favorite-videos">
 			<?php get_template_part( 'page-templates/loop-catalog/favorites' ); ?>
 		</section>
