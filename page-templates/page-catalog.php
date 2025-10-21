@@ -2,7 +2,12 @@
 /*
 Template Name: Loop Catalog
 */
-get_header(); ?>
+
+get_header();
+
+$placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeholder.jpg'; // Custom placeholder image URL
+
+?>
 
 	<main class="main">
 
