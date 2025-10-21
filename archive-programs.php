@@ -20,20 +20,30 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
 			<div class="grid-container full">
 
 				<?php
-					// Does the user have any favorite Programs?
-					$fav_ids = get_user_favorites(
-						get_current_user_id(),
-						get_current_blog_id(),
-						array(
-							'post_type' => 'programs',   // your CPT
-							'status'    => 'publish',
-						)
-					);
-				?>
+				// 1) Get ALL favorite IDs for this user (works both single/multisite)
+				$fav_ids = get_user_favorites( get_current_user_id() ); // returns array of post IDs
 
-				<?php if ( ! empty( $fav_ids ) ) : ?>
+				// 2) Are there any published 'programs' among those IDs?
+				$has_favorited_programs = false;
+
+				if ( ! empty( $fav_ids ) ) {
+					$q = new WP_Query( array(
+						'post_type'      => 'programs',   // make sure this slug matches on live
+						'post_status'    => 'publish',
+						'post__in'       => $fav_ids,
+						'posts_per_page' => 1,
+						'fields'         => 'ids',
+						'no_found_rows'  => true,
+					) );
+					$has_favorited_programs = $q->have_posts();
+					wp_reset_postdata();
+				}
+
+				// 3) Print the heading only if the user truly has favorited programs
+				if ( $has_favorited_programs ) : ?>
 					<h2>Sve kategorije</h2>
 				<?php endif; ?>
+
 
 				<?php
 				$terms = get_terms( array(
