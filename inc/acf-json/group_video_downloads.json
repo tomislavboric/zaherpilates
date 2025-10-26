@@ -1,0 +1,113 @@
+{
+    "key": "group_video_downloads",
+    "title": "Video Downloads",
+    "fields": [
+        {
+            "key": "field_downloadable_files",
+            "label": "Downloadable Files",
+            "name": "downloadable_files",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "Add files that users with access to this video can download",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "row",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "button_label": "Add File",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_file_title",
+                    "label": "File Title",
+                    "name": "file_title",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "Descriptive name for the file (e.g., 'Workout Plan PDF', 'Exercise Guide')",
+                    "required": 1,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_downloadable_files"
+                },
+                {
+                    "key": "field_file_upload",
+                    "label": "File",
+                    "name": "file",
+                    "aria-label": "",
+                    "type": "file",
+                    "instructions": "",
+                    "required": 1,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "return_format": "array",
+                    "library": "all",
+                    "min_size": "",
+                    "max_size": "",
+                    "mime_types": "pdf,doc,docx,xls,xlsx,zip",
+                    "parent_repeater": "field_downloadable_files"
+                },
+                {
+                    "key": "field_file_description",
+                    "label": "Description",
+                    "name": "description",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "Optional brief description of what this file contains",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "rows": 2,
+                    "placeholder": "",
+                    "new_lines": "",
+                    "parent_repeater": "field_downloadable_files"
+                }
+            ]
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "programs"
+            }
+        ]
+    ],
+    "menu_order": 1,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "Files that can be downloaded by users with access to the video",
+    "show_in_rest": 0,
+    "display_title": "",
+    "modified": 1761485221
+}

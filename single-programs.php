@@ -22,6 +22,27 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
         $vimeo_length = get_field('video_length');
         $videoId = getVimeoVideoId($vimeo_url);
 				$subscription_type = get_field('subscription_type');
+
+				// Check user access for later use
+				$user_has_access = false;
+				if( current_user_can('administrator')) {
+					$user_has_access = true;
+				} elseif ($subscription_type) {
+					// Map ACF values to MemberPress Membership IDs
+					$membership_map = [
+						'mjesecna' => 387,
+						'tromjesecna' => 111,
+						'polugodisnja' => 148,
+					];
+
+					// Check if user has any of the required memberships
+					foreach ($subscription_type as $type) {
+						if (isset($membership_map[$type]) && current_user_can('mepr-active', 'membership:' . $membership_map[$type])) {
+							$user_has_access = true;
+							break;
+						}
+					}
+				}
         ?>
 
         <article class="video">
@@ -60,14 +81,7 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
 															?>
 															<img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php the_title_attribute(); ?>">
 															<figcaption class="locked__figcaption">
-																	<a class="button button--small" href="<?php echo esc_url(home_url('/cjenik/')); ?>">
-																		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 20" data-area="lock-icon" height="18" width="20">
-																			<g fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
-																				<path d="M13.927 18.872H3.634C2.18 18.872 1 17.727 1 16.312V10.35c0-1.413 1.18-2.56 2.634-2.56h10.293c1.455 0 2.634 1.147 2.634 2.56v5.964c0 1.414-1.179 2.56-2.634 2.56z"></path>
-																				<path d="M3.81 7.79V5.83C3.81 3.162 6.035 1 8.78 1c2.746 0 4.97 2.162 4.97 4.829V7.79"></path>
-																			</g>
-																		</svg>
-																		Pretplati se</a>
+																	<a class="button button--small" href="<?php echo esc_url(home_url('/cjenik/')); ?>"><span class="material-icons-outlined">lock</span> Pretplati se</a>
 																	<div>ili <a href="<?php echo esc_url(home_url('/prijava')); ?>">prijavi se</a>.</div>
 															</figcaption>
 													</figure>
@@ -104,6 +118,57 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
                 <?php endif; ?>
 
             </div>
+
+            <?php
+            // Display downloadable files if user has access
+            if ( $user_has_access ) {
+                $downloadable_files = get_field('downloadable_files');
+
+                if ( $downloadable_files ) : ?>
+                    <div class="video__downloads">
+                        <h3 class="video__downloads-title">
+                            <span class="material-icons-outlined">download</span>
+                            Dodatni materijali
+                        </h3>
+                        <div class="downloads-list">
+                            <?php foreach ( $downloadable_files as $file_item ) :
+                                $file = $file_item['file'];
+                                $title = $file_item['file_title'];
+                                $description = $file_item['description'];
+
+                                if ( $file ) :
+                                    $file_url = $file['url'];
+                                    $file_size = size_format( $file['filesize'], 2 );
+                                    $file_type = strtoupper( pathinfo( $file['filename'], PATHINFO_EXTENSION ) );
+                                ?>
+                                    <div class="download-item">
+                                        <div class="download-item__icon">
+                                            <span class="material-icons-outlined">description</span>
+                                        </div>
+                                        <div class="download-item__content">
+                                            <h4 class="download-item__title"><?php echo esc_html( $title ); ?></h4>
+                                            <?php if ( $description ) : ?>
+                                                <p class="download-item__description"><?php echo esc_html( $description ); ?></p>
+                                            <?php endif; ?>
+                                            <div class="download-item__meta">
+                                                <span class="file-type"><?php echo esc_html( $file_type ); ?></span>
+                                                <span class="file-size"><?php echo esc_html( $file_size ); ?></span>
+                                            </div>
+                                        </div>
+                                        <div class="download-item__action">
+                                            <a href="<?php echo esc_url( $file_url ); ?>" class="button button--download" download>
+                                                <span class="material-icons-outlined">file_download</span>
+                                                Preuzmi
+                                            </a>
+                                        </div>
+                                    </div>
+                                <?php endif;
+                            endforeach; ?>
+                        </div>
+                    </div>
+                <?php endif;
+            }
+            ?>
 
             <?php
             $instructor = get_field('instructor');
