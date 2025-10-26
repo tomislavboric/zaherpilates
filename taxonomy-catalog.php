@@ -50,18 +50,49 @@ if ( have_rows('catalog_builder', $term) ) {
 							$vimeoUrl     = get_field('video', get_the_ID());
 							$video_length = get_field('video_length', get_the_ID());
 							$videoId      = getVimeoVideoId($vimeoUrl);
+							$subscription_type = get_field('subscription_type', get_the_ID());
 
 							// Thumbnail or placeholder URL
 							$thumbnail_url = has_post_thumbnail()
 								? get_the_post_thumbnail_url(get_the_ID(), 'fp-small')
-								: $placeholder_url; ?>
+								: $placeholder_url;
 
-							<div class="cards__item">
+							// Check if user has access to this video
+							$membership_map = [
+								'mjesecna' => 387,
+								'tromjesecna' => 111,
+								'polugodisnja' => 148,
+							];
+
+							$has_access = false;
+							$is_admin = current_user_can('administrator');
+
+							if ($is_admin) {
+								$has_access = true;
+							} elseif ($subscription_type) {
+								foreach ($subscription_type as $type) {
+									if (isset($membership_map[$type]) && current_user_can('mepr-active', 'membership:' . $membership_map[$type])) {
+										$has_access = true;
+										break;
+									}
+								}
+							} else {
+								// If no subscription type set, video is accessible to all
+								$has_access = true;
+							}
+							?>
+
+							<div class="cards__item <?php echo !$has_access ? 'is-locked' : ''; ?>">
 								<a href="<?php the_permalink(); ?>">
 									<figure class="cards__figure">
 										<img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php the_title_attribute(); ?>">
 										<?php if ($video_length) : ?>
 											<div class="cards__length"><?php echo esc_html($video_length); ?></div>
+										<?php endif; ?>
+										<?php if (!$has_access) : ?>
+											<div class="cards__locked">
+												<span class="material-icons-outlined">lock</span>
+											</div>
 										<?php endif; ?>
 									</figure>
 									<div class="cards__header">
@@ -114,16 +145,46 @@ if ( have_rows('catalog_builder', $term) ) {
 
 									$vimeoUrl      = get_field('video', $pid);
 									$video_length  = get_field('video_length', $pid);
+									$subscription_type = get_field('subscription_type', $pid);
 									$thumbnail_url = has_post_thumbnail($pid)
 										? get_the_post_thumbnail_url($pid, 'fp-small')
 										: $placeholder_url;
+
+									// Check if user has access to this video
+									$membership_map = [
+										'mjesecna' => 387,
+										'tromjesecna' => 111,
+										'polugodisnja' => 148,
+									];
+
+									$has_access = false;
+									$is_admin = current_user_can('administrator');
+
+									if ($is_admin) {
+										$has_access = true;
+									} elseif ($subscription_type) {
+										foreach ($subscription_type as $type) {
+											if (isset($membership_map[$type]) && current_user_can('mepr-active', 'membership:' . $membership_map[$type])) {
+												$has_access = true;
+												break;
+											}
+										}
+									} else {
+										// If no subscription type set, video is accessible to all
+										$has_access = true;
+									}
 								?>
-									<div class="cards__item">
+									<div class="cards__item <?php echo !$has_access ? 'is-locked' : ''; ?>">
 										<a href="<?php echo esc_url( get_permalink($pid) ); ?>">
 											<figure class="cards__figure">
 												<img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php echo esc_attr( get_the_title($pid) ); ?>">
 												<?php if ( $video_length ) : ?>
 													<div class="cards__length"><?php echo esc_html($video_length); ?></div>
+												<?php endif; ?>
+												<?php if (!$has_access) : ?>
+													<div class="cards__locked">
+														<span class="material-icons-outlined">lock</span>
+													</div>
 												<?php endif; ?>
 											</figure>
 											<div class="cards__header">

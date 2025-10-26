@@ -11,6 +11,14 @@
   @include breakpoint(xxlarge) {
     grid-template-columns: repeat(4, 1fr);
   }
+  &__item {
+    &.is-locked {
+      opacity: 0.9;
+      a {
+        cursor: default;
+      }
+    }
+  }
   &__count {
     display: none !important;
     color: #fff;
@@ -40,6 +48,27 @@
     padding: 6px 10px;
     line-height: 1;
     color: #fff;
+    z-index: 1;
+  }
+  &__locked {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: $overlay;
+    border-radius: $box-radius;
+    z-index: 2;
+    span {
+      font-size: 48px;
+      color: $gray-200;
+      @include breakpoint(xlarge) {
+        font-size: 56px;
+      }
+    }
   }
   &__header {
     margin-top: 20px;
