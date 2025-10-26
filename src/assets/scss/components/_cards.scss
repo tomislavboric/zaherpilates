@@ -11,14 +11,14 @@
   @include breakpoint(xxlarge) {
     grid-template-columns: repeat(4, 1fr);
   }
-  &__item {
+  /* &__item {
     &.is-locked {
       opacity: 0.9;
       a {
         cursor: default;
       }
     }
-  }
+  } */
   &__count {
     display: none !important;
     color: #fff;
@@ -48,7 +48,7 @@
     padding: 6px 10px;
     line-height: 1;
     color: #fff;
-    z-index: 1;
+    z-index: 2;
   }
   &__locked {
     position: absolute;
@@ -61,13 +61,11 @@
     justify-content: center;
     background-color: $overlay;
     border-radius: $box-radius;
-    z-index: 2;
-    span {
-      font-size: 48px;
+    z-index: 1;
+    svg {
+      width: 32px;
+      height: auto;
       color: $gray-200;
-      @include breakpoint(xlarge) {
-        font-size: 56px;
-      }
     }
   }
   &__header {

@@ -60,7 +60,14 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
 															?>
 															<img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php the_title_attribute(); ?>">
 															<figcaption class="locked__figcaption">
-																	<a class="button button--small" href="<?php echo esc_url(home_url('/cjenik/')); ?>"><span class="material-icons-outlined">lock</span> Pretplati se</a>
+																	<a class="button button--small" href="<?php echo esc_url(home_url('/cjenik/')); ?>">
+																		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 20" data-area="lock-icon" height="18" width="20">
+																			<g fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+																				<path d="M13.927 18.872H3.634C2.18 18.872 1 17.727 1 16.312V10.35c0-1.413 1.18-2.56 2.634-2.56h10.293c1.455 0 2.634 1.147 2.634 2.56v5.964c0 1.414-1.179 2.56-2.634 2.56z"></path>
+																				<path d="M3.81 7.79V5.83C3.81 3.162 6.035 1 8.78 1c2.746 0 4.97 2.162 4.97 4.829V7.79"></path>
+																			</g>
+																		</svg>
+																		Pretplati se</a>
 																	<div>ili <a href="<?php echo esc_url(home_url('/prijava')); ?>">prijavi se</a>.</div>
 															</figcaption>
 													</figure>
