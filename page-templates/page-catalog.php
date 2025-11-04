@@ -20,9 +20,7 @@ the_post();
 		</section>
 
 		<section class="all-videos">
-			xxx
 			<?php get_template_part( 'page-templates/loop-catalog/catalog' ); ?>
-
 		</section>
 
 	</main>
