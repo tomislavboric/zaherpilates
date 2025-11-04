@@ -1,7 +1,12 @@
-<?php if (have_rows('catalog_sections')): ?>
+<?php
+$page_id = get_the_ID();
+
+if (have_rows('catalog_sections', $page_id)):
+?>
   <div class="grid-container full">
     <div class="cards">
-      <?php while (have_rows('catalog_sections')): the_row();
+      <?php
+      while (have_rows('catalog_sections', $page_id)): the_row();
 
         $is_collection = false;
         $title = '';
@@ -31,16 +36,16 @@
             if (get_field('hide_collection', $collection->ID)) continue;
 
             $title = get_the_title($collection);
-						$image = get_field('image', $collection->ID); // Optional ACF image field
-						$image_url = '';
+            $image = get_field('image', $collection->ID); // Optional ACF image field
+            $image_url = '';
 
-						if (!empty($image) && isset($image['sizes']['fp-small'])) {
-							$image_url = $image['sizes']['fp-small'];
-						} elseif (has_post_thumbnail($collection)) {
-							$image_url = get_the_post_thumbnail_url($collection, 'fp-small');
-						} else {
-							$image_url = 'https://via.placeholder.com/400x300?text=No+Image';
-						}
+            if (!empty($image) && isset($image['sizes']['fp-small'])) {
+              $image_url = $image['sizes']['fp-small'];
+            } elseif (has_post_thumbnail($collection)) {
+              $image_url = get_the_post_thumbnail_url($collection, 'fp-small');
+            } else {
+              $image_url = 'https://via.placeholder.com/400x300?text=No+Image';
+            }
             $link = get_permalink($collection->ID);
             $videos = get_field('videos', $collection->ID);
             $count = is_array($videos) ? count($videos) : 0;
