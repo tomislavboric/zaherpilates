@@ -4,7 +4,7 @@
 		<header class="section__header section__header--center">
 			<h2 class="section__title">Fitness platforma za žene koja nudi kratke treninge pilatesa, joge, snage i HIIT na jednom mjestu.</h2>
 			<div class="section__desc">
-				<p>Postigni izgled kojem težiš i sjećaj se dobro u svom tijelu, uz pomoć kratkih treninga iz svog doma!</p>
+				<p>Postigni izgled kojem težiš i osjećaj se dobro u svom tijelu, uz pomoć kratkih treninga iz svog doma!</p>
 			</div>
 		</header>
 
