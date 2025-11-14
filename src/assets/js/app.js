@@ -8,6 +8,7 @@ import './lib/sticky-header.js';
 import './lib/mobile-menu.js';
 import './lib/tabs.js';
 import './lib/comments.js';
+import './lib/bf-countdown.js';
 // import './lib/lazy-loading.js';
 
 $(document).foundation();

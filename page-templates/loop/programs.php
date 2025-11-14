@@ -23,7 +23,7 @@
 				<?php /* <a class="button" href="<?php echo home_url(); ?>/katalog/">Zaviri u katalog treninga na LOOPu</a> */ ?>
 				<a class="button" href="<?php echo home_url(); ?>/katalog/">Zaviri u katalog treninga koji su ti dostupni ODMAH nakon pristupa</a>
 			</div>
-			<p class="small" style="margin-top: 8px">Tu smo za tebe ako ćeš imati pitanja. Šalji ih na <a href="mailto:info@zaherpilates.com">info@zaherpilates.com</a></p>
+			<p class="small" style="margin-top: 8px">Tu smo za tebe ako ćeš imati pitanja. Šalji ih putem <a href="<?php echo esc_url( home_url( '/kontakt/' ) ); ?>">kontakt forme</a></p>
 		</footer>
 
 	</div>
