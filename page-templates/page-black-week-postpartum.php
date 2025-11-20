@@ -664,7 +664,7 @@ the_post();
 					</ul>
 					<p class="bf-offer__note">** Callovi će biti dostupni postojećim članicama Postpartum Essentialsa i Essentials Plus programa, snimani i uploadani na platformu</p>
 					<div class="bf-offer__cta">
-						<a class="button" href="https://postpartum.zaherpilates.ch/">Kupi Postpartum Essentials</a>
+						<a class="button" href="https://postpartum.zaherpilates.ch/essentials/buy?offer_id=96546">Kupi Postpartum Essentials</a>
 					</div>
 				</div>
 
@@ -680,7 +680,7 @@ the_post();
 						<li>neograničena email podrška kroz godinu dana te mogućnost slanja videa na pregled.</li>
 					</ul>
 					<div class="bf-offer__cta">
-						<a class="button" href="https://postpartum.zaherpilates.ch/essentials-plus">Kupi Postpartum Essentials Plus</a>
+						<a class="button" href="https://postpartum.zaherpilates.ch/postpartum-essentials-plus/buy?offer_id=2935239">Kupi Postpartum Essentials Plus</a>
 					</div>
 				</div>
 			</div>
