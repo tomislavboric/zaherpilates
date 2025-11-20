@@ -556,3 +556,11 @@ $checkout-highlight: rgba($primary-color, 0.12);
   font-size: 26px !important;
   line-height: 1.4 !important;
 }
+
+.mp_wrapper .mp-form-row.mp-address-group label.placeholder-text.active, .mp_wrapper .mp-form-row .mp-form-row-group label.placeholder-text.active, #mepr_loginform .mp-form-label label.placeholder-text.active, .mepr-pro-template .mp_wrapper .mepr_mepr-address-country .mp-form-label label.placeholder-text, .mepr-pro-template .mp_wrapper .mepr_mepr-address-state .mp-form-label label.placeholder-text {
+  color: $gray-500 !important;
+  background-color: transparent !important;
+}
+.form-wrapper .mp-address-group .mepr-form-input, .form-wrapper .mp-address-group input[type="text"] {
+  border-radius: 6px !important;
+}
