@@ -251,13 +251,13 @@ $checkout-highlight: rgba($primary-color, 0.12);
 	}
 
 	.mepr-payment-methods-wrapper {
-		padding: 1.75rem 2rem;
-		border-radius: 24px;
-		border: 1px solid rgba($gray-300, 0.9);
-		background: rgba($gray-50, 0.95);
+		padding: 1.75rem 2rem !important;
+		border-radius: 24px !important;
+		border: 1px solid rgba($gray-300, 0.9) !important;
+		background: rgba($gray-50, 0.95) !important;
 		display: flex;
 		flex-direction: column;
-		gap: .5rem;
+		gap: .5rem !important;
 
 		h3 {
 			margin: 0;
