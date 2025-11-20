@@ -588,7 +588,7 @@ the_post();
 						<li>Ulaziš u izbor za coaching paket od 12 susreta potpuno besplatno.</li>
 					</ul>
 					<div class="bf-offer__cta">
-						<a class="button" href="/registracija/polugodisnja-pretplata/?coupon=BF25">Ugrabi ponudu</a>
+						<a class="button" href="/registracija/polugodisnja-pretplata/">Ugrabi ponudu</a>
 					</div>
 				</div>
 			</div>
