@@ -486,7 +486,7 @@ the_post();
 	<section class="hero hero--black-friday">
 		<div class="grid-container">
 			<div class="hero__content">
-				<div class="hero__kicker">Black Week na LOOPu (24. &ndash; 30.11.)</div>
+				<div class="hero__kicker">Black Week na LOOPu (24. &ndash; 28.11.)</div>
 				<header class="hero__header">
 					<h1 class="hero__title">Ostvari ekskluzivan popust i dodatne pogodnosti &ndash; samo ovaj tjedan</h1>
 					<div class="hero__desc">
@@ -495,13 +495,13 @@ the_post();
 				</header>
 				<div class="hero__cta">
 					<a class="button button--large" href="#bf-options">Pogledaj ponudu</a>
-					<p class="hero__note">Ponuda traje cijeli tjedan, a završava 30.11. u 23:59.</p>
+					<p class="hero__note">Ponuda traje cijeli tjedan, a završava 28.11. u 23:59.</p>
 				</div>
 			</div>
 		</div>
 	</section>
 
-	<section class="bf-countdown" data-deadline="2025-12-01T23:59:00+01:00">
+	<section class="bf-countdown" data-deadline="2025-11-28T23:59:00+01:00">
 		<div class="grid-container">
 			<div class="bf-countdown__inner">
 				<div class="bf-countdown__label">Do isteka ponude ostalo je</div>
@@ -511,7 +511,7 @@ the_post();
 					<span data-unit="minutes">00<small>minuta</small></span>
 					<span data-unit="seconds">00<small>sekundi</small></span>
 				</div>
-				<?php /* <div class="bf-countdown__hint">Ponuda nestaje 30. studenog u ponoć.</div> */ ?>
+				<?php /* <div class="bf-countdown__hint">Ponuda nestaje 28. studenog u ponoć.</div> */ ?>
 			</div>
 		</div>
 	</section>
@@ -693,7 +693,7 @@ the_post();
 	</section>
 	<?php /* FAQ Section */?>
 
-	<section class="bf-countdown bf-countdown--last" data-deadline="2025-12-01T23:59:00+01:00">
+	<section class="bf-countdown bf-countdown--last" data-deadline="2025-11-28T23:59:00+01:00">
 		<div class="grid-container">
 			<div class="bf-countdown__inner">
 				<div class="bf-countdown__label">Do isteka ponude ostalo je</div>
@@ -703,7 +703,7 @@ the_post();
 					<span data-unit="minutes">00<small>minuta</small></span>
 					<span data-unit="seconds">00<small>sekundi</small></span>
 				</div>
-				<div class="bf-countdown__hint">Ponuda nestaje 30. studenog u ponoć.</div>
+				<div class="bf-countdown__hint">Ponuda nestaje 28. studenog u ponoć.</div>
 			</div>
 		</div>
 	</section>
