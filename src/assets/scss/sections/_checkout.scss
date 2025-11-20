@@ -3,13 +3,22 @@ $checkout-bg-start: #fef9f4;
 $checkout-bg-end: #f3f2ff;
 $checkout-highlight: rgba($primary-color, 0.12);
 
+.app-layout #masthead.site-header {
+  position: absolute;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  background: none !important;
+}
 .memberpressproduct-template-default {
   .site-main {
     background: linear-gradient(140deg, $checkout-bg-start 0%, $checkout-bg-end 100%);
     max-width: 100% !important;
     width: 100% !important;
-    padding-top: 4rem;
+    padding-top: 8rem;
     position: relative;
+    min-height: 100dvh;
     > p {
       max-width: 1000px;
       margin: 0 auto 1rem;
