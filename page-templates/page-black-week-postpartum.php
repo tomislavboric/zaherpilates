@@ -571,11 +571,11 @@ the_post();
 	<section class="hero hero--black-friday">
 		<div class="grid-container">
 			<div class="hero__content">
-				<div class="hero__kicker">POSTPARTUM BF (24. &ndash; 28.11.)</div>
+				<div class="hero__kicker">Black Friday Promo (24. &ndash; 28.11.)</div>
 				<header class="hero__header">
-					<h1 class="hero__title">BLACK FRIDAY ZA MAME - JEDINSTVENA POSTPARTUM PONUDA</h1>
+					<h1 class="hero__title">BLACK FRIDAY ZA MAME - JEDINSTVENA PONUDA</h1>
 					<div class="hero__desc">
-						<p>Oporavak nikada nije bio podržaniji &ndash; ostvari ekskluzivne pogodnosti i još više podrške u postpartumu samo ovaj tjedan.</p>
+						<p>Oporavak nikada nije bio podržaniji &ndash; ostvari ekskluzivne pogodnosti i još više podrške u oporavku samo ovaj tjedan.</p>
 					</div>
 				</header>
 				<div class="hero__cta">
@@ -604,7 +604,7 @@ the_post();
 	<section class="loop-intro">
 		<div class="grid-container">
 			<div class="loop-intro__text">
-				<p>Nakon poroda žena ne samo da donosi novi život, već otkriva i svoju novu snagu &ndash; tihu, postojanu i moćniju nego ikad prije. Ponudom ovog tjedna otključavam ti još više podrške i prilike za transformaciju iznutra na van.<br><br><strong>Postpartum Essentials</strong> je online program za oporavak tijela od trudnoće, zatvaranje dijastaze, rješavanje disfunkcije mišića zdjeličnoga dna i cijelog trupa. Essentials je do sada prošlo preko 1000 žena koje, osim fizičkih promjena, prijavljuju bolju kvalitetu života i povratak k sebi.</p>
+				<p>Nakon poroda žena ne samo da donosi novi život, već otkriva i svoju novu snagu &ndash; tihu, postojanu i moćniju nego ikad prije. Ponudom ovog tjedna otključavam ti još više podrške i prilike za transformaciju iznutra na van.<br><br><strong>Essentials</strong> je online program za oporavak tijela od trudnoće, zatvaranje dijastaze, rješavanje disfunkcije mišića zdjeličnoga dna i cijelog trupa. Essentials je do sada prošlo preko 1000 žena koje, osim fizičkih promjena, prijavljuju bolju kvalitetu života i povratak k sebi.</p>
 			</div>
 		</div>
 	</section>
@@ -647,11 +647,11 @@ the_post();
 				<div class="bf-offer__card">
 					<span class="bf-offer__badge">Opcija 1</span>
 					<div class="bf-offer__price">
-						<span>POSTPARTUM ESSENTIALS + 3 GRUPNA COACHING CALLA</span>
+						<span>ESSENTIALS + 3 GRUPNA COACHING CALLA</span>
 					</div>
 					<p>Što ulazi u ponudu:</p>
 					<ul class="bf-offer__list">
-						<li>Pristup programu Postpartum Essentials u trajanju do godinu dana.</li>
+						<li>Pristup programu Essentials u trajanju do godinu dana.</li>
 						<li>Ivanina email podrška na tvom putu oporavka.</li>
 						<li>3 bonus grupna coaching calla
 							Teme coaching callova:
@@ -662,25 +662,25 @@ the_post();
 							</ol>
 						</li>
 					</ul>
-					<p class="bf-offer__note">** Callovi će biti dostupni postojećim članicama Postpartum Essentialsa i Essentials Plus programa, snimani i uploadani na platformu</p>
+					<p class="bf-offer__note">** Callovi će biti dostupni postojećim članicama Essentialsa i Essentials Plus programa, snimani i uploadani na platformu</p>
 					<div class="bf-offer__cta">
-						<a class="button" href="https://postpartum.zaherpilates.ch/essentials/buy?offer_id=96546">Kupi Postpartum Essentials</a>
+						<a class="button" href="https://postpartum.zaherpilates.ch/essentials/buy?offer_id=96546">Kupi Essentials</a>
 					</div>
 				</div>
 
 				<div class="bf-offer__card">
 					<span class="bf-offer__badge">Opcija 2</span>
 					<div class="bf-offer__price">
-						<span>POSTPARTUM ESSENTIALS PLUS na 6 umjesto na 3 rate</span>
+						<span>ESSENTIALS PLUS na 6 umjesto na 3 rate</span>
 					</div>
 					<p>Što ulazi u ponudu:</p>
 					<ul class="bf-offer__list">
-						<li>Sve iz Postpartum Essentials programa.</li>
+						<li>Sve iz Essentials programa.</li>
 						<li>Inicijalni konzultacijski 1:1 video poziv na kojem ću pogledati tvoje disanje, podatke sa mjerenja dijastaze i samopregleda mišića zdjeličnoga dna i s obzirom na sve te uputiti u nastavak.</li>
 						<li>neograničena email podrška kroz godinu dana te mogućnost slanja videa na pregled.</li>
 					</ul>
 					<div class="bf-offer__cta">
-						<a class="button" href="https://postpartum.zaherpilates.ch/postpartum-essentials-plus/buy?offer_id=2935239">Kupi Postpartum Essentials Plus</a>
+						<a class="button" href="https://postpartum.zaherpilates.ch/postpartum-essentials-plus/buy?offer_id=2935239">Kupi Essentials Plus</a>
 					</div>
 				</div>
 			</div>
@@ -711,9 +711,9 @@ the_post();
 
 					<div class="testimonials__item">
 						<div class="testimonials__blockquote">
-							<p>Postpartum košta puno kada gledaš samo cijenu i ako si mama. Jer mame su poznate po tome da im je kada kupuju sebi, sve skupo.  Ali ne košta puno kada uzmeš u obzir da imam podršku, <strong>možeš se uvijek nekome javiti, imaš vježbe koje na kraju rezultiraju boljim fizičkim zdravljem</strong>, a i imaš vježbe koje možeš reciklirati mjesecima. <strong>Kupuješ nešto što traje i ima učinak na tvoj život u budućnosti</strong>.</p>
+							<p>Essentials oporavak košta puno kada gledaš samo cijenu i ako si mama. Jer mame su poznate po tome da im je kada kupuju sebi, sve skupo.  Ali ne košta puno kada uzmeš u obzir da imam podršku, <strong>možeš se uvijek nekome javiti, imaš vježbe koje na kraju rezultiraju boljim fizičkim zdravljem</strong>, a i imaš vježbe koje možeš reciklirati mjesecima. <strong>Kupuješ nešto što traje i ima učinak na tvoj život u budućnosti</strong>.</p>
 							<p>Počela sam razmišljati o svojem tijelu, hraniti se bolje. Ovo nije program za mršavljenje, kod mene i dalje ima špekeca na trbuhu, ali sam čvrsta, <strong>tijelo mi je pokretljivije, nemam bolova u leđima, ali i skinula sam par kila</strong>.<br>
-							Sretnija sam jer sam u protekla 4 mjeseca gotovo svakodnevno odvojila vrijeme za sebe. Uz ove vježbe promijenio mi se izgled trbuha, nije mi se povećala pupčana kila, što mi je bilo najbitnije. <strong>Dobila sam temelj za zdraviji i sretniji život</strong>. Ja sam ovaj program shvatila kao rehabilitaciju sebe kao osobe i to sam i dobila.</p>
+							Sretnija sam jer sam u protekla 4 mjeseca gotovo svakodnevno odvojila vrijeme za sebe. Uz ove vježbe promijenio mi se izgled trbuha, nije mi se povećala pupčana kila, što mi je bilo najbitnije. <strong>Dobila sam temelj za zdraviji i sretniji život</strong>.</p>
 						</div>
 						<div class="testimonials__person">
 							<div class="testimonials__person-wrap">
@@ -805,7 +805,7 @@ the_post();
 			<header class="section__header section__header--center no-padding">
 				<h2 class="section__title">Ovo je tvoj tjedan podržanog oporavka</h2>
 				<div class="section__desc">
-					<p>Postpartum se ne događa sam od sebe &ndash; treba mu prostor, vrijeme i plan. Uz ove Black Friday pogodnosti dobivaš sve troje, kao i mene uz sebe na svakom koraku.</p>
+					<p>Oporavak se ne događa sam od sebe &ndash; treba mu prostor, vrijeme i plan. Uz ove Black Friday pogodnosti dobivaš sve troje, kao i mene uz sebe na svakom koraku.</p>
 				</div>
 			</header>
 
