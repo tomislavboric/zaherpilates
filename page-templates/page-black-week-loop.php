@@ -6,7 +6,6 @@ Template Name: Black Week LOOP Landing
 get_header();
 the_post();
 
-$cta_url = esc_url(home_url('/cjenik/'));
 ?>
 
 <style>
@@ -68,11 +67,102 @@ $cta_url = esc_url(home_url('/cjenik/'));
 		font-size: 0.95rem;
 	}
 
+	.loop-intro {
+		position: relative;
+		padding: 5rem 0 4rem;
+		background: linear-gradient(135deg, #fef9f5, #f5f2ff);
+		overflow: hidden;
+	}
+
+	.loop-intro::after,
+	.loop-intro::before {
+		content: "";
+		position: absolute;
+		width: 420px;
+		height: 420px;
+		border-radius: 50%;
+		filter: blur(80px);
+		opacity: 0.45;
+		z-index: 0;
+	}
+
+	.loop-intro::before {
+		top: -220px;
+		left: -60px;
+		background: #facc15;
+	}
+
+	.loop-intro::after {
+		bottom: -260px;
+		right: -120px;
+		background: #8b5cf6;
+	}
+
+	.loop-intro .grid-container {
+		position: relative;
+		z-index: 1;
+	}
+
+	.loop-intro__text {
+		background: #ffffff;
+		border-radius: 32px;
+		padding: 3rem;
+		max-width: 860px;
+		margin: 0 auto;
+		box-shadow: 0 45px 80px -50px rgba(15, 23, 42, 0.55);
+		border: 1px solid rgba(99, 102, 241, 0.12);
+		position: relative;
+		overflow: hidden;
+	}
+
+	.loop-intro__text::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 120px;
+		height: 120px;
+		background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(250, 204, 21, 0));
+	}
+
+	.loop-intro__text::after {
+		content: "";
+		position: absolute;
+		right: 2rem;
+		bottom: 2rem;
+		width: 140px;
+		height: 140px;
+		background: radial-gradient(circle, rgba(236, 72, 153, 0.18) 0%, rgba(236, 72, 153, 0) 70%);
+	}
+
+	.loop-intro__text p {
+		margin: 0;
+		font-size: 1.15rem;
+		line-height: 1.9;
+		color: #111827;
+		font-weight: 500;
+		text-align: center;
+	}
+
+	.loop-intro__text em {
+		font-style: normal;
+		color: #8b5cf6;
+		font-weight: 600;
+	}
+
+	.loop-intro__text strong {
+		color: #ea580c;
+	}
+
 	.bf-countdown {
 		background: #111;
 		color: #fff;
 		padding: 1.75rem 0;
 		text-align: center;
+	}
+
+	.bf-countdown--last {
+		margin-top: var(--section-padding);
 	}
 
 	.bf-countdown__inner {
@@ -342,7 +432,6 @@ $cta_url = esc_url(home_url('/cjenik/'));
 		background: #000;
 		color: #fff;
 		padding: 4rem 0;
-		margin-top: 3rem;
 		text-align: center;
 	}
 
@@ -367,17 +456,30 @@ $cta_url = esc_url(home_url('/cjenik/'));
 			font-size: 2rem;
 		}
 
-		.bf-offer__price {
-			flex-direction: column;
-			align-items: center;
-			text-align: center;
-		}
+			.bf-offer__price {
+				flex-direction: column;
+				align-items: center;
+				text-align: center;
+			}
 
-		.bf-offer__badge {
-			align-self: center;
+			.bf-offer__badge {
+				align-self: center;
+			}
+
+			.loop-intro {
+				padding: 3.5rem 0;
+			}
+
+			.loop-intro__text {
+				padding: 2rem 1.75rem;
+				border-radius: 24px;
+			}
+
+			.loop-intro__text p {
+				font-size: 1.15rem;
+			}
 		}
-	}
-</style>
+	</style>
 
 <main class="main landing landing--black-friday">
 
@@ -388,7 +490,7 @@ $cta_url = esc_url(home_url('/cjenik/'));
 				<header class="hero__header">
 					<h1 class="hero__title">Ostvari ekskluzivan popust i dodatne pogodnosti &ndash; samo ovaj tjedan</h1>
 					<div class="hero__desc">
-						<p>LOOP je online fitness platforma na kojoj treniraju žene svjesne važnosti tjelovježbe za emocionalno i fizičko zdravlje. Za fit tijelo ne trebaš trenirati puno nego pametno i u skladu s menstrualnim ciklusom.</p>
+						<?php /* <p>LOOP je online fitness platforma na kojoj treniraju žene svjesne važnosti tjelovježbe za emocionalno i fizičko zdravlje. Za fit tijelo ne trebaš trenirati puno nego pametno i u skladu s menstrualnim ciklusom.</p> */ ?>
 					</div>
 				</header>
 				<div class="hero__cta">
@@ -409,7 +511,15 @@ $cta_url = esc_url(home_url('/cjenik/'));
 					<span data-unit="minutes">00<small>minuta</small></span>
 					<span data-unit="seconds">00<small>sekundi</small></span>
 				</div>
-				<div class="bf-countdown__hint">Ponuda nestaje 30. studenog u ponoć.</div>
+				<?php /* <div class="bf-countdown__hint">Ponuda nestaje 30. studenog u ponoć.</div> */ ?>
+			</div>
+		</div>
+	</section>
+
+	<section class="loop-intro">
+		<div class="grid-container">
+			<div class="loop-intro__text">
+				<p>LOOP je online fitness platforma na kojoj treniraju žene svjesne važnosti tjelovježbe za emocionalno i fizičko zdravlje. Za fit tijelo ne trebaš trenirati puno nego pametno i u skladu s menstrualnim ciklusom.</p>
 			</div>
 		</div>
 	</section>
@@ -444,7 +554,7 @@ $cta_url = esc_url(home_url('/cjenik/'));
 				<div class="section__subtitle">Iznenađenja za crni tjedan</div>
 				<h2 class="section__title">Biraj između dvije ekskluzivne opcije</h2>
 				<div class="section__desc">
-					<p>Kako te jednom godišnje za Black Friday volimo iznenaditi, ove godine možeš odabrati tromjesečni ili polugodišnji paket s posebnim pogodnostima.</p>
+					<p>Kako te jednom godišnje za Crni petak volim iznenaditi, ove godine pripremila sam sljedeće ponude.</p>
 				</div>
 			</header>
 
@@ -459,10 +569,10 @@ $cta_url = esc_url(home_url('/cjenik/'));
 					<ul class="bf-offer__list">
 						<li>Pristup cijeloj LOOP platformi na 3 mjeseca.</li>
 						<li>Mogućnost otkazivanja pretplate u bilo kojem trenutku unutar korisničkog računa.</li>
-						<li>Bonus plan treniranja usklađen s menstrualnim ciklusom.</li>
+						<li>Bonus kategorije samo za članove viših pretplata</li>
 					</ul>
 					<div class="bf-offer__cta">
-						<a class="button" href="<?php echo $cta_url; ?>">Ugrabi ponudu</a>
+						<a class="button" href="/registracija/tromjesecna-pretplata/?coupon=BF25">Ugrabi ponudu</a>
 					</div>
 				</div>
 
@@ -478,12 +588,12 @@ $cta_url = esc_url(home_url('/cjenik/'));
 						<li>Ulaziš u izbor za coaching paket od 12 susreta potpuno besplatno.</li>
 					</ul>
 					<div class="bf-offer__cta">
-						<a class="button" href="<?php echo $cta_url; ?>">Ugrabi ponudu</a>
+						<a class="button" href="/registracija/polugodisnja-pretplata/?coupon=BF25">Ugrabi ponudu</a>
 					</div>
 				</div>
 			</div>
 
-				<p class="bf-note"><strong>Obje opcije</strong> vrijede za postojeće članice LOOP-a prilikom nadogradnje na višu pretplatu. Sve što trebaš je kliknuti na odabranu opciju i pratiti daljnje korake. Ako zapneš, tipkaj nam preko <a href="mailto:info@zaherpilates.com">info@zaherpilates.com</a>.</p>
+				<p class="bf-note">Sve što trebaš je kliknuti na odabranu opciju i pratiti daljnje korake.<br> <strong>Obje opcije</strong> vrijede za postojeće članice LOOP-a prilikom nadogradnje na višu pretplatu. Ako zapneš, tipkaj nam preko <a href="mailto:info@zaherpilates.com">info@zaherpilates.com</a>.</p>
 		</div>
 	</section>
 
@@ -498,60 +608,57 @@ $cta_url = esc_url(home_url('/cjenik/'));
 				<div class="testimonials__grid">
 					<div class="testimonials__item">
 						<div class="testimonials__blockquote">
-							<p>&ldquo;Željela sam ti reći... tako se osjećam nježno i ženstveno, a opet snažno kad vježbam s tobom, jer ti imaš takvu energiju koju prosljeđuješ!&rdquo;</p>
+							<p>Željela sam ti reći... tako se <strong>osjećam nježno i ženstveno, a opet snažno</strong> kad vježbam s tobom, jer ti imaš takvu energiju koju prosljeđuješ!</p>
 						</div>
 						<div class="testimonials__person">
 							<div class="testimonials__person-wrap">
 								<div class="testimonials__person-name">Maja</div>
-								<div class="testimonials__person-position">LOOP članica od 2023.</div>
 							</div>
 						</div>
 					</div>
 
 					<div class="testimonials__item">
 						<div class="testimonials__blockquote">
-							<p>&ldquo;Vježbe su odlične, baš su mi sjele, posebno videa s vježbama koje ti vodiš, paše mi ta fluidnost i prisutnost. Uz posao, dvoje male djece i sve obaveze, stignem 4-5 puta tjedno odraditi trening kad djeca zaspu.&rdquo;</p>
+							<p>Vježbe su odlične, baš su mi sjele, posebno videa s vježbama koje ti vodiš, paše mi ta fluidnost i prisutnost. <strong>Uz posao, dvoje male djece, brigu o kućanskim obvezama, ja stignem i po 4-5 puta tjedno odvježbati</strong>, to je dio dana kad djeca zaspu, za mene i volim to što brinem o svom tijelu</p>
 						</div>
 						<div class="testimonials__person">
 							<div class="testimonials__person-wrap">
 								<div class="testimonials__person-name">Manuela</div>
-								<div class="testimonials__person-position">LOOP članica od 2023.</div>
 							</div>
 						</div>
 					</div>
 
 					<div class="testimonials__item">
 						<div class="testimonials__blockquote">
-							<p>&ldquo;Ajme Ivana, ove tvoje vježbe su predivne! Toliko opuštajuće, prvi trening nije bio zahtjevan, ali osjetila sam svaki djelić tijela i kako radi. Prebrzo je prošlo, čista uživancija!&rdquo;</p>
+							<p>Ajme Ivana, ove tvoje vježbe su predivne!! Toliko opuštajuće, ovaj prvi trening mi nije bio zahtjevan, ali sam osjetila svaki djelić tijela i kako ono radi! Hvala ti na tolikoj predanosti i detaljnim opisima dok izvodiš vježbe.<br> Prebrzo je prošlo, nisam ni skužila da je gotovo! Čista uživancija!🥰🩷🌸</p>
 						</div>
 						<div class="testimonials__person">
 							<div class="testimonials__person-wrap">
 								<div class="testimonials__person-name">Vida</div>
-								<div class="testimonials__person-position">LOOP članica od 2023.</div>
 							</div>
 						</div>
 					</div>
 
 					<div class="testimonials__item">
 						<div class="testimonials__blockquote">
-							<p>&ldquo;Draga Ivana, nikada si nisam priuštila bolje treninge. Na LOOP-u je toliko izbora da stvarno nema izgovora da ne odradim barem nešto. Kada imam više vremena uzmem zahtjevnije treninge, kada ga nemam biram najkraće i opet se osjećam odlično.&rdquo;</p>
+							<p>Draga Ivana, samo ću ti reći da si nikada nisam priuštila bolje treninge...Na Loop-u je toliko izbora da stvarno nema izgovora da se ne odradi bilo kakav trening u danu. Kada imam više vremena uzmem si neke zahtjevnije treninge, kada uopće nemam vremena uzmem one najkraće i <strong>osjećaj je odličan jer ipak i u takvom danu napravim nešto za svoje zdravlje</strong>.<br>
+							Vježbe su mi odlične, nije dosadno.</p>
 						</div>
 						<div class="testimonials__person">
 							<div class="testimonials__person-wrap">
 								<div class="testimonials__person-name">Zrinka</div>
-								<div class="testimonials__person-position">LOOP članica od 2023.</div>
 							</div>
 						</div>
 					</div>
 
 					<div class="testimonials__item">
 						<div class="testimonials__blockquote">
-							<p>&ldquo;Htjela sam reći kako sam nastavila trenirati u LOOP-u i i dalje sam presretna koliko s guštom treniram i osjećam se snažno tijekom i nakon treninga. Obožavam kako vodiš trening!&rdquo;</p>
+							<p>Draga Ivana, htjela sam samo reći kako sam nastavila trenirati u Loopu. I dalje sam presretna koliko <strong>stvarno s guštom treniram i osjećam se snažno tijekom i nakon treninga</strong>. 💪❤️<br>
+							Obožavam kako vodiš trening!</p>
 						</div>
 						<div class="testimonials__person">
 							<div class="testimonials__person-wrap">
 								<div class="testimonials__person-name">Iva</div>
-								<div class="testimonials__person-position">LOOP članica od 2023.</div>
 							</div>
 						</div>
 					</div>
@@ -560,6 +667,7 @@ $cta_url = esc_url(home_url('/cjenik/'));
 		</div>
 	</section>
 
+	<?php /* FAQ Section */ /*?>
 	<section class="bf-faq section">
 		<div class="grid-container">
 			<header class="section__header section__header--center">
@@ -583,17 +691,33 @@ $cta_url = esc_url(home_url('/cjenik/'));
 			</div>
 		</div>
 	</section>
+	<?php /* FAQ Section */?>
+
+	<section class="bf-countdown bf-countdown--last" data-deadline="2025-12-01T23:59:00+01:00">
+		<div class="grid-container">
+			<div class="bf-countdown__inner">
+				<div class="bf-countdown__label">Do isteka ponude ostalo je</div>
+				<div class="bf-countdown__time">
+					<span data-unit="days">00<small>dana</small></span>
+					<span data-unit="hours">00<small>sati</small></span>
+					<span data-unit="minutes">00<small>minuta</small></span>
+					<span data-unit="seconds">00<small>sekundi</small></span>
+				</div>
+				<div class="bf-countdown__hint">Ponuda nestaje 30. studenog u ponoć.</div>
+			</div>
+		</div>
+	</section>
 
 	<section class="bf-final-cta">
 		<div class="grid-container">
 			<header class="section__header section__header--center no-padding">
 				<h2 class="section__title">Savršeni trenutak je sada</h2>
 				<div class="section__desc">
-					<p>Shvati ovo kao znak i iskoristi ponudu.<br> Nadogradi članstvo, pokloni sebi vrijeme i podršku te uđi u kraj godine osjećajući se snažno i smireno.</p>
+					<p>Shvati ovo kao znak i iskoristi ponudu.<br> Nadogradi članstvo, pokloni sebi vrijeme i podršku te uđi u kraj godine osjećajući se snažno i samopouzdano.</p>
 				</div>
 			</header>
 
-			<a class="button button--large" href="<?php echo $cta_url; ?>">Prijavi se odmah</a>
+			<a class="button button--large" href="#bf-options">Iskoristi ponudu!</a>
 			<p class="hero__note">Postojeće članice mogu nadograditi pretplatu unutar svog korisničkog računa.</p>
 		</div>
 	</section>

@@ -352,7 +352,7 @@ $cta_url = esc_url(home_url('/cjenik/'));
 					<span data-unit="minutes">00<small>minuta</small></span>
 					<span data-unit="seconds">00<small>sekundi</small></span>
 				</div>
-				<div class="bf-countdown__hint">Ponuda vrijedi do nedjelje, 1. prosinca u 23:59.</div>
+				<?php /* <div class="bf-countdown__hint">Ponuda vrijedi do nedjelje, 1. prosinca u 23:59.</div> */ ?>
 			</div>
 		</div>
 	</section>
