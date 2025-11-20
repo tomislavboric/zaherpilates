@@ -35,3 +35,33 @@ function subscription_content_shortcode($atts, $content = null) {
 }
 
 add_shortcode('subscription_content', 'subscription_content_shortcode');
+
+add_action(
+    'wp_enqueue_scripts',
+    function() {
+        $is_memberpress_checkout = false;
+
+        if ( class_exists( 'MeprReadyLaunchCtrl' ) && MeprReadyLaunchCtrl::template_enabled( 'checkout' ) ) {
+            $is_memberpress_checkout = true;
+        } elseif ( class_exists( 'MeprProduct' ) && is_singular( MeprProduct::$cpt ) ) {
+            $is_memberpress_checkout = true;
+        }
+
+        if ( $is_memberpress_checkout ) {
+            wp_enqueue_style(
+                'my-mepr-checkout-style',
+                get_stylesheet_directory_uri() . '/dist/assets/css/' . foundationpress_asset_path( 'app.css' ),
+                [],
+                wp_get_theme()->get( 'Version' )
+            );
+        }
+    }
+);
+
+add_filter(
+    'mepr_design_style_handles',
+    function( $handles ) {
+        $handles[] = 'my-mepr-checkout-style';
+        return array_unique( $handles );
+    }
+);
