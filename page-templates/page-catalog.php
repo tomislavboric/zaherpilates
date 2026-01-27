@@ -57,15 +57,15 @@ $search_value = trim( $search_value );
 			<div class="grid-container full">
 					<div class="catalog-tabs__bar">
 						<div class="tab-container" role="tablist" aria-label="Katalog filteri">
-							<button class="tab active" type="button" role="tab" id="catalog-tab-programs" aria-selected="true" aria-controls="catalog-panel-programs" data-tab-target="#catalog-panel-programs">
-								Programi
+							<button class="tab active" type="button" role="tab" id="catalog-tab-kolekcije" aria-selected="true" aria-controls="kolekcije" data-tab-target="#kolekcije">
+								Kolekcije
 							</button>
 							<?php /* <?php if ( is_user_logged_in() ) : ?>
 								<button class="tab" type="button" role="tab" id="catalog-tab-continue" aria-selected="false" aria-controls="catalog-panel-continue" data-tab-target="#catalog-panel-continue">
 									Nastavi <span class="tab__count">(<?php echo esc_html( $in_progress_count ); ?>)</span>
 								</button>
 							<?php endif; ?> */ ?>
-							<button class="tab" type="button" role="tab" id="catalog-tab-favorites" aria-selected="false" aria-controls="catalog-panel-favorites" data-tab-target="#catalog-panel-favorites">
+							<button class="tab" type="button" role="tab" id="catalog-tab-favoriti" aria-selected="false" aria-controls="favoriti" data-tab-target="#favoriti">
 								Moji favoriti <span class="tab__count">(<?php echo esc_html( $favorites_count ); ?>)</span>
 							</button>
 						</div>
@@ -83,7 +83,7 @@ $search_value = trim( $search_value );
 				</div>
 			</div>
 
-			<section id="catalog-panel-programs" class="content-container active all-videos" role="tabpanel" aria-labelledby="catalog-tab-programs">
+			<section id="kolekcije" class="content-container active all-videos" role="tabpanel" aria-labelledby="catalog-tab-kolekcije">
 				<?php get_template_part( 'page-templates/loop-catalog/catalog' ); ?>
 			</section>
 
@@ -96,7 +96,7 @@ $search_value = trim( $search_value );
 				</section>
 			<?php endif; ?> */ ?>
 
-			<section id="catalog-panel-favorites" class="content-container favorite-videos" role="tabpanel" aria-labelledby="catalog-tab-favorites">
+			<section id="favoriti" class="content-container favorite-videos" role="tabpanel" aria-labelledby="catalog-tab-favoriti">
 				<?php get_template_part( 'page-templates/loop-catalog/favorites' ); ?>
 			</section>
 		</div>

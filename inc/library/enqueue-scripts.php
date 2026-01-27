@@ -43,7 +43,9 @@ if ( ! function_exists( 'foundationpress_scripts' ) ) :
 		// wp_enqueue_style( 'swiper', '//cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css', array(), '9.4.1', false );
 
 		// Enqueue the main Stylesheet.
-		wp_enqueue_style( 'main-stylesheet', get_stylesheet_directory_uri() . '/dist/assets/css/' . foundationpress_asset_path( 'app.css' ), array(), '2.10.4', 'all' );
+		$css_path = get_stylesheet_directory() . '/dist/assets/css/' . foundationpress_asset_path( 'app.css' );
+		$css_version = file_exists( $css_path ) ? filemtime( $css_path ) : '2.10.4';
+		wp_enqueue_style( 'main-stylesheet', get_stylesheet_directory_uri() . '/dist/assets/css/' . foundationpress_asset_path( 'app.css' ), array(), $css_version, 'all' );
 
 		$landing_style_path  = get_stylesheet_directory() . '/dist/assets/css/landing-page.css';
 		$should_load_landing = is_page_template( 'page-templates/page-landing.php' );
@@ -100,7 +102,9 @@ if ( ! function_exists( 'foundationpress_scripts' ) ) :
 		// wp_enqueue_script( 'swiper-js', 'https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js', array(), '9.4.1', true );
 
 		// Enqueue Foundation scripts
-		wp_enqueue_script( 'foundation', get_stylesheet_directory_uri() . '/dist/assets/js/' . foundationpress_asset_path( 'app.js' ), array( 'jquery' ), '2.10.4', true );
+		$js_path = get_stylesheet_directory() . '/dist/assets/js/' . foundationpress_asset_path( 'app.js' );
+		$js_version = file_exists( $js_path ) ? filemtime( $js_path ) : '2.10.4';
+		wp_enqueue_script( 'foundation', get_stylesheet_directory_uri() . '/dist/assets/js/' . foundationpress_asset_path( 'app.js' ), array( 'jquery' ), $js_version, true );
 
 		// Add the comment-reply library on pages where it is necessary
 		if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
