@@ -97,6 +97,11 @@ if ( have_rows('catalog_builder', $term) ) {
 							?>
 
 							<div class="cards__item <?php echo !$has_access ? 'is-locked' : ''; ?>">
+								<?php if ( is_user_logged_in() && function_exists( 'the_favorites_button' ) ) : ?>
+									<div class="cards__favorite">
+										<?php the_favorites_button( get_the_ID() ); ?>
+									</div>
+								<?php endif; ?>
 								<a href="<?php the_permalink(); ?>">
 									<figure class="cards__figure">
 										<img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php the_title_attribute(); ?>">
@@ -200,6 +205,11 @@ if ( have_rows('catalog_builder', $term) ) {
 									}
 								?>
 									<div class="cards__item <?php echo !$has_access ? 'is-locked' : ''; ?>">
+										<?php if ( is_user_logged_in() && function_exists( 'the_favorites_button' ) ) : ?>
+											<div class="cards__favorite">
+												<?php the_favorites_button( $pid ); ?>
+											</div>
+										<?php endif; ?>
 										<a href="<?php echo esc_url( get_permalink($pid) ); ?>">
 											<figure class="cards__figure">
 												<img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php echo esc_attr( get_the_title($pid) ); ?>">

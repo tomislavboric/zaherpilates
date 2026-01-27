@@ -1,0 +1,29 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "zaher/landing-cta-button",
+	"title": "Landing CTA Button",
+	"category": "zaher-landing",
+	"icon": "button",
+	"description": "CTA button styled with theme classes.",
+	"textdomain": "foundationpress",
+	"supports": {
+		"html": false,
+		"customClassName": false
+	},
+	"attributes": {
+		"text": {
+			"type": "string",
+			"default": "Pogledaj ponudu"
+		},
+		"url": {
+			"type": "string",
+			"default": "#bf-options"
+		},
+		"size": {
+			"type": "string",
+			"default": "button--large"
+		}
+	},
+	"editorScript": "file:./index.js"
+}
