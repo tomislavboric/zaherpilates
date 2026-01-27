@@ -1,13 +1,6 @@
 // App-like member experience on mobile
 @media (max-width: 768px) {
   body.is-member {
-    // Remove top chrome
-    /* .header,
-    .header-menu,
-    .page__header {
-      display: none !important;
-    } */
-
     // Hide burger (bottom nav has menu toggle)
     .burger {
       display: none !important;

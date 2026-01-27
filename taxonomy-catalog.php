@@ -107,8 +107,7 @@ if ( have_rows('catalog_builder', $term) ) {
 										<img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php the_title_attribute(); ?>">
 										<?php if ( function_exists( 'zaher_user_completed_program' ) && zaher_user_completed_program( get_the_ID() ) ) : ?>
 											<div class="cards__badge" aria-label="Pogledano do kraja">
-												<?php echo zaher_lineicon_svg( 'check-circle' ); ?>
-												Pogledano
+												<?php echo zaher_lineicon_svg( 'check' ); ?>
 											</div>
 										<?php endif; ?>
 										<?php if ($video_length) : ?>

@@ -42,25 +42,6 @@ if ( is_user_logged_in() && function_exists( 'get_user_favorites' ) ) {
 	);
 }
 
-$completed_ids   = array();
-$completed_count = 0;
-if ( is_user_logged_in() && function_exists( 'zaher_get_completed_program_ids' ) ) {
-	$completed_ids = zaher_get_completed_program_ids( get_current_user_id() );
-	if ( $completed_ids ) {
-		$completed_ids = array_values(
-			array_filter(
-				array_map( 'absint', $completed_ids ),
-				function ( $program_id ) {
-					return $program_id
-						&& get_post_status( $program_id ) === 'publish'
-						&& get_post_type( $program_id ) === 'programs';
-				}
-			)
-		);
-		$completed_count = count( $completed_ids );
-	}
-}
-
 $search_value = isset( $_GET['katalog_search'] ) ? (string) wp_unslash( $_GET['katalog_search'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 $search_value = trim( $search_value );
 
@@ -79,19 +60,14 @@ $search_value = trim( $search_value );
 							<button class="tab active" type="button" role="tab" id="catalog-tab-programs" aria-selected="true" aria-controls="catalog-panel-programs" data-tab-target="#catalog-panel-programs">
 								Programi
 							</button>
-							<?php if ( is_user_logged_in() ) : ?>
+							<?php /* <?php if ( is_user_logged_in() ) : ?>
 								<button class="tab" type="button" role="tab" id="catalog-tab-continue" aria-selected="false" aria-controls="catalog-panel-continue" data-tab-target="#catalog-panel-continue">
 									Nastavi <span class="tab__count">(<?php echo esc_html( $in_progress_count ); ?>)</span>
 								</button>
-							<?php endif; ?>
+							<?php endif; ?> */ ?>
 							<button class="tab" type="button" role="tab" id="catalog-tab-favorites" aria-selected="false" aria-controls="catalog-panel-favorites" data-tab-target="#catalog-panel-favorites">
 								Moji favoriti <span class="tab__count">(<?php echo esc_html( $favorites_count ); ?>)</span>
 							</button>
-							<?php if ( is_user_logged_in() ) : ?>
-								<button class="tab" type="button" role="tab" id="catalog-tab-completed" aria-selected="false" aria-controls="catalog-panel-completed" data-tab-target="#catalog-panel-completed">
-									Pogledano <span class="tab__count">(<?php echo esc_html( $completed_count ); ?>)</span>
-								</button>
-							<?php endif; ?>
 						</div>
 
 					<?php /* <form class="member-dashboard__search catalog-tabs__search" method="get" role="search" autocomplete="off" data-search-endpoint="<?php echo esc_url( rest_url( 'wp/v2/programs' ) ); ?>" data-search-placeholder="<?php echo esc_url( $placeholder_url ); ?>">
@@ -111,27 +87,18 @@ $search_value = trim( $search_value );
 				<?php get_template_part( 'page-templates/loop-catalog/catalog' ); ?>
 			</section>
 
-			<?php if ( is_user_logged_in() ) : ?>
+			<?php /* <?php if ( is_user_logged_in() ) : ?>
 				<section id="catalog-panel-continue" class="content-container in-progress-videos" role="tabpanel" aria-labelledby="catalog-tab-continue">
 					<?php
 					set_query_var( 'zaher_in_progress_ids', $in_progress_ids );
 					get_template_part( 'page-templates/loop-catalog/in-progress' );
 					?>
 				</section>
-			<?php endif; ?>
+			<?php endif; ?> */ ?>
 
 			<section id="catalog-panel-favorites" class="content-container favorite-videos" role="tabpanel" aria-labelledby="catalog-tab-favorites">
 				<?php get_template_part( 'page-templates/loop-catalog/favorites' ); ?>
 			</section>
-
-			<?php if ( is_user_logged_in() ) : ?>
-				<section id="catalog-panel-completed" class="content-container completed-videos" role="tabpanel" aria-labelledby="catalog-tab-completed">
-					<?php
-					set_query_var( 'zaher_completed_ids', $completed_ids );
-					get_template_part( 'page-templates/loop-catalog/completed' );
-					?>
-				</section>
-			<?php endif; ?>
 		</div>
 
 	</main>
