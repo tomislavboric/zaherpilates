@@ -1,0 +1,15 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "zaher/landing-testimonials",
+	"title": "Landing Testimonials (LOOP)",
+	"category": "zaher-landing",
+	"icon": "format-quote",
+	"description": "Testimonials grid section.",
+	"textdomain": "foundationpress",
+	"supports": {
+		"html": false,
+		"anchor": false
+	},
+	"editorScript": "file:./index.js"
+}

@@ -1,24 +1,32 @@
 jQuery(function ($) {
-  $('.burger').click(function() {
-      // Toggle 'burger--active' class
-      $(this).toggleClass('burger--active');
-
+  function toggleMenu() {
       // Toggle 'header--menu-open' class on body
       $('body').toggleClass('header--menu-open');
 
-      // Check if body has the 'header--menu-open' class
-      if ($('body').hasClass('header--menu-open')) {
-          // Set visibility and opacity of the header-menu
+      // Toggle burger active state
+      $('.burger').toggleClass('burger--active');
+
+      // Update bottom nav menu toggle aria-expanded
+      var isOpen = $('body').hasClass('header--menu-open');
+      $('.bottom-nav__menu-toggle').attr('aria-expanded', isOpen);
+
+      // Set visibility and opacity of the header-menu
+      if (isOpen) {
           $('.header-menu').css({
               'visibility': 'visible',
               'opacity': '1'
           });
       } else {
-          // Reset visibility and opacity of the header-menu
           $('.header-menu').css({
               'visibility': 'hidden',
               'opacity': '0'
           });
       }
-  });
+  }
+
+  // Burger menu click
+  $('.burger').click(toggleMenu);
+
+  // Bottom nav menu toggle click
+  $('.bottom-nav__menu-toggle').click(toggleMenu);
 });

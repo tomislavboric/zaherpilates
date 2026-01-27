@@ -56,7 +56,7 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
 														<figure class="cards__figure">
 																<img src="<?php echo esc_url( $term_image_url ); ?>" alt="<?php echo esc_attr( $term->name ); ?>">
 																<div class="cards__count">
-																		<span class="material-icons">video_library</span>
+																		<?php echo zaher_lineicon_svg( 'play' ); ?>
 																		<?php echo esc_html( $term->count ); ?>
 																</div>
 														</figure>

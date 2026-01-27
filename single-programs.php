@@ -10,6 +10,8 @@ get_header();
 
 // Placeholder image URL for posts without a thumbnail
 $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeholder.jpg';
+$progress_endpoint = is_user_logged_in() ? rest_url( 'zaher/v1/progress' ) : '';
+$progress_nonce    = is_user_logged_in() ? wp_create_nonce( 'wp_rest' ) : '';
 
 ?>
 <main class="main">
@@ -18,6 +20,7 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
         <?php while ( have_posts() ) : the_post();
 
         // vars
+        $program_id = get_the_ID();
         $vimeo_url = get_field('video');
         $vimeo_length = get_field('video_length');
         $videoId = getVimeoVideoId($vimeo_url);
@@ -49,7 +52,7 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
             <div class="video__section">
 
                 <?php if( current_user_can('administrator')) : ?>
-									<div style="padding:56.25% 0 0 0;position:relative;">
+									<div class="video__player" data-program-id="<?php echo esc_attr( $program_id ); ?>"<?php if ( $progress_endpoint ) : ?> data-progress-endpoint="<?php echo esc_url( $progress_endpoint ); ?>" data-progress-nonce="<?php echo esc_attr( $progress_nonce ); ?>"<?php endif; ?> style="padding:56.25% 0 0 0;position:relative;">
 											<iframe src="https://player.vimeo.com/video/<?php echo esc_attr($videoId); ?>?h=0aaecdaa4d" width="640" height="360" frameborder="0" allow="autoplay; fullscreen;" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
 									</div>
 
@@ -71,7 +74,7 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
 											}
 
 											if ($has_access): ?>
-													<div style="padding:56.25% 0 0 0;position:relative;">
+													<div class="video__player" data-program-id="<?php echo esc_attr( $program_id ); ?>"<?php if ( $progress_endpoint ) : ?> data-progress-endpoint="<?php echo esc_url( $progress_endpoint ); ?>" data-progress-nonce="<?php echo esc_attr( $progress_nonce ); ?>"<?php endif; ?> style="padding:56.25% 0 0 0;position:relative;">
 															<iframe src="https://player.vimeo.com/video/<?php echo esc_attr($videoId); ?>?h=0aaecdaa4d" width="640" height="360" frameborder="0" allow="autoplay; fullscreen;" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
 													</div>
 											<?php else: ?>
@@ -81,7 +84,7 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
 															?>
 															<img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php the_title_attribute(); ?>">
 															<figcaption class="locked__figcaption">
-																	<a class="button button--small" href="<?php echo esc_url(home_url('/cjenik/')); ?>"><span class="material-icons-outlined">lock</span> Pretplati se</a>
+																	<a class="button button--small" href="<?php echo esc_url(home_url('/cjenik/')); ?>"><?php echo zaher_lineicon_svg( 'lock' ); ?> Pretplati se</a>
 																	<div>ili <a href="<?php echo esc_url(home_url('/prijava')); ?>">prijavi se</a>.</div>
 															</figcaption>
 													</figure>
@@ -127,7 +130,7 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
                 if ( $downloadable_files ) : ?>
                     <div class="video__downloads">
                         <h3 class="video__downloads-title">
-                            <span class="material-icons-outlined">download</span>
+                            <?php echo zaher_lineicon_svg( 'download' ); ?>
                             Dodatni materijali
                         </h3>
                         <div class="downloads-list">
@@ -143,7 +146,7 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
                                 ?>
                                     <div class="download-item">
                                         <div class="download-item__icon">
-                                            <span class="material-icons-outlined">description</span>
+                                            <?php echo zaher_lineicon_svg( 'file' ); ?>
                                         </div>
                                         <div class="download-item__content">
                                             <h4 class="download-item__title"><?php echo esc_html( $title ); ?></h4>
@@ -157,7 +160,7 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
                                         </div>
                                         <div class="download-item__action">
                                             <a href="<?php echo esc_url( $file_url ); ?>" class="button button--download" download>
-                                                <span class="material-icons-outlined">file_download</span>
+                                                <?php echo zaher_lineicon_svg( 'download' ); ?>
                                                 Preuzmi
                                             </a>
                                         </div>
@@ -226,7 +229,7 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
                     ?>
                     <div class="video__prev">
                         <a href="<?php echo esc_url( get_permalink($prev_post->ID) ); ?>">
-                            <div><span class="material-symbols-outlined">arrow_left_alt</span> Prethodna vježba</div>
+                            <div><?php echo zaher_lineicon_svg( 'arrow-left' ); ?> Prethodna vježba</div>
                             <strong><?php echo esc_html( $prev_title ); ?></strong>
                         </a>
                     </div>
@@ -237,7 +240,7 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
                     ?>
                     <div class="video__next">
                         <a href="<?php echo esc_url( get_permalink($next_post->ID) ); ?>">
-                            <div>Sljedeća vježba <span class="material-symbols-outlined">arrow_right_alt</span></div>
+                            <div>Sljedeća vježba <?php echo zaher_lineicon_svg( 'arrow-right' ); ?></div>
                             <strong><?php echo esc_html( $next_title ); ?></strong>
                         </a>
                     </div>

@@ -45,6 +45,39 @@ if ( ! function_exists( 'foundationpress_scripts' ) ) :
 		// Enqueue the main Stylesheet.
 		wp_enqueue_style( 'main-stylesheet', get_stylesheet_directory_uri() . '/dist/assets/css/' . foundationpress_asset_path( 'app.css' ), array(), '2.10.4', 'all' );
 
+		$landing_style_path  = get_stylesheet_directory() . '/dist/assets/css/landing-page.css';
+		$should_load_landing = is_page_template( 'page-templates/page-landing.php' );
+		if ( ! $should_load_landing && is_singular() ) {
+			$landing_blocks = array(
+				'zaher/landing-hero',
+				'zaher/landing-countdown',
+				'zaher/landing-countdown-final',
+				'zaher/landing-intro',
+				'zaher/landing-story',
+				'zaher/landing-offer',
+				'zaher/landing-testimonials',
+				'zaher/landing-faq',
+				'zaher/landing-final-cta',
+			);
+
+			foreach ( $landing_blocks as $landing_block ) {
+				if ( has_block( $landing_block ) ) {
+					$should_load_landing = true;
+					break;
+				}
+			}
+		}
+
+		if ( $should_load_landing && file_exists( $landing_style_path ) ) {
+			wp_enqueue_style(
+				'landing-page-styles',
+				get_stylesheet_directory_uri() . '/dist/assets/css/landing-page.css',
+				array( 'main-stylesheet' ),
+				filemtime( $landing_style_path ),
+				'all'
+			);
+		}
+
 		// Deregister the jquery version bundled with WordPress.
 		//wp_deregister_script( 'jquery' );
 

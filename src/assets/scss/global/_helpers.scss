@@ -65,3 +65,12 @@ body.whatinput-types-mouse a {
 [hidden], template {
   display: none;
 }
+
+.lni-icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+  flex-shrink: 0;
+  vertical-align: middle;
+}

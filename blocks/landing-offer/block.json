@@ -1,0 +1,15 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "zaher/landing-offer",
+	"title": "Landing Offer (Black Week)",
+	"category": "zaher-landing",
+	"icon": "cart",
+	"description": "Offer section with pricing options.",
+	"textdomain": "foundationpress",
+	"supports": {
+		"html": false,
+		"anchor": false
+	},
+	"editorScript": "file:./index.js"
+}

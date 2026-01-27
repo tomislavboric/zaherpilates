@@ -1,0 +1,70 @@
+// App-like member experience on mobile
+@media (max-width: 768px) {
+  body.is-member {
+    // Remove top chrome
+    /* .header,
+    .header-menu,
+    .page__header {
+      display: none !important;
+    } */
+
+    // Hide burger (bottom nav has menu toggle)
+    .burger {
+      display: none !important;
+    }
+
+    // Hide footer (bottom nav replaces it)
+    .footer {
+      display: none !important;
+    }
+
+    // Make space for bottom nav
+    .main {
+      padding-bottom: calc(84px + env(safe-area-inset-bottom));
+    }
+  }
+
+  .bottom-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    height: 64px;
+    padding-bottom: env(safe-area-inset-bottom);
+    background: #fff;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    display: grid !important;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    align-items: center;
+  }
+
+  .bottom-nav__item {
+    display: grid;
+    place-items: center;
+    gap: 2px;
+    padding: 8px 0;
+    color: $gray-700;
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .bottom-nav__icon {
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  .bottom-nav__label {
+    font-size: 11px;
+    line-height: 1.1;
+  }
+
+  .bottom-nav__item.is-active {
+    color: $black;
+    font-weight: 600;
+  }
+}

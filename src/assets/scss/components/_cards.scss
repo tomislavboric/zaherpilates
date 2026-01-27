@@ -11,14 +11,15 @@
   @include breakpoint(xxlarge) {
     grid-template-columns: repeat(4, 1fr);
   }
-  /* &__item {
-    &.is-locked {
+  &__item {
+    position: relative;
+    /* &.is-locked {
       opacity: 0.9;
       a {
         cursor: default;
       }
-    }
-  } */
+    } */
+  }
   &__count {
     display: none !important;
     color: #fff;
@@ -33,7 +34,7 @@
     background-color: rgba($gray-900, .6);
     font-weight: 500;
     font-size: 14px;
-    span {
+    .lni-icon {
       font-size: 18px;
     }
   }
@@ -49,6 +50,89 @@
     line-height: 1;
     color: #fff;
     z-index: 2;
+  }
+  &__badge {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba($gray-900, 0.92);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+    z-index: 2;
+
+    .lni-icon {
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    &--progress {
+      background: rgba(darken($primary-color, 10%), 0.95);
+    }
+  }
+  &__progress-bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 4px;
+    background: rgba($black, 0.4);
+    z-index: 3;
+  }
+  &__progress-fill {
+    height: 100%;
+    background: $primary-color;
+    transition: width 0.3s ease;
+  }
+  &__favorite {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 3;
+
+    .simplefavorite-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border-radius: 50%;
+      border: 0;
+      background: rgba($gray-900, 0.7);
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba($black, 0.2);
+      transition: background-color 150ms ease, transform 150ms ease;
+
+      &:hover {
+        background: rgba($gray-900, 0.9);
+        transform: scale(1.05);
+      }
+    }
+
+    .simplefavorite-button.active {
+      background: rgba($primary-color, 0.95);
+
+      &:hover {
+        background: rgba(darken($primary-color, 5%), 0.95);
+      }
+    }
+
+    .simplefavorite-label {
+      display: none;
+    }
+
+    .lni-icon {
+      font-size: 18px;
+      line-height: 1;
+    }
   }
   &__locked {
     position: absolute;
@@ -77,12 +161,6 @@
   &__title {
     font-size: 16px;
     margin: 0;
-    @include breakpoint(medium) {
-      font-size: 14px;
-    }
-    @include breakpoint(xlarge) {
-      font-size: 15px;
-    }
     @include breakpoint(xxlarge) {
       font-size: 18px;
     }

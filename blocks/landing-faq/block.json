@@ -1,0 +1,15 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "zaher/landing-faq",
+	"title": "Landing FAQ (Black Week)",
+	"category": "zaher-landing",
+	"icon": "editor-help",
+	"description": "FAQ section for landing pages.",
+	"textdomain": "foundationpress",
+	"supports": {
+		"html": false,
+		"anchor": false
+	},
+	"editorScript": "file:./index.js"
+}

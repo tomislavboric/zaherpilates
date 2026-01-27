@@ -82,7 +82,7 @@ if (have_rows('catalog_sections', $page_id)):
 							<figure class="cards__figure">
 								<img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($title); ?>">
 								<div class="cards__count">
-									<span class="material-icons">video_library</span>
+									<?php echo zaher_lineicon_svg( 'play' ); ?>
 									<?php echo esc_html($count); ?>
 								</div>
 							</figure>

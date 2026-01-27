@@ -17,7 +17,8 @@
   gap: 6px;
   cursor: pointer;
   user-select: none;
-  span {
+  span,
+  .lni-icon {
     font-size: 1.2rem;
   }
   &:hover, &:focus {
