@@ -17,7 +17,7 @@ if ( ! function_exists( 'foundationpress_asset_path' ) ) :
 	function foundationpress_asset_path( $filename ) {
 		$filename_split = explode( '.', $filename );
 		$dir            = end( $filename_split );
-		$manifest_path  = dirname( dirname( __FILE__ ) ) . '/dist/assets/' . $dir . '/rev-manifest.json';
+		$manifest_path  = get_stylesheet_directory() . '/dist/assets/' . $dir . '/rev-manifest.json';
 
 		if ( file_exists( $manifest_path ) ) {
 			$manifest = json_decode( file_get_contents( $manifest_path ), true );
