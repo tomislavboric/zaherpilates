@@ -9,7 +9,9 @@
 				[ 'core/paragraph', { content: 'Shvati ovo kao znak i iskoristi ponudu.<br> Nadogradi članstvo, pokloni sebi vrijeme i podršku te uđi u kraj godine osjećajući se snažno i samopouzdano.' } ]
 			] ]
 		] ],
-		[ 'zaher/landing-cta-button', { text: 'Iskoristi ponudu!', url: '#bf-options', size: 'button--large' } ],
+		[ 'core/buttons', {}, [
+			[ 'core/button', { className: 'button--large', text: 'Iskoristi ponudu!', url: '#bf-options' } ]
+		] ],
 		[ 'core/paragraph', { className: 'hero__note', content: 'Postojeće članice mogu nadograditi pretplatu unutar svog korisničkog računa.' } ]
 	];
 

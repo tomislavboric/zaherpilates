@@ -88,7 +88,8 @@ $fav_query = new WP_Query(array(
             <img src="<?php echo esc_url($thumb); ?>" alt="<?php the_title_attribute(); ?>">
             <?php if ( function_exists( 'zaher_user_completed_program' ) && zaher_user_completed_program( get_the_ID(), $user_id ) ) : ?>
               <div class="cards__badge" aria-label="Pogledano do kraja">
-                <?php echo zaher_lineicon_svg( 'check' ); ?>
+                <?php echo zaher_lineicon_svg( 'check-circle' ); ?>
+                Pogledano
               </div>
             <?php endif; ?>
             <?php if ( $video_length = get_field('video_length') ) : ?>

@@ -59,11 +59,6 @@ $in_progress_query = new WP_Query(
 				$progress_percent = round( $progress_value * 100 );
 				?>
 				<div class="cards__item">
-					<?php if ( function_exists( 'the_favorites_button' ) ) : ?>
-						<div class="cards__favorite">
-							<?php the_favorites_button( get_the_ID() ); ?>
-						</div>
-					<?php endif; ?>
 					<a href="<?php the_permalink(); ?>">
 						<figure class="cards__figure">
 							<?php

@@ -4,13 +4,12 @@
 	var RichText = blockEditor.RichText;
 	var InspectorControls = blockEditor.InspectorControls;
 	var PanelBody = components.PanelBody;
-	var DateTimePicker = components.DateTimePicker;
+	var TextControl = components.TextControl;
 
 	blocks.registerBlockType( 'zaher/landing-countdown-final', {
 		edit: function( props ) {
 			var attributes = props.attributes;
 			var setAttributes = props.setAttributes;
-			var currentDate = attributes.deadline || new Date().toISOString();
 
 			return el(
 				Fragment,
@@ -21,12 +20,12 @@
 					el(
 						PanelBody,
 						{ title: 'Countdown', initialOpen: true },
-						el( DateTimePicker, {
-							currentDate: currentDate,
+						el( TextControl, {
+							label: 'Deadline (ISO format)',
+							value: attributes.deadline,
 							onChange: function( value ) {
 								setAttributes( { deadline: value } );
-							},
-							is12Hour: false
+							}
 						} )
 					)
 				),

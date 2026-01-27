@@ -89,11 +89,6 @@ if ( ! ( $quick_query instanceof WP_Query ) ) {
 				<div class="cards">
 					<?php while ( $quick_query->have_posts() ) : $quick_query->the_post(); ?>
 						<div class="cards__item">
-							<?php if ( function_exists( 'the_favorites_button' ) ) : ?>
-								<div class="cards__favorite">
-									<?php the_favorites_button( get_the_ID() ); ?>
-								</div>
-							<?php endif; ?>
 							<a href="<?php the_permalink(); ?>">
 								<figure class="cards__figure">
 									<?php
@@ -102,7 +97,8 @@ if ( ! ( $quick_query instanceof WP_Query ) ) {
 									<img src="<?php echo esc_url( $thumb ); ?>" alt="<?php the_title_attribute(); ?>">
 									<?php if ( function_exists( 'zaher_user_completed_program' ) && zaher_user_completed_program( get_the_ID() ) ) : ?>
 										<div class="cards__badge" aria-label="Pogledano do kraja">
-											<?php echo zaher_lineicon_svg( 'check' ); ?>
+											<?php echo zaher_lineicon_svg( 'check-circle' ); ?>
+											Pogledano
 										</div>
 									<?php endif; ?>
 									<?php if ( function_exists( 'get_field' ) && ( $video_length = get_field( 'video_length' ) ) ) : ?>

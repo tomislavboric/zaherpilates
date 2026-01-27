@@ -11,7 +11,9 @@
 			] ]
 		] ],
 		[ 'core/group', { className: 'hero__cta' }, [
-			[ 'zaher/landing-cta-button', { text: 'Pogledaj ponudu', url: '#bf-options', size: 'button--large' } ],
+			[ 'core/buttons', {}, [
+				[ 'core/button', { className: 'button--large', text: 'Pogledaj ponudu', url: '#bf-options' } ]
+			] ],
 			[ 'core/paragraph', { className: 'hero__note', content: 'Ponuda traje cijeli tjedan, a završava 28.11. u 23:59.' } ]
 		] ]
 	];
