@@ -25,9 +25,7 @@
 				[ 'core/paragraph', { className: 'bf-offer__savings', content: '25 € OFF na tromjesečnu pretplatu.' } ],
 				[ 'core/list', { className: 'bf-offer__list', values: LIST_OPTION_ONE } ],
 				[ 'core/group', { className: 'bf-offer__cta' }, [
-					[ 'core/buttons', {}, [
-						[ 'core/button', { text: 'Ugrabi ponudu', url: '/registracija/tromjesecna-pretplata/?coupon=BF25' } ]
-					] ]
+					[ 'zaher/landing-cta-button', { text: 'Ugrabi ponudu', url: '/registracija/tromjesecna-pretplata/?coupon=BF25', size: '' } ]
 				] ]
 			] ],
 			[ 'core/group', { className: 'bf-offer__card' }, [
@@ -36,9 +34,7 @@
 				[ 'core/paragraph', { className: 'bf-offer__savings', content: 'Polugodišnja pretplata + 1:1 coaching call sa Ivanom<br> (ograničeno na 7 mjesta!)' } ],
 				[ 'core/list', { className: 'bf-offer__list', values: LIST_OPTION_TWO } ],
 				[ 'core/group', { className: 'bf-offer__cta' }, [
-					[ 'core/buttons', {}, [
-						[ 'core/button', { text: 'Ugrabi ponudu', url: '/registracija/polugodisnja-pretplata/' } ]
-					] ]
+					[ 'zaher/landing-cta-button', { text: 'Ugrabi ponudu', url: '/registracija/polugodisnja-pretplata/', size: '' } ]
 				] ]
 			] ]
 		] ],

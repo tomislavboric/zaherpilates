@@ -27,7 +27,7 @@ if ( empty( $completed_ids ) ) :
 	<div class="grid-container full" id="pogledano" style="margin-bottom:60px!important">
 		<div class="empty-state">
 			<div class="empty-state__icon">
-				<?php echo zaher_lineicon_svg( 'check-circle' ); ?>
+				<?php echo zaher_lineicon_svg( 'check' ); ?>
 			</div>
 			<h3 class="empty-state__title">Još nema pogledanih videa</h3>
 			<p class="empty-state__text">Kad završiš trening do kraja, pojavit će se ovdje.</p>
@@ -54,6 +54,11 @@ $completed_query = new WP_Query(
 		<div class="cards">
 			<?php while ( $completed_query->have_posts() ) : $completed_query->the_post(); ?>
 				<div class="cards__item">
+					<?php if ( function_exists( 'the_favorites_button' ) ) : ?>
+						<div class="cards__favorite">
+							<?php the_favorites_button( get_the_ID() ); ?>
+						</div>
+					<?php endif; ?>
 					<a href="<?php the_permalink(); ?>">
 						<figure class="cards__figure">
 							<?php
@@ -61,8 +66,7 @@ $completed_query = new WP_Query(
 							?>
 							<img src="<?php echo esc_url( $thumb ); ?>" alt="<?php the_title_attribute(); ?>">
 							<div class="cards__badge" aria-label="Pogledano do kraja">
-								<?php echo zaher_lineicon_svg( 'check-circle' ); ?>
-								Pogledano
+								<?php echo zaher_lineicon_svg( 'check' ); ?>
 							</div>
 							<?php if ( function_exists( 'get_field' ) && ( $video_length = get_field( 'video_length' ) ) ) : ?>
 								<div class="cards__length"><?php echo esc_html( $video_length ); ?></div>
@@ -78,7 +82,7 @@ $completed_query = new WP_Query(
 	<?php else : ?>
 		<div class="empty-state">
 			<div class="empty-state__icon">
-				<?php echo zaher_lineicon_svg( 'check-circle' ); ?>
+				<?php echo zaher_lineicon_svg( 'check' ); ?>
 			</div>
 			<h3 class="empty-state__title">Još nema pogledanih videa</h3>
 			<p class="empty-state__text">Kad završiš trening do kraja, pojavit će se ovdje.</p>

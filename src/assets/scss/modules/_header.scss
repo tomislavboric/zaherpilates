@@ -140,12 +140,14 @@
       justify-content: center;
       gap: 10px;
       padding: 4px;
-      padding-left: 14px;
       background: none;
       border: 2px solid $gray-200;
       border-radius: 999px;
       cursor: pointer;
       transition: border-color 150ms ease;
+      @include breakpoint(medium) {
+        padding-left: 14px;
+      }
 
       &:hover,
       &:focus {
@@ -157,10 +159,14 @@
       }
 
       &-name {
+        display: none;
         font-weight: 500;
         font-size: 14px;
         color: $gray-800;
         white-space: nowrap;
+        @include breakpoint(medium) {
+          display: block;
+        }
       }
     }
 

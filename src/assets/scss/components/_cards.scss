@@ -55,25 +55,55 @@
     position: absolute;
     left: 10px;
     top: 10px;
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 10px;
-    border-radius: 999px;
-    background: rgba($gray-900, 0.92);
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background-color: rgba($gray-900, .6);
+    border-radius: 50%;
     color: #fff;
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 1;
     z-index: 2;
 
     .lni-icon {
-      font-size: 16px;
+      font-size: 14px;
       line-height: 1;
     }
 
+    // Tooltip
+    &::after {
+      content: 'Pogledano';
+      position: absolute;
+      left: calc(100% + 8px);
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: rgba($gray-900, .9);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 150ms ease, visibility 150ms ease;
+      pointer-events: none;
+    }
+
+    &:hover::after {
+      opacity: 1;
+      visibility: visible;
+    }
+
     &--progress {
-      background: rgba(darken($primary-color, 10%), 0.95);
+      width: auto;
+      height: auto;
+      padding: 6px 10px;
+      gap: 4px;
+      border-radius: 999px;
+      background-color: rgba(darken($primary-color, 10%), 0.95);
+      font-size: 12px;
+      font-weight: 500;
     }
   }
   &__progress-bar {
@@ -92,36 +122,88 @@
   }
   &__favorite {
     position: absolute;
-    top: 12px;
-    right: 12px;
+    top: 10px;
+    right: 10px;
     z-index: 3;
 
     .simplefavorite-button {
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 36px;
-      height: 36px;
+      width: 28px;
+      height: 28px;
       padding: 0;
       border-radius: 50%;
       border: 0;
-      background: rgba($gray-900, 0.7);
+      background: rgba($gray-900, 0.6);
       color: #fff;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba($black, 0.2);
-      transition: background-color 150ms ease, transform 150ms ease;
+      transition: background-color 150ms ease;
+      font-size: 0; // Hide text
+
+      // Hide ALL children (plugin icons, text, etc)
+      > * {
+        display: none !important;
+      }
+
+      // Lineicons heart outline SVG via CSS mask
+      &::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 21px;
+        height: 21px;
+        background-color: currentColor;
+        -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M11.8227 4.77124L12 4.94862L12.1773 4.77135C14.4244 2.52427 18.0676 2.52427 20.3147 4.77134C22.5618 7.01842 22.5618 10.6616 20.3147 12.9087L13.591 19.6324C12.7123 20.5111 11.2877 20.5111 10.409 19.6324L3.6853 12.9086C1.43823 10.6615 1.43823 7.01831 3.6853 4.77124C5.93237 2.52417 9.5756 2.52417 11.8227 4.77124ZM10.762 5.8319C9.10073 4.17062 6.40725 4.17062 4.74596 5.8319C3.08468 7.49319 3.08468 10.1867 4.74596 11.848L11.4697 18.5718C11.7625 18.8647 12.2374 18.8647 12.5303 18.5718L19.254 11.8481C20.9153 10.1868 20.9153 7.49329 19.254 5.83201C17.5927 4.17072 14.8993 4.17072 13.238 5.83201L12.5304 6.53961C12.3897 6.68026 12.199 6.75928 12 6.75928C11.8011 6.75928 11.6104 6.68026 11.4697 6.53961L10.762 5.8319Z' fill='currentColor'/%3E%3C/svg%3E") center / contain no-repeat;
+        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M11.8227 4.77124L12 4.94862L12.1773 4.77135C14.4244 2.52427 18.0676 2.52427 20.3147 4.77134C22.5618 7.01842 22.5618 10.6616 20.3147 12.9087L13.591 19.6324C12.7123 20.5111 11.2877 20.5111 10.409 19.6324L3.6853 12.9086C1.43823 10.6615 1.43823 7.01831 3.6853 4.77124C5.93237 2.52417 9.5756 2.52417 11.8227 4.77124ZM10.762 5.8319C9.10073 4.17062 6.40725 4.17062 4.74596 5.8319C3.08468 7.49319 3.08468 10.1867 4.74596 11.848L11.4697 18.5718C11.7625 18.8647 12.2374 18.8647 12.5303 18.5718L19.254 11.8481C20.9153 10.1868 20.9153 7.49329 19.254 5.83201C17.5927 4.17072 14.8993 4.17072 13.238 5.83201L12.5304 6.53961C12.3897 6.68026 12.199 6.75928 12 6.75928C11.8011 6.75928 11.6104 6.68026 11.4697 6.53961L10.762 5.8319Z' fill='currentColor'/%3E%3C/svg%3E") center / contain no-repeat;
+      }
+
+      // Tooltip
+      &::after {
+        content: 'Dodaj';
+        position: absolute;
+        right: calc(100% + 8px);
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba($gray-900, 0.9);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 500;
+        padding: 4px 8px;
+        border-radius: 4px;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 150ms ease, visibility 150ms ease;
+        pointer-events: none;
+      }
+
+      &:hover::after {
+        opacity: 1;
+        visibility: visible;
+      }
 
       &:hover {
-        background: rgba($gray-900, 0.9);
-        transform: scale(1.05);
+        background: rgba($gray-900, 0.8);
       }
     }
 
+    // Lineicons heart filled SVG when active
     .simplefavorite-button.active {
-      background: rgba($primary-color, 0.95);
+      &::before {
+        -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12.1773 4.77135L12 4.94862L11.8227 4.77124C9.5756 2.52417 5.93237 2.52417 3.6853 4.77124C1.43823 7.01831 1.43823 10.6615 3.6853 12.9086L10.409 19.6324C11.2877 20.5111 12.7123 20.5111 13.591 19.6324L20.3147 12.9087C22.5618 10.6616 22.5618 7.01842 20.3147 4.77134C18.0676 2.52427 14.4244 2.52427 12.1773 4.77135Z' fill='currentColor'/%3E%3C/svg%3E") center / contain no-repeat;
+        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12.1773 4.77135L12 4.94862L11.8227 4.77124C9.5756 2.52417 5.93237 2.52417 3.6853 4.77124C1.43823 7.01831 1.43823 10.6615 3.6853 12.9086L10.409 19.6324C11.2877 20.5111 12.7123 20.5111 13.591 19.6324L20.3147 12.9087C22.5618 10.6616 22.5618 7.01842 20.3147 4.77134C18.0676 2.52427 14.4244 2.52427 12.1773 4.77135Z' fill='currentColor'/%3E%3C/svg%3E") center / contain no-repeat;
+      }
+
+      &::after {
+        content: 'Ukloni';
+      }
 
       &:hover {
-        background: rgba(darken($primary-color, 5%), 0.95);
+        background: rgba($gray-900, 0.8);
       }
     }
 

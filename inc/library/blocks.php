@@ -43,6 +43,7 @@ if ( ! function_exists( 'zaher_register_landing_blocks' ) ) :
 	function zaher_register_landing_blocks() {
 		$blocks = array(
 			'landing-hero',
+			'landing-cta-button',
 			'landing-countdown',
 			'landing-countdown-final',
 			'landing-intro',
@@ -62,4 +63,41 @@ if ( ! function_exists( 'zaher_register_landing_blocks' ) ) :
 	}
 
 	add_action( 'init', 'zaher_register_landing_blocks' );
+endif;
+
+if ( ! function_exists( 'zaher_enqueue_landing_editor_assets' ) ) :
+	function zaher_enqueue_landing_editor_assets() {
+		$app_css_path     = get_template_directory() . '/dist/assets/css/app.css';
+		$landing_css_path = get_template_directory() . '/dist/assets/css/landing-page.css';
+		$editor_css_path  = get_template_directory() . '/dist/assets/css/landing-page-editor.css';
+
+		if ( file_exists( $app_css_path ) ) {
+			wp_enqueue_style(
+				'zaher-editor-app',
+				get_template_directory_uri() . '/dist/assets/css/app.css',
+				array(),
+				filemtime( $app_css_path )
+			);
+		}
+
+		if ( file_exists( $landing_css_path ) ) {
+			wp_enqueue_style(
+				'zaher-editor-landing',
+				get_template_directory_uri() . '/dist/assets/css/landing-page.css',
+				array( 'zaher-editor-app' ),
+				filemtime( $landing_css_path )
+			);
+		}
+
+		if ( file_exists( $editor_css_path ) ) {
+			wp_enqueue_style(
+				'zaher-editor-landing-overrides',
+				get_template_directory_uri() . '/dist/assets/css/landing-page-editor.css',
+				array( 'zaher-editor-landing' ),
+				filemtime( $editor_css_path )
+			);
+		}
+	}
+
+	add_action( 'enqueue_block_editor_assets', 'zaher_enqueue_landing_editor_assets' );
 endif;
