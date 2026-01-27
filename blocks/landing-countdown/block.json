@@ -1,0 +1,33 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "zaher/landing-countdown",
+	"title": "Landing Countdown",
+	"category": "zaher-landing",
+	"icon": "clock",
+	"description": "Countdown section with deadline.",
+	"textdomain": "foundationpress",
+	"supports": {
+		"html": false,
+		"anchor": false
+	},
+	"attributes": {
+		"deadline": {
+			"type": "string",
+			"default": "2025-11-28T23:59:00+01:00"
+		},
+		"label": {
+			"type": "string",
+			"source": "html",
+			"selector": ".bf-countdown__label",
+			"default": "Do isteka ponude ostalo je"
+		},
+		"hint": {
+			"type": "string",
+			"source": "html",
+			"selector": ".bf-countdown__hint",
+			"default": ""
+		}
+	},
+	"editorScript": "file:./index.js"
+}

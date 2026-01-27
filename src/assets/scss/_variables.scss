@@ -7,8 +7,8 @@ $global-width: rem-calc(1240);
 $body-antialiased: true;
 $header-font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 $body-font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-$icons: 'Material Icons';
-$material: 'Material Icons';
+$icons: inherit;
+$material: inherit;
 
 // Colors
 $gray-50: #FAFAF9;
@@ -30,6 +30,7 @@ $overlay: rgba($gray-800, .4);
 // Foundation Colors
 /* $primary-color: #9E165F; */
 $primary-color: #c79288;
+$brand: $primary-color;
 $secondary-color: #c79288;
 $success-color: $green;
 $warning-color: #ffae00;

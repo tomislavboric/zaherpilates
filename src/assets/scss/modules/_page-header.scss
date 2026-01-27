@@ -16,45 +16,92 @@
   margin-top: 10px;
 } */
 
-.page {
-  &__breadcrumbs {
-    margin-bottom: 20px;
-  }
-  &__header {
-    margin-bottom: 6vh;
-    background-color: #f1f1f1;
-    padding: 6vh 0;
-    &-grid {
-      @include breakpoint(xlarge) {
-        display: flex;
-        gap: 40px;
-        justify-content: space-between;
-        align-items: center;
-      }
-    }
-    &-content {}
-    &-figure {
-      @include show-for(xlarge);
-      width: 33%;
-      min-width: 33%;
-      img {
-        border-radius: 12px;
-      }
-    }
-  }
-  &__title {
-    font-size: 21px;
-    @include breakpoint(large) {
-      font-size: 28px;
-    }
-    @include breakpoint(xlarge) {
-      font-size: 36px;
-    }
-  }
-  &__desc {
-    margin-bottom: 1rem;
+.category__breadcrumbs,
+.page__breadcrumbs {
+  margin-bottom: 16px;
+
+  .breadcrumbs,
+  .rank-math-breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: $medium-gray;
+
     p {
-      margin-bottom: .5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin: 0;
     }
+
+    a {
+      color: $medium-gray;
+      text-decoration: none;
+      transition: color 0.2s ease;
+
+      &:hover,
+      &:focus {
+        color: $primary-color;
+      }
+    }
+
+    .separator {
+      color: $light-gray;
+      margin: 0 2px;
+    }
+
+    .current-item,
+    .last {
+      color: $dark-gray;
+      font-weight: 500;
+    }
+  }
+}
+
+.page__header {
+  margin-bottom: 6vh;
+  background-color: #f1f1f1;
+  padding: 6vh 0;
+}
+
+.page__header-grid {
+  @include breakpoint(xlarge) {
+    display: flex;
+    gap: 40px;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.page__header-figure {
+  @include show-for(xlarge);
+  width: 33%;
+  min-width: 33%;
+
+  img {
+    border-radius: 12px;
+  }
+}
+
+.page__title {
+  font-size: 21px;
+
+  @include breakpoint(large) {
+    font-size: 28px;
+  }
+
+  @include breakpoint(xlarge) {
+    font-size: 36px;
+  }
+}
+
+.page__desc {
+  margin-bottom: 1rem;
+
+  p {
+    margin-bottom: .5rem;
   }
 }

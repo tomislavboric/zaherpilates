@@ -13,6 +13,8 @@
 				<?php get_template_part( 'template-parts/modules/footer' ); ?>
 			<?php endif; ?>
 
+			<?php get_template_part( 'template-parts/modules/bottom-nav-members' ); ?>
+
 		</div><?php // end .site ?>
 
 		<?php wp_footer(); ?>

@@ -25,6 +25,20 @@ if ( have_rows('catalog_builder', $term) ) {
 
 		<?php get_template_part( 'template-parts/modules/page-header' ); ?>
 
+		<div class="catalog-breadcrumbs">
+			<div class="grid-container full">
+				<nav class="breadcrumbs" aria-label="Breadcrumb">
+					<?php if ( function_exists( 'rank_math_the_breadcrumbs' ) ) : ?>
+						<?php rank_math_the_breadcrumbs(); ?>
+					<?php else : ?>
+						<a href="<?php echo esc_url( home_url( '/' ) ); ?>">Katalog</a>
+						<span class="separator" aria-hidden="true">/</span>
+						<span class="current-item"><?php echo esc_html( $term->name ); ?></span>
+					<?php endif; ?>
+				</nav>
+			</div>
+		</div>
+
     <?php if ( have_posts() && !$has_catalog ) : ?>
 
 			<div class="catalog">
@@ -86,6 +100,12 @@ if ( have_rows('catalog_builder', $term) ) {
 								<a href="<?php the_permalink(); ?>">
 									<figure class="cards__figure">
 										<img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php the_title_attribute(); ?>">
+										<?php if ( function_exists( 'zaher_user_completed_program' ) && zaher_user_completed_program( get_the_ID() ) ) : ?>
+											<div class="cards__badge" aria-label="Pogledano do kraja">
+												<?php echo zaher_lineicon_svg( 'check-circle' ); ?>
+												Pogledano
+											</div>
+										<?php endif; ?>
 										<?php if ($video_length) : ?>
 											<div class="cards__length"><?php echo esc_html($video_length); ?></div>
 										<?php endif; ?>
@@ -183,6 +203,12 @@ if ( have_rows('catalog_builder', $term) ) {
 										<a href="<?php echo esc_url( get_permalink($pid) ); ?>">
 											<figure class="cards__figure">
 												<img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php echo esc_attr( get_the_title($pid) ); ?>">
+												<?php if ( function_exists( 'zaher_user_completed_program' ) && zaher_user_completed_program( $pid ) ) : ?>
+													<div class="cards__badge" aria-label="Pogledano do kraja">
+														<?php echo zaher_lineicon_svg( 'check-circle' ); ?>
+														Pogledano
+													</div>
+												<?php endif; ?>
 												<?php if ( $video_length ) : ?>
 													<div class="cards__length"><?php echo esc_html($video_length); ?></div>
 												<?php endif; ?>

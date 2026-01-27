@@ -1,0 +1,15 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "zaher/landing-story",
+	"title": "Landing Story (Black Week)",
+	"category": "zaher-landing",
+	"icon": "editor-ul",
+	"description": "Story section with benefits list and image.",
+	"textdomain": "foundationpress",
+	"supports": {
+		"html": false,
+		"anchor": false
+	},
+	"editorScript": "file:./index.js"
+}

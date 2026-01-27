@@ -1,0 +1,15 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "zaher/landing-hero",
+	"title": "Landing Hero (Black Week)",
+	"category": "zaher-landing",
+	"icon": "cover-image",
+	"description": "Hero section for Black Week landing pages.",
+	"textdomain": "foundationpress",
+	"supports": {
+		"html": false,
+		"anchor": false
+	},
+	"editorScript": "file:./index.js"
+}

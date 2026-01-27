@@ -6,9 +6,15 @@ window.$ = $;
 import './lib/foundation-explicit-pieces';
 import './lib/sticky-header.js';
 import './lib/mobile-menu.js';
+import './lib/account-menu.js';
+import './lib/account-tabs.js';
+import './lib/password-toggle.js';
 import './lib/tabs.js';
 import './lib/comments.js';
 import './lib/bf-countdown.js';
+import './lib/catalog-search.js';
+import './lib/vimeo-progress.js';
+import './lib/favorites-list.js';
 // import './lib/lazy-loading.js';
 
 $(document).foundation();

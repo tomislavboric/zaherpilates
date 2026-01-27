@@ -39,6 +39,9 @@ require_once( 'library/entry-meta.php' );
 /** Enqueue scripts */
 require_once( 'library/enqueue-scripts.php' );
 
+/** Register custom blocks */
+require_once( 'library/blocks.php' );
+
 /** Add theme support */
 require_once( 'library/theme-support.php' );
 

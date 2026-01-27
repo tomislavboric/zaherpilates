@@ -1,0 +1,15 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "zaher/landing-final-cta",
+	"title": "Landing Final CTA",
+	"category": "zaher-landing",
+	"icon": "megaphone",
+	"description": "Final call-to-action section for landing pages.",
+	"textdomain": "foundationpress",
+	"supports": {
+		"html": false,
+		"anchor": false
+	},
+	"editorScript": "file:./index.js"
+}

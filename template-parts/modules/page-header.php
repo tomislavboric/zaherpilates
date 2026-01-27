@@ -31,14 +31,6 @@ $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeho
 		<div class="page__header-grid">
 
 			<div class="page__header-content">
-				<?php if (function_exists('rank_math_the_breadcrumbs')) : ?>
-					<div class="category__breadcrumbs">
-						<div class="breadcrumbs">
-							<?php rank_math_the_breadcrumbs(); ?>
-						</div>
-					</div>
-				<?php endif; ?>
-
 				<h1 class="page__title"><?php echo esc_html($title); ?></h1>
 
 				<?php if ($description) : ?>

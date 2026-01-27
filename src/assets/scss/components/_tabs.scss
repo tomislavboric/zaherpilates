@@ -1,16 +1,27 @@
 .tab-container {
   display: flex;
   justify-content: flex-start;
+  gap: 8px;
+  flex-wrap: wrap;
   border-bottom: 1px solid $gray-200;
   .tab {
-    padding: 20px;
+    padding: 16px 20px;
     font-size: 16px;
     text-align: center;
-    background-color: white;
+    font-weight: 500;
+    background-color: transparent;
+    border: 0;
+    color: $black;
     transition: color 0.3s ease;
     cursor: pointer;
+    appearance: none;
+    position: relative;
+    &:focus-visible {
+      outline: 2px solid $primary-color;
+      outline-offset: 2px;
+    }
     &.active {
-      position: relative;
+      color: $primary-color;
       &::after {
         content: "";
         position: absolute;
@@ -22,6 +33,10 @@
       }
     }
   }
+}
+
+.tab__count {
+  margin-left: 4px;
 }
 
 .content-container {
