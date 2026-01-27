@@ -281,6 +281,15 @@ body.logged-in {
   }
 }
 
+// Hide account section on mobile for members (bottom nav handles it)
+@media (max-width: 768px) {
+  body.is-member {
+    .header__account {
+      display: none !important;
+    }
+  }
+}
+
 // Sticky Behavior
 /*body {
   .header--fixed {
