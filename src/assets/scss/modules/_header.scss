@@ -291,6 +291,11 @@ body.logged-in {
     }
   }
 }
+@media (max-width: 991px) {
+  #login-button {
+    display: none !important;
+  }
+}
 
 // Sticky Behavior
 /*body {
