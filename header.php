@@ -24,6 +24,15 @@
 
 		<script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
 
+		<!-- Google tag (gtag.js) -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-5FVWDDVVJ0"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+
+		  gtag('config', 'G-5FVWDDVVJ0');
+		</script>
 
 		<?php wp_head(); ?>
 
@@ -39,6 +48,11 @@
 
 	</head>
 	<body <?php body_class(); ?>>
+		<?php wp_body_open(); ?>
+		<!-- Google Tag Manager (noscript) -->
+		<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TZGV2HD6"
+		height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+		<!-- End Google Tag Manager (noscript) -->
 
 		<div class="site">
 			<?php get_template_part( 'template-parts/modules/header' ); ?>

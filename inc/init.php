@@ -67,6 +67,18 @@ require_once( 'custom/memberpress.php' );
 require_once( 'custom/comments-loggedin-only.php' );
 require_once( 'custom/comments-croatian.php' );
 require_once( 'custom/comments-reply-ajax.php' );
+require_once( 'custom/catalog-router.php' );
+require_once( 'custom/video-utils.php' );
+require_once( 'custom/icons.php' );
+require_once( 'custom/programs.php' );
+require_once( 'custom/favorites.php' );
+require_once( 'custom/body-classes.php' );
+require_once( 'custom/admin-settings.php' );
+require_once( 'custom/query-tweaks.php' );
+require_once( 'custom/memberships.php' );
+require_once( 'custom/admin-ui.php' );
+require_once( 'custom/account-actions.php' );
+require_once( 'custom/gtm.php' );
 
 // require_once( 'custom/wp-blocks.php' );
 // require_once( 'custom/scripts.php' );
