@@ -67,6 +67,7 @@ require_once( 'custom/memberpress.php' );
 require_once( 'custom/comments-loggedin-only.php' );
 require_once( 'custom/comments-croatian.php' );
 require_once( 'custom/comments-reply-ajax.php' );
+require_once( 'custom/mp-mailerlite-sync/bootstrap.php' );
 require_once( 'custom/catalog-router.php' );
 require_once( 'custom/video-utils.php' );
 require_once( 'custom/icons.php' );
