@@ -122,7 +122,7 @@ class MPMLS_MemberPress_Hooks {
 			return;
 		}
 
-		$result = $client->add_to_group( $subscriber_id, $context['group_id'] );
+		$result = $client->add_to_group( $subscriber_id, $context['group_id'], $context['email'] );
 		if ( is_wp_error( $result ) ) {
 			$this->log_error( $event_name, $context, 'activate', $result->get_error_message() );
 			return;
@@ -180,7 +180,7 @@ class MPMLS_MemberPress_Hooks {
 				return;
 			}
 
-			$result = $client->remove_from_group( $subscriber_id, $context['group_id'] );
+			$result = $client->remove_from_group( $subscriber_id, $context['group_id'], $context['email'] );
 			if ( is_wp_error( $result ) ) {
 				$this->log_error( $event_name, $context, 'deactivate', $result->get_error_message() );
 				return;
@@ -193,7 +193,7 @@ class MPMLS_MemberPress_Hooks {
 				$this->log_error( $event_name, $context, 'deactivate', 'Could not determine subscriber ID for expired/cancelled group.' );
 				return;
 			}
-			$result = $client->add_to_group( $subscriber_id, $expired_group_id );
+			$result = $client->add_to_group( $subscriber_id, $expired_group_id, $context['email'] );
 			if ( is_wp_error( $result ) ) {
 				$this->log_error( $event_name, $context, 'deactivate', $result->get_error_message() );
 				return;
