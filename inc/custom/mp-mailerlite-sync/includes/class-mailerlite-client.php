@@ -123,14 +123,41 @@ class MPMLS_MailerLite_Client {
 			return $this->request( $method, $endpoint, $body, $retry - 1 );
 		}
 
-		$message = 'MailerLite request failed.';
+		$message = '';
 		if ( $raw !== '' ) {
 			$decoded = json_decode( $raw, true );
-			if ( json_last_error() === JSON_ERROR_NONE && isset( $decoded['message'] ) ) {
-				$message = $decoded['message'];
+			if ( json_last_error() === JSON_ERROR_NONE ) {
+				if ( isset( $decoded['message'] ) && $decoded['message'] !== '' ) {
+					$message = $decoded['message'];
+				} elseif ( isset( $decoded['error'] ) && $decoded['error'] !== '' ) {
+					$message = $decoded['error'];
+				} elseif ( isset( $decoded['errors'] ) && is_array( $decoded['errors'] ) ) {
+					$first = reset( $decoded['errors'] );
+					if ( is_array( $first ) ) {
+						if ( ! empty( $first['message'] ) ) {
+							$message = $first['message'];
+						} elseif ( ! empty( $first['error'] ) ) {
+							$message = $first['error'];
+						} elseif ( ! empty( $first['detail'] ) ) {
+							$message = $first['detail'];
+						}
+					} elseif ( is_string( $first ) && $first !== '' ) {
+						$message = $first;
+					}
+				}
+			} else {
+				$message = wp_strip_all_tags( substr( $raw, 0, 200 ) );
 			}
 		}
 
-		return new WP_Error( 'mpmls_http_' . $status, $message );
+		if ( $message === '' ) {
+			$message = wp_remote_retrieve_response_message( $response );
+		}
+
+		if ( $message === '' ) {
+			$message = 'MailerLite request failed.';
+		}
+
+		return new WP_Error( 'mpmls_http_' . $status, 'MailerLite request failed (HTTP ' . $status . '): ' . $message );
 	}
 }
