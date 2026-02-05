@@ -19,18 +19,14 @@ class MPMLS_MailerLite_Client {
 
 	public function test_connection() {
 		if ( $this->is_classic() ) {
-			return $this->request( 'GET', '/groups?limit=1' );
+			return $this->request( 'GET', '/groups?limit=1', null, 1, true );
 		}
 
-		return $this->request( 'GET', '/account' );
+		return $this->request( 'GET', '/account', null, 1, true );
 	}
 
 	public function list_groups( $limit = 100 ) {
-		if ( $this->is_classic() ) {
-			$response = $this->request( 'GET', '/groups', array( 'limit' => $limit ) );
-		} else {
-			$response = $this->request( 'GET', '/groups', array( 'limit' => $limit ) );
-		}
+		$response = $this->request( 'GET', '/groups', array( 'limit' => $limit ), 1, true );
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
@@ -136,7 +132,7 @@ class MPMLS_MailerLite_Client {
 		return $subscriber_id;
 	}
 
-	protected function request( $method, $endpoint, $body = null, $retry = 1 ) {
+	protected function request( $method, $endpoint, $body = null, $retry = 1, $allow_fallback = false ) {
 		if ( empty( $this->api_key ) ) {
 			return new WP_Error( 'mpmls_missing_api_key', 'MailerLite API key is missing.' );
 		}
@@ -185,7 +181,7 @@ class MPMLS_MailerLite_Client {
 		}
 
 		if ( ( $status >= 500 || 429 === $status ) && $retry > 0 ) {
-			return $this->request( $method, $endpoint, $body, $retry - 1 );
+			return $this->request( $method, $endpoint, $body, $retry - 1, $allow_fallback );
 		}
 
 		$message = '';
@@ -223,7 +219,14 @@ class MPMLS_MailerLite_Client {
 			$message = 'MailerLite request failed.';
 		}
 
-		return new WP_Error( 'mpmls_http_' . $status, 'MailerLite request failed (HTTP ' . $status . '): ' . $message );
+		$error = new WP_Error( 'mpmls_http_' . $status, 'MailerLite request failed (HTTP ' . $status . '): ' . $message );
+
+		if ( $allow_fallback && in_array( $status, array( 401, 403 ), true ) ) {
+			$this->toggle_api_type();
+			return $this->request( $method, $endpoint, $body, $retry, false );
+		}
+
+		return $error;
 	}
 
 	protected function detect_api_type( $key ) {
@@ -233,6 +236,10 @@ class MPMLS_MailerLite_Client {
 
 	protected function is_classic() {
 		return $this->api_type === 'classic';
+	}
+
+	protected function toggle_api_type() {
+		$this->api_type = $this->is_classic() ? 'new' : 'classic';
 	}
 
 	protected function get_api_base() {
