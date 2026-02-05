@@ -9,6 +9,7 @@ class MPMLS_Admin_Settings {
 
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'register_menu' ) );
+		add_action( 'admin_menu', array( $this, 'reorder_menu' ), 999 );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'wp_ajax_mpmls_test_connection', array( $this, 'ajax_test_connection' ) );
 		add_action( 'wp_ajax_mpmls_send_test_event', array( $this, 'ajax_send_test_event' ) );
@@ -16,13 +17,95 @@ class MPMLS_Admin_Settings {
 	}
 
 	public function register_menu() {
-		add_options_page(
+		add_menu_page(
 			'MP - MailerLite',
 			'MP - MailerLite',
 			'manage_options',
 			self::PAGE_SLUG,
-			array( $this, 'render_page' )
+			array( $this, 'render_page' ),
+			'dashicons-email-alt2',
+			80
 		);
+	}
+
+	public function reorder_menu() {
+		global $menu;
+
+		if ( empty( $menu ) || ! is_array( $menu ) ) {
+			return;
+		}
+
+		$mpmls_item = null;
+		$mpmls_index = null;
+
+		foreach ( $menu as $index => $item ) {
+			if ( is_array( $item ) && isset( $item[2] ) && $item[2] === self::PAGE_SLUG ) {
+				$mpmls_item = $item;
+				$mpmls_index = $index;
+				break;
+			}
+		}
+
+		if ( null === $mpmls_item ) {
+			return;
+		}
+
+		$mailerlite_index = null;
+		foreach ( $menu as $index => $item ) {
+			if ( ! is_array( $item ) ) {
+				continue;
+			}
+
+			$label = isset( $item[0] ) ? trim( wp_strip_all_tags( $item[0] ) ) : '';
+			$slug = isset( $item[2] ) ? (string) $item[2] : '';
+
+			if ( $label !== '' && 0 === strcasecmp( $label, 'MailerLite' ) ) {
+				$mailerlite_index = $index;
+				break;
+			}
+
+			if ( $mailerlite_index === null && $slug !== '' && false !== stripos( $slug, 'mailerlite' ) ) {
+				$mailerlite_index = $index;
+			}
+		}
+
+		if ( null === $mailerlite_index ) {
+			return;
+		}
+
+		unset( $menu[ $mpmls_index ] );
+		$menu = array_values( $menu );
+
+		$mailerlite_index = null;
+		foreach ( $menu as $index => $item ) {
+			if ( is_array( $item ) && isset( $item[2] ) && (string) $item[2] === 'mailerlite' ) {
+				$mailerlite_index = $index;
+				break;
+			}
+		}
+		if ( null === $mailerlite_index ) {
+			foreach ( $menu as $index => $item ) {
+				if ( ! is_array( $item ) ) {
+					continue;
+				}
+				$label = isset( $item[0] ) ? trim( wp_strip_all_tags( $item[0] ) ) : '';
+				$slug = isset( $item[2] ) ? (string) $item[2] : '';
+				if ( $label !== '' && 0 === strcasecmp( $label, 'MailerLite' ) ) {
+					$mailerlite_index = $index;
+					break;
+				}
+				if ( $mailerlite_index === null && $slug !== '' && false !== stripos( $slug, 'mailerlite' ) ) {
+					$mailerlite_index = $index;
+				}
+			}
+		}
+
+		if ( null === $mailerlite_index ) {
+			$menu[] = $mpmls_item;
+			return;
+		}
+
+		array_splice( $menu, $mailerlite_index + 1, 0, array( $mpmls_item ) );
 	}
 
 	public function register_settings() {
