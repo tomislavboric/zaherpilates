@@ -283,6 +283,7 @@ class MPMLS_Admin_Settings {
 		$events          = $this->get_log_events();
 		$active_counts    = $this->get_member_counts( $this->get_active_members_sql( 0, false ) );
 		$inactive_counts  = $this->get_member_counts( $this->get_expired_members_sql( false ) );
+		$active_breakdown = $this->get_membership_breakdown( $this->get_active_members_sql( 0, false ) );
 		$diagnostics      = $this->get_diagnostics();
 
 		?>
@@ -415,6 +416,36 @@ class MPMLS_Admin_Settings {
 						<td><?php echo esc_html( (string) $inactive_counts['memberships'] ); ?></td>
 						<td><?php echo esc_html( (string) $inactive_counts['users'] ); ?></td>
 					</tr>
+				</tbody>
+				</table>
+			</div>
+
+			<hr class="mpmls-section-spacer" />
+			<h2>Active By Membership</h2>
+			<p class="description">Counts of active users per MemberPress product.</p>
+			<div class="mpmls-table-wrap">
+				<table class="widefat striped">
+				<thead>
+					<tr>
+						<th>Membership</th>
+						<th>Product ID</th>
+						<th>Users</th>
+						<th>Memberships</th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php if ( empty( $active_breakdown ) ) : ?>
+						<tr><td colspan="4">No active membership rows found.</td></tr>
+					<?php else : ?>
+						<?php foreach ( $active_breakdown as $row ) : ?>
+							<tr>
+								<td><?php echo esc_html( $row['title'] ); ?></td>
+								<td><?php echo esc_html( (string) $row['product_id'] ); ?></td>
+								<td><?php echo esc_html( (string) $row['users'] ); ?></td>
+								<td><?php echo esc_html( (string) $row['memberships'] ); ?></td>
+							</tr>
+						<?php endforeach; ?>
+					<?php endif; ?>
 				</tbody>
 				</table>
 			</div>
@@ -1541,6 +1572,43 @@ class MPMLS_Admin_Settings {
 			'memberships' => isset( $counts['memberships'] ) ? (int) $counts['memberships'] : 0,
 			'users'       => isset( $counts['users'] ) ? (int) $counts['users'] : 0,
 		);
+	}
+
+	protected function get_membership_breakdown( $sql ) {
+		global $wpdb;
+
+		if ( $sql === '' ) {
+			return array();
+		}
+
+		$rows = $wpdb->get_results(
+			"SELECT product_id, COUNT(*) AS memberships, COUNT(DISTINCT user_id) AS users
+				FROM ( {$sql} ) mpmls_rows
+				GROUP BY product_id
+				ORDER BY users DESC",
+			ARRAY_A
+		);
+
+		if ( empty( $rows ) ) {
+			return array();
+		}
+
+		$results = array();
+		foreach ( $rows as $row ) {
+			$product_id = (int) $row['product_id'];
+			$title = $product_id ? (string) get_the_title( $product_id ) : '';
+			if ( $title === '' ) {
+				$title = $product_id ? 'Unknown (#' . $product_id . ')' : 'Unknown';
+			}
+			$results[] = array(
+				'product_id'  => $product_id,
+				'title'       => $title,
+				'users'       => isset( $row['users'] ) ? (int) $row['users'] : 0,
+				'memberships' => isset( $row['memberships'] ) ? (int) $row['memberships'] : 0,
+			);
+		}
+
+		return $results;
 	}
 
 	protected function get_diagnostics() {
