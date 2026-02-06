@@ -118,6 +118,7 @@ class MPMLS_Admin_Settings {
 		$output['api_key'] = isset( $input['api_key'] ) ? sanitize_text_field( $input['api_key'] ) : '';
 
 		$output['expired_group_id'] = isset( $input['expired_group_id'] ) ? sanitize_text_field( $input['expired_group_id'] ) : '';
+		$output['cancelled_group_id'] = isset( $input['cancelled_group_id'] ) ? sanitize_text_field( $input['cancelled_group_id'] ) : '';
 		$output['logging_enabled']  = ! empty( $input['logging_enabled'] ) ? 1 : 0;
 		$output['remove_on_expired'] = ! empty( $input['remove_on_expired'] ) ? 1 : 0;
 
@@ -144,6 +145,7 @@ class MPMLS_Admin_Settings {
 		$settings         = get_option( MPMLS_OPTION_KEY, array() );
 		$api_key          = isset( $settings['api_key'] ) ? $settings['api_key'] : '';
 		$expired_group_id = isset( $settings['expired_group_id'] ) ? $settings['expired_group_id'] : '';
+		$cancelled_group_id = isset( $settings['cancelled_group_id'] ) ? $settings['cancelled_group_id'] : '';
 		$logging_enabled  = ! empty( $settings['logging_enabled'] );
 		$remove_on_expired = ! empty( $settings['remove_on_expired'] );
 		$mapping          = isset( $settings['mapping'] ) && is_array( $settings['mapping'] ) ? $settings['mapping'] : array();
@@ -268,7 +270,20 @@ class MPMLS_Admin_Settings {
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="mpmls-expired-group">Expired/Cancelled group ID</label></th>
+						<th scope="row"><label for="mpmls-cancelled-group">Cancelled group ID</label></th>
+						<td>
+							<?php if ( ! empty( $groups ) ) : ?>
+								<select id="mpmls-cancelled-group" name="<?php echo esc_attr( MPMLS_OPTION_KEY ); ?>[cancelled_group_id]" class="regular-text">
+									<?php echo $this->render_group_options( $groups, $cancelled_group_id, true ); ?>
+								</select>
+							<?php else : ?>
+								<input type="text" id="mpmls-cancelled-group" name="<?php echo esc_attr( MPMLS_OPTION_KEY ); ?>[cancelled_group_id]" value="<?php echo esc_attr( $cancelled_group_id ); ?>" class="regular-text" />
+							<?php endif; ?>
+							<p class="description">Optional group ID for users who cancel (subscription stopped).</p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="mpmls-expired-group">Expired group ID</label></th>
 						<td>
 							<?php if ( ! empty( $groups ) ) : ?>
 								<select id="mpmls-expired-group" name="<?php echo esc_attr( MPMLS_OPTION_KEY ); ?>[expired_group_id]" class="regular-text">
@@ -277,7 +292,7 @@ class MPMLS_Admin_Settings {
 							<?php else : ?>
 								<input type="text" id="mpmls-expired-group" name="<?php echo esc_attr( MPMLS_OPTION_KEY ); ?>[expired_group_id]" value="<?php echo esc_attr( $expired_group_id ); ?>" class="regular-text" />
 							<?php endif; ?>
-							<p class="description">Optional group ID to add expired/cancelled users.</p>
+							<p class="description">Optional group ID for users whose subscription expires.</p>
 						</td>
 					</tr>
 					<tr>

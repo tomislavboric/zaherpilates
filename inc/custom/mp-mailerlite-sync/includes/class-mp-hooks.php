@@ -187,13 +187,13 @@ class MPMLS_MemberPress_Hooks {
 			}
 		}
 
-		$expired_group_id = $this->get_expired_group_id();
-		if ( $expired_group_id ) {
+		$deactivation_group_id = $this->get_deactivation_group_id( $event_name );
+		if ( $deactivation_group_id ) {
 			if ( ! $subscriber_id ) {
 				$this->log_error( $event_name, $context, 'deactivate', 'Could not determine subscriber ID for expired/cancelled group.' );
 				return;
 			}
-			$result = $client->add_to_group( $subscriber_id, $expired_group_id, $context['email'] );
+			$result = $client->add_to_group( $subscriber_id, $deactivation_group_id, $context['email'] );
 			if ( is_wp_error( $result ) ) {
 				$this->log_error( $event_name, $context, 'deactivate', $result->get_error_message() );
 				return;
@@ -296,6 +296,26 @@ class MPMLS_MemberPress_Hooks {
 	protected function get_expired_group_id() {
 		$settings = get_option( MPMLS_OPTION_KEY, array() );
 		return isset( $settings['expired_group_id'] ) ? (string) $settings['expired_group_id'] : '';
+	}
+
+	protected function get_cancelled_group_id() {
+		$settings = get_option( MPMLS_OPTION_KEY, array() );
+		$cancelled = isset( $settings['cancelled_group_id'] ) ? (string) $settings['cancelled_group_id'] : '';
+		if ( $cancelled === '' ) {
+			return $this->get_expired_group_id();
+		}
+		return $cancelled;
+	}
+
+	protected function get_deactivation_group_id( $event_name ) {
+		$event_name = (string) $event_name;
+		if ( in_array( $event_name, array( 'subscription_stopped', 'transaction_refunded' ), true ) ) {
+			return $this->get_cancelled_group_id();
+		}
+		if ( in_array( $event_name, array( 'subscription_expired', 'transaction_expired' ), true ) ) {
+			return $this->get_expired_group_id();
+		}
+		return $this->get_expired_group_id();
 	}
 
 	protected function should_remove_on_expired() {
