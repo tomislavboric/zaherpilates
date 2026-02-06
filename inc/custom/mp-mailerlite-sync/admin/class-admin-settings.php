@@ -283,9 +283,10 @@ class MPMLS_Admin_Settings {
 		$logs            = $this->get_logs();
 		$event_filter    = isset( $_GET['mpmls_event'] ) ? sanitize_text_field( wp_unslash( $_GET['mpmls_event'] ) ) : '';
 		$events          = $this->get_log_events();
-		$active_counts   = $this->get_member_counts( $this->get_active_members_sql( 0, false ) );
-		$expired_counts  = $this->get_member_counts( $this->get_expired_members_sql( false ) );
+		$active_counts    = $this->get_member_counts( $this->get_active_members_sql( 0, false ) );
+		$expired_counts   = $this->get_member_counts( $this->get_expired_members_sql( false ) );
 		$cancelled_counts = $this->get_member_counts( $this->get_cancelled_members_sql( false ) );
+		$diagnostics      = $this->get_diagnostics();
 
 		?>
 		<div class="wrap mpmls-wrap">
@@ -436,6 +437,98 @@ class MPMLS_Admin_Settings {
 						<td><?php echo esc_html( (string) $cancelled_counts['memberships'] ); ?></td>
 						<td><?php echo esc_html( (string) $cancelled_counts['users'] ); ?></td>
 					</tr>
+				</tbody>
+				</table>
+			</div>
+
+			<hr class="mpmls-section-spacer" />
+			<h2>Diagnostics</h2>
+			<p class="description">Use this to verify MemberPress table availability and statuses. Share this section if counts look wrong.</p>
+			<div class="mpmls-table-wrap">
+				<table class="widefat striped">
+				<thead>
+					<tr>
+						<th>Check</th>
+						<th>Result</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>mepr_subscriptions table</td>
+						<td><?php echo $diagnostics['subscriptions_table'] ? 'Exists' : 'Missing'; ?></td>
+					</tr>
+					<tr>
+						<td>mepr_transactions table</td>
+						<td><?php echo $diagnostics['transactions_table'] ? 'Exists' : 'Missing'; ?></td>
+					</tr>
+					<tr>
+						<td>subscriptions.expires_at column</td>
+						<td><?php echo $diagnostics['subscriptions_expires_column'] ? 'Exists' : 'Missing'; ?></td>
+					</tr>
+					<tr>
+						<td>transactions.expires_at column</td>
+						<td><?php echo $diagnostics['transactions_expires_column'] ? 'Exists' : 'Missing'; ?></td>
+					</tr>
+					<tr>
+						<td>transactions.subscription_id column</td>
+						<td><?php echo $diagnostics['transactions_subscription_column'] ? 'Exists' : 'Missing'; ?></td>
+					</tr>
+					<tr>
+						<td>Active memberships (SQL)</td>
+						<td><?php echo esc_html( (string) $diagnostics['active_memberships'] ); ?></td>
+					</tr>
+					<tr>
+						<td>Expired memberships (SQL)</td>
+						<td><?php echo esc_html( (string) $diagnostics['expired_memberships'] ); ?></td>
+					</tr>
+					<tr>
+						<td>Cancelled memberships (SQL)</td>
+						<td><?php echo esc_html( (string) $diagnostics['cancelled_memberships'] ); ?></td>
+					</tr>
+				</tbody>
+				</table>
+			</div>
+			<div class="mpmls-table-wrap mpmls-section-spacer">
+				<table class="widefat striped">
+				<thead>
+					<tr>
+						<th>Subscription statuses</th>
+						<th>Count</th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php if ( empty( $diagnostics['subscription_statuses'] ) ) : ?>
+						<tr><td colspan="2">No subscription status rows found.</td></tr>
+					<?php else : ?>
+						<?php foreach ( $diagnostics['subscription_statuses'] as $row ) : ?>
+							<tr>
+								<td><?php echo esc_html( (string) $row['status'] ); ?></td>
+								<td><?php echo esc_html( (string) $row['count'] ); ?></td>
+							</tr>
+						<?php endforeach; ?>
+					<?php endif; ?>
+				</tbody>
+				</table>
+			</div>
+			<div class="mpmls-table-wrap mpmls-section-spacer">
+				<table class="widefat striped">
+				<thead>
+					<tr>
+						<th>Transaction statuses</th>
+						<th>Count</th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php if ( empty( $diagnostics['transaction_statuses'] ) ) : ?>
+						<tr><td colspan="2">No transaction status rows found.</td></tr>
+					<?php else : ?>
+						<?php foreach ( $diagnostics['transaction_statuses'] as $row ) : ?>
+							<tr>
+								<td><?php echo esc_html( (string) $row['status'] ); ?></td>
+								<td><?php echo esc_html( (string) $row['count'] ); ?></td>
+							</tr>
+						<?php endforeach; ?>
+					<?php endif; ?>
 				</tbody>
 				</table>
 			</div>
@@ -1649,6 +1742,77 @@ class MPMLS_Admin_Settings {
 		return array(
 			'memberships' => isset( $counts['memberships'] ) ? (int) $counts['memberships'] : 0,
 			'users'       => isset( $counts['users'] ) ? (int) $counts['users'] : 0,
+		);
+	}
+
+	protected function get_diagnostics() {
+		global $wpdb;
+
+		$subscriptions_table = $wpdb->prefix . 'mepr_subscriptions';
+		$transactions_table  = $wpdb->prefix . 'mepr_transactions';
+
+		$subscriptions_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $subscriptions_table ) ) === $subscriptions_table;
+		$transactions_exists  = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $transactions_table ) ) === $transactions_table;
+
+		$subscriptions_expires = false;
+		$transactions_expires  = false;
+		$transactions_subscription = false;
+
+		if ( $subscriptions_exists ) {
+			$subscriptions_expires = (bool) $wpdb->get_var( $wpdb->prepare(
+				"SHOW COLUMNS FROM {$subscriptions_table} LIKE %s",
+				'expires_at'
+			) );
+		}
+
+		if ( $transactions_exists ) {
+			$transactions_expires = (bool) $wpdb->get_var( $wpdb->prepare(
+				"SHOW COLUMNS FROM {$transactions_table} LIKE %s",
+				'expires_at'
+			) );
+			$transactions_subscription = (bool) $wpdb->get_var( $wpdb->prepare(
+				"SHOW COLUMNS FROM {$transactions_table} LIKE %s",
+				'subscription_id'
+			) );
+		}
+
+		$subscription_statuses = array();
+		if ( $subscriptions_exists ) {
+			$subscription_statuses = $wpdb->get_results(
+				"SELECT status, COUNT(*) AS count
+					FROM {$subscriptions_table}
+					GROUP BY status
+					ORDER BY count DESC",
+				ARRAY_A
+			);
+		}
+
+		$transaction_statuses = array();
+		if ( $transactions_exists ) {
+			$transaction_statuses = $wpdb->get_results(
+				"SELECT status, COUNT(*) AS count
+					FROM {$transactions_table}
+					GROUP BY status
+					ORDER BY count DESC",
+				ARRAY_A
+			);
+		}
+
+		$active_counts    = $this->get_member_counts( $this->get_active_members_sql( 0, false ) );
+		$expired_counts   = $this->get_member_counts( $this->get_expired_members_sql( false ) );
+		$cancelled_counts = $this->get_member_counts( $this->get_cancelled_members_sql( false ) );
+
+		return array(
+			'subscriptions_table'            => $subscriptions_exists,
+			'transactions_table'             => $transactions_exists,
+			'subscriptions_expires_column'   => $subscriptions_expires,
+			'transactions_expires_column'    => $transactions_expires,
+			'transactions_subscription_column' => $transactions_subscription,
+			'active_memberships'             => $active_counts['memberships'],
+			'expired_memberships'            => $expired_counts['memberships'],
+			'cancelled_memberships'          => $cancelled_counts['memberships'],
+			'subscription_statuses'          => $subscription_statuses,
+			'transaction_statuses'           => $transaction_statuses,
 		);
 	}
 
