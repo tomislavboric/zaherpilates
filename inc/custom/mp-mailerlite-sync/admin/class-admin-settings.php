@@ -17,6 +17,7 @@ class MPMLS_Admin_Settings {
 		add_action( 'wp_ajax_mpmls_sync_all_members', array( $this, 'ajax_sync_all_members' ) );
 		add_action( 'wp_ajax_mpmls_reconcile_active_members', array( $this, 'ajax_reconcile_active_members' ) );
 		add_action( 'wp_ajax_mpmls_sync_expired_members', array( $this, 'ajax_sync_expired_members' ) );
+		add_action( 'wp_ajax_mpmls_debug_subscriber', array( $this, 'ajax_debug_subscriber' ) );
 		add_action( 'wp_ajax_mpmls_autosave_sync', array( $this, 'ajax_autosave_sync' ) );
 		add_action( 'admin_post_mpmls_clear_logs', array( $this, 'handle_clear_logs' ) );
 	}
@@ -385,13 +386,54 @@ class MPMLS_Admin_Settings {
 						</td>
 					</tr>
 				</table>
-				<div class="mpmls-quick-actions">
-					<button type="button" class="button" id="mpmls-test-event" data-nonce="<?php echo esc_attr( $nonce ); ?>">Send test event</button>
-					<button type="button" class="button" id="mpmls-sync-all" data-nonce="<?php echo esc_attr( $nonce ); ?>">Sync all members</button>
-					<button type="button" class="button" id="mpmls-reconcile" data-nonce="<?php echo esc_attr( $nonce ); ?>">Reconcile active members</button>
-					<button type="button" class="button" id="mpmls-sync-expired" data-nonce="<?php echo esc_attr( $nonce ); ?>">Sync inactive members</button>
-					<span id="mpmls-sync-result"></span>
-				</div>
+			<div class="mpmls-quick-actions">
+				<button type="button" class="button" id="mpmls-test-event" data-nonce="<?php echo esc_attr( $nonce ); ?>">Send test event</button>
+				<button type="button" class="button" id="mpmls-sync-all" data-nonce="<?php echo esc_attr( $nonce ); ?>">Sync all members</button>
+				<button type="button" class="button" id="mpmls-reconcile" data-nonce="<?php echo esc_attr( $nonce ); ?>">Reconcile active members</button>
+				<button type="button" class="button" id="mpmls-sync-expired" data-nonce="<?php echo esc_attr( $nonce ); ?>">Sync inactive members</button>
+				<span id="mpmls-sync-result"></span>
+			</div>
+
+			<hr class="mpmls-section-spacer" />
+			<h2>Debug Subscriber</h2>
+			<p class="description">Enter an email and optional membership ID to see the exact fields we send to MailerLite.</p>
+			<table class="form-table" role="presentation">
+				<tr>
+					<th scope="row"><label for="mpmls-debug-email">Email</label></th>
+					<td>
+						<input type="email" id="mpmls-debug-email" class="regular-text" placeholder="user@example.com" />
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="mpmls-debug-status">Status</label></th>
+					<td>
+						<select id="mpmls-debug-status">
+							<option value="active">Active</option>
+							<option value="inactive">Inactive (expired/cancelled)</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="mpmls-debug-membership">Membership (optional)</label></th>
+					<td>
+						<?php if ( ! empty( $products ) ) : ?>
+							<select id="mpmls-debug-membership">
+								<option value="">Auto-detect</option>
+								<?php echo $this->render_product_options( $products, '' ); ?>
+							</select>
+						<?php else : ?>
+							<input type="number" id="mpmls-debug-membership" class="regular-text" placeholder="Membership ID (optional)" />
+						<?php endif; ?>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"></th>
+					<td>
+						<button type="button" class="button" id="mpmls-debug-run" data-nonce="<?php echo esc_attr( $nonce ); ?>">Debug subscriber</button>
+					</td>
+				</tr>
+			</table>
+			<pre id="mpmls-debug-result" style="background:#fff;border:1px solid #ccd0d4;padding:10px;max-height:240px;overflow:auto;"></pre>
 
 			<hr class="mpmls-section-spacer" />
 			<h2>MemberPress Counts</h2>
@@ -811,6 +853,33 @@ class MPMLS_Admin_Settings {
 				}
 
 				syncBatch(0);
+			});
+
+			$('#mpmls-debug-run').on('click', function(){
+				var email = $.trim($('#mpmls-debug-email').val());
+				var status = $('#mpmls-debug-status').val();
+				var membershipId = $('#mpmls-debug-membership').val() || '';
+				var $out = $('#mpmls-debug-result');
+				if (!email) {
+					$out.text('Please enter an email address.');
+					return;
+				}
+				$out.text('Loading...');
+				$.post(ajaxurl, {
+					action: 'mpmls_debug_subscriber',
+					nonce: $(this).data('nonce'),
+					email: email,
+					status: status,
+					membership_id: membershipId
+				}, function(response){
+					if (response.success) {
+						$out.text(JSON.stringify(response.data, null, 2));
+					} else {
+						$out.text('Error: ' + response.data.message);
+					}
+				}).fail(function(){
+					$out.text('Request failed.');
+				});
 			});
 		});
 		</script>
@@ -1277,6 +1346,77 @@ class MPMLS_Admin_Settings {
 		) );
 	}
 
+	public function ajax_debug_subscriber() {
+		check_ajax_referer( 'mpmls_test_connection', 'nonce' );
+
+		$api_key = mpmls_get_setting( 'api_key', '' );
+		if ( empty( $api_key ) ) {
+			wp_send_json_error( array( 'message' => 'MailerLite API key is missing.' ) );
+		}
+
+		$email = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
+		$status = isset( $_POST['status'] ) ? sanitize_text_field( wp_unslash( $_POST['status'] ) ) : 'active';
+		$membership_id = isset( $_POST['membership_id'] ) ? absint( $_POST['membership_id'] ) : 0;
+
+		if ( $email === '' ) {
+			wp_send_json_error( array( 'message' => 'Email is required.' ) );
+		}
+
+		$user = get_user_by( 'email', $email );
+		if ( ! $user ) {
+			wp_send_json_error( array( 'message' => 'No WordPress user found for that email.' ) );
+		}
+
+		$is_inactive = $status === 'inactive';
+		$rows = $this->get_memberships_for_user( (int) $user->ID, $is_inactive );
+
+		if ( empty( $rows ) ) {
+			wp_send_json_error( array( 'message' => 'No matching membership rows found for this user and status.' ) );
+		}
+
+		if ( ! $membership_id ) {
+			if ( count( $rows ) > 1 ) {
+				wp_send_json_success( array(
+					'message'     => 'Multiple memberships found. Provide a membership ID to debug a specific one.',
+					'memberships' => $rows,
+				) );
+			}
+			$membership_id = (int) $rows[0]['product_id'];
+		}
+
+		$selected = null;
+		foreach ( $rows as $row ) {
+			if ( (int) $row['product_id'] === $membership_id ) {
+				$selected = $row;
+				break;
+			}
+		}
+		if ( ! $selected ) {
+			wp_send_json_error( array( 'message' => 'Membership ID not found for this user in the selected status.' ) );
+		}
+
+		$expires_at = isset( $selected['expires_at'] ) ? (string) $selected['expires_at'] : '';
+		$status_value = $is_inactive ? 'expired' : 'active';
+		$fields = $this->build_subscriber_fields( $user, $membership_id, $expires_at, $status_value );
+
+		$mapping = mpmls_get_setting( 'mapping', array() );
+		$group_id = $is_inactive
+			? mpmls_get_setting( 'expired_group_id', '' )
+			: ( isset( $mapping[ $membership_id ] ) ? (string) $mapping[ $membership_id ] : '' );
+
+		wp_send_json_success( array(
+			'email'          => $email,
+			'user_id'        => (int) $user->ID,
+			'membership_id'  => (int) $membership_id,
+			'membership'     => get_the_title( $membership_id ) ?: '',
+			'status'         => $status_value,
+			'expires_at_raw' => $expires_at,
+			'group_id'       => $group_id,
+			'fields'         => $fields,
+			'note'           => $group_id === '' ? 'No mapped group for this membership/status.' : '',
+		) );
+	}
+
 	public function handle_clear_logs() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( 'Unauthorized' );
@@ -1495,7 +1635,7 @@ class MPMLS_Admin_Settings {
 		return $wpdb->get_results( $sql, ARRAY_A );
 	}
 
-	protected function get_expired_members_sql( $with_order = true ) {
+	protected function get_expired_members_sql( $with_order = true, $user_id = 0 ) {
 		global $wpdb;
 
 		$now   = current_time( 'mysql' );
@@ -1513,6 +1653,10 @@ class MPMLS_Admin_Settings {
 			$sql = "SELECT s.user_id, s.product_id, {$expires_select}
 				FROM {$subscriptions_table} s
 				WHERE s.status IN ('expired', 'cancelled', 'suspended', 'stopped')";
+			if ( $user_id ) {
+				$sql .= ' AND s.user_id = %d';
+				$sql = $wpdb->prepare( $sql, $user_id );
+			}
 			$parts[] = $sql;
 		}
 
@@ -1536,8 +1680,13 @@ class MPMLS_Admin_Settings {
 		$sql = "SELECT t.user_id, t.product_id, {$expires_select}
 			FROM {$wpdb->prefix}mepr_transactions t
 			WHERE (" . implode( ' OR ', $conditions ) . ')';
+		if ( $user_id ) {
+			$sql .= ' AND t.user_id = %d';
+		}
 		if ( $transactions_expires ) {
-			$sql = $wpdb->prepare( $sql, $now );
+			$sql = $user_id ? $wpdb->prepare( $sql, $now, $user_id ) : $wpdb->prepare( $sql, $now );
+		} elseif ( $user_id ) {
+			$sql = $wpdb->prepare( $sql, $user_id );
 		}
 		$parts[] = $sql;
 
@@ -1572,6 +1721,26 @@ class MPMLS_Admin_Settings {
 			'memberships' => isset( $counts['memberships'] ) ? (int) $counts['memberships'] : 0,
 			'users'       => isset( $counts['users'] ) ? (int) $counts['users'] : 0,
 		);
+	}
+
+	protected function get_memberships_for_user( $user_id, $inactive = false ) {
+		global $wpdb;
+
+		if ( ! $user_id ) {
+			return array();
+		}
+
+		if ( $inactive ) {
+			$sql = $this->get_expired_members_sql( true, (int) $user_id );
+		} else {
+			$sql = $this->get_active_members_sql( (int) $user_id, true );
+		}
+
+		if ( $sql === '' ) {
+			return array();
+		}
+
+		return $wpdb->get_results( $sql, ARRAY_A );
 	}
 
 	protected function get_membership_breakdown( $sql ) {
