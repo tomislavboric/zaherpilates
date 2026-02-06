@@ -1368,7 +1368,7 @@ class MPMLS_Admin_Settings {
 			$sql = "SELECT s.user_id, s.product_id, s.expires_at
 				FROM {$subscriptions_table} s
 				WHERE s.status = 'active'
-				AND (s.expires_at = '0000-00-00 00:00:00' OR s.expires_at >= %s)";
+				AND (s.expires_at IS NULL OR s.expires_at = '' OR s.expires_at = '0000-00-00 00:00:00' OR s.expires_at >= %s)";
 			if ( $user_id ) {
 				$sql .= ' AND s.user_id = %d';
 				$sql = $wpdb->prepare( $sql, $now, $user_id );
@@ -1386,7 +1386,7 @@ class MPMLS_Admin_Settings {
 		$sql = "SELECT t.user_id, t.product_id, t.expires_at
 			FROM {$wpdb->prefix}mepr_transactions t
 			WHERE t.status IN ('complete', 'confirmed')
-			AND (t.expires_at = '0000-00-00 00:00:00' OR t.expires_at >= %s)";
+			AND (t.expires_at IS NULL OR t.expires_at = '' OR t.expires_at = '0000-00-00 00:00:00' OR t.expires_at >= %s)";
 		if ( $subscription_id_exists ) {
 			$sql .= ' AND (t.subscription_id IS NULL OR t.subscription_id = 0)';
 		}
@@ -1566,6 +1566,8 @@ class MPMLS_Admin_Settings {
 			FROM {$wpdb->prefix}mepr_transactions t
 			WHERE (
 				(t.status IN ('complete', 'confirmed')
+					AND t.expires_at IS NOT NULL
+					AND t.expires_at <> ''
 					AND t.expires_at <> '0000-00-00 00:00:00'
 					AND t.expires_at < %s)
 				OR t.status IN ('expired')

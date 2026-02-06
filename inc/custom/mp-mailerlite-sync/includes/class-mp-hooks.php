@@ -348,7 +348,7 @@ class MPMLS_MemberPress_Hooks {
 			$sql = "SELECT s.product_id
 				FROM {$subscriptions_table} s
 				WHERE s.status = 'active'
-				AND (s.expires_at = '0000-00-00 00:00:00' OR s.expires_at >= %s)
+				AND (s.expires_at IS NULL OR s.expires_at = '' OR s.expires_at = '0000-00-00 00:00:00' OR s.expires_at >= %s)
 				AND s.user_id = %d";
 			$parts[] = $wpdb->prepare( $sql, $now, $user_id );
 		}
@@ -361,7 +361,7 @@ class MPMLS_MemberPress_Hooks {
 		$sql = "SELECT t.product_id
 			FROM {$wpdb->prefix}mepr_transactions t
 			WHERE t.status IN ('complete', 'confirmed')
-			AND (t.expires_at = '0000-00-00 00:00:00' OR t.expires_at >= %s)
+			AND (t.expires_at IS NULL OR t.expires_at = '' OR t.expires_at = '0000-00-00 00:00:00' OR t.expires_at >= %s)
 			AND t.user_id = %d";
 		if ( $subscription_id_exists ) {
 			$sql .= ' AND (t.subscription_id IS NULL OR t.subscription_id = 0)';
