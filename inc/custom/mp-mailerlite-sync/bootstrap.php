@@ -84,7 +84,17 @@ function mpmls_activate() {
 	dbDelta( $sql );
 }
 
+function mpmls_ensure_log_table() {
+	global $wpdb;
+	$table = MPMLS_Logger::table_name();
+	$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
+	if ( $exists !== $table ) {
+		mpmls_activate();
+	}
+}
+
 add_action( 'after_switch_theme', 'mpmls_activate' );
+add_action( 'admin_init', 'mpmls_ensure_log_table' );
 
 require_once MPMLS_PATH . 'includes/class-mailerlite-client.php';
 require_once MPMLS_PATH . 'includes/class-mp-hooks.php';

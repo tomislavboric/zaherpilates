@@ -130,6 +130,8 @@ class MPMLS_MemberPress_Hooks {
 			return;
 		}
 
+		$this->remove_from_inactive_mapped_groups( $client, $subscriber_id, $context, $event_name );
+
 		MPMLS_Logger::log( array(
 			'event'         => $event_name,
 			'email'         => $context['email'],
@@ -176,19 +178,6 @@ class MPMLS_MemberPress_Hooks {
 			$subscriber_id = $client->get_subscriber_id_by_email( $context['email'] );
 			if ( is_wp_error( $subscriber_id ) ) {
 				$subscriber_id = null;
-			}
-		}
-
-		if ( $this->should_remove_on_expired() ) {
-			if ( ! $subscriber_id ) {
-				$this->log_error( $event_name, $context, 'deactivate', 'Could not determine subscriber ID for removal.' );
-				return;
-			}
-
-			$result = $client->remove_from_group( $subscriber_id, $context['group_id'], $context['email'] );
-			if ( is_wp_error( $result ) ) {
-				$this->log_error( $event_name, $context, 'deactivate', $result->get_error_message() );
-				return;
 			}
 		}
 
@@ -335,6 +324,105 @@ class MPMLS_MemberPress_Hooks {
 		return isset( $settings['mapping'][ $membership_id ] ) ? (string) $settings['mapping'][ $membership_id ] : '';
 	}
 
+	protected function get_mapping() {
+		$settings = get_option( MPMLS_OPTION_KEY, array() );
+		if ( empty( $settings['mapping'] ) || ! is_array( $settings['mapping'] ) ) {
+			return array();
+		}
+		return $settings['mapping'];
+	}
+
+	protected function get_active_membership_ids_for_user( $user_id ) {
+		global $wpdb;
+
+		if ( ! $user_id ) {
+			return array();
+		}
+
+		$sql = "SELECT DISTINCT t.product_id
+			FROM {$wpdb->prefix}mepr_transactions t
+			WHERE t.user_id = %d
+			AND t.status IN ('complete', 'confirmed')
+			AND (t.expires_at = '0000-00-00 00:00:00' OR t.expires_at >= %s)";
+
+		$ids = $wpdb->get_col(
+			$wpdb->prepare( $sql, $user_id, current_time( 'mysql' ) )
+		);
+
+		return array_map( 'intval', $ids );
+	}
+
+	protected function get_active_group_ids_for_user( $user_id ) {
+		$mapping = $this->get_mapping();
+		if ( empty( $mapping ) ) {
+			return array();
+		}
+
+		$membership_ids = $this->get_active_membership_ids_for_user( $user_id );
+		if ( empty( $membership_ids ) ) {
+			return array();
+		}
+
+		$active = array();
+		foreach ( $membership_ids as $membership_id ) {
+			if ( isset( $mapping[ $membership_id ] ) ) {
+				$group_id = (string) $mapping[ $membership_id ];
+				if ( $group_id !== '' ) {
+					$active[] = $group_id;
+				}
+			}
+		}
+
+		return array_values( array_unique( $active ) );
+	}
+
+	protected function remove_from_inactive_mapped_groups( $client, $subscriber_id, $context, $event_name ) {
+		$mapping = $this->get_mapping();
+		if ( empty( $mapping ) ) {
+			return;
+		}
+
+		$active_group_ids = $this->get_active_group_ids_for_user( $context['user_id'] );
+		$active_group_ids[] = (string) $context['group_id'];
+		$active_group_ids = array_values( array_unique( $active_group_ids ) );
+
+		foreach ( $mapping as $membership_id => $group_id ) {
+			$group_id = (string) $group_id;
+			if ( $group_id === '' ) {
+				continue;
+			}
+			if ( in_array( $group_id, $active_group_ids, true ) ) {
+				continue;
+			}
+
+			$result = $client->remove_from_group( $subscriber_id, $group_id, $context['email'] );
+			if ( is_wp_error( $result ) ) {
+				MPMLS_Logger::log( array(
+					'event'         => $event_name,
+					'email'         => $context['email'],
+					'wp_user_id'    => $context['user_id'],
+					'membership_id' => $context['membership_id'],
+					'group_id'      => $group_id,
+					'action'        => 'remove_inactive',
+					'success'       => 0,
+					'message'       => $result->get_error_message(),
+				) );
+				continue;
+			}
+
+			MPMLS_Logger::log( array(
+				'event'         => $event_name,
+				'email'         => $context['email'],
+				'wp_user_id'    => $context['user_id'],
+				'membership_id' => $context['membership_id'],
+				'group_id'      => $group_id,
+				'action'        => 'remove_inactive',
+				'success'       => 1,
+				'message'       => 'Removed from inactive mapped group.',
+			) );
+		}
+	}
+
 	protected function get_expired_group_id() {
 		$settings = get_option( MPMLS_OPTION_KEY, array() );
 		return isset( $settings['expired_group_id'] ) ? (string) $settings['expired_group_id'] : '';
@@ -358,11 +446,6 @@ class MPMLS_MemberPress_Hooks {
 			return $this->get_expired_group_id();
 		}
 		return $this->get_expired_group_id();
-	}
-
-	protected function should_remove_on_expired() {
-		$settings = get_option( MPMLS_OPTION_KEY, array() );
-		return ! empty( $settings['remove_on_expired'] );
 	}
 
 	protected function get_client() {
