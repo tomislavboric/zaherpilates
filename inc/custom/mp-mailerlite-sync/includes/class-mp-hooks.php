@@ -116,13 +116,15 @@ class MPMLS_MemberPress_Hooks {
 			return;
 		}
 
-		$subscriber_id = $client->upsert_subscriber( $context['email'] );
+		$fields = $this->build_subscriber_fields( $context, 'active' );
+
+		$subscriber_id = $client->upsert_subscriber( $context['email'], $fields );
 		if ( is_wp_error( $subscriber_id ) ) {
 			$this->log_error( $event_name, $context, 'activate', $subscriber_id->get_error_message() );
 			return;
 		}
 
-		$result = $client->add_to_group( $subscriber_id, $context['group_id'], $context['email'] );
+		$result = $client->add_to_group( $subscriber_id, $context['group_id'], $context['email'], $fields );
 		if ( is_wp_error( $result ) ) {
 			$this->log_error( $event_name, $context, 'activate', $result->get_error_message() );
 			return;
@@ -166,7 +168,10 @@ class MPMLS_MemberPress_Hooks {
 			return;
 		}
 
-		$subscriber_id = $client->upsert_subscriber( $context['email'] );
+		$status = in_array( $event_name, array( 'subscription_stopped', 'transaction_refunded' ), true ) ? 'cancelled' : 'expired';
+		$fields = $this->build_subscriber_fields( $context, $status );
+
+		$subscriber_id = $client->upsert_subscriber( $context['email'], $fields );
 		if ( is_wp_error( $subscriber_id ) ) {
 			$subscriber_id = $client->get_subscriber_id_by_email( $context['email'] );
 			if ( is_wp_error( $subscriber_id ) ) {
@@ -237,12 +242,49 @@ class MPMLS_MemberPress_Hooks {
 			return null;
 		}
 
+		$expires_at = '';
+		foreach ( array( $transaction, $object ) as $item ) {
+			if ( is_object( $item ) && isset( $item->expires_at ) && $item->expires_at !== '0000-00-00 00:00:00' ) {
+				$expires_at = (string) $item->expires_at;
+				break;
+			}
+		}
+
 		return array(
 			'email'         => $email,
 			'user_id'       => $this->get_user_id_from_object( $object, $transaction ),
 			'membership_id' => $membership_id,
 			'group_id'      => $group_id,
+			'expires_at'    => $expires_at,
 		);
+	}
+
+	protected function build_subscriber_fields( $context, $status = 'active' ) {
+		$fields = array();
+
+		$user = $context['user_id'] ? get_userdata( $context['user_id'] ) : null;
+		if ( $user ) {
+			$fields['name']      = $user->first_name ?: '';
+			$fields['last_name'] = $user->last_name ?: '';
+			$fields['signup_date'] = $user->user_registered
+				? date( 'Y-m-d', strtotime( $user->user_registered ) )
+				: '';
+		}
+
+		$membership_id = $context['membership_id'];
+		if ( $membership_id ) {
+			$fields['membership_name'] = get_the_title( $membership_id ) ?: '';
+		}
+
+		if ( ! empty( $context['expires_at'] ) ) {
+			$fields['membership_expiry'] = date( 'Y-m-d', strtotime( $context['expires_at'] ) );
+		}
+
+		$fields['membership_status'] = $status;
+
+		return array_filter( $fields, function ( $v ) {
+			return $v !== '';
+		} );
 	}
 
 	protected function get_user_id_from_object( $object, $transaction = null ) {

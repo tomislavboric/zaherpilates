@@ -5,15 +5,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class MPMLS_Admin_Settings {
-	const PAGE_SLUG = 'mpmls-settings';
+	const PAGE_SLUG      = 'mpmls-settings';
+	const SYNC_PAGE_SLUG = 'mpmls-sync';
 
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'register_menu' ) );
 		add_action( 'admin_menu', array( $this, 'reorder_menu' ), 999 );
-		add_action( 'admin_init', array( $this, 'register_settings' ) );
-		add_action( 'admin_post_mpmls_save_settings', array( $this, 'handle_save_settings' ) );
 		add_action( 'wp_ajax_mpmls_test_connection', array( $this, 'ajax_test_connection' ) );
+		add_action( 'wp_ajax_mpmls_disconnect_api', array( $this, 'ajax_disconnect_api' ) );
 		add_action( 'wp_ajax_mpmls_send_test_event', array( $this, 'ajax_send_test_event' ) );
+		add_action( 'wp_ajax_mpmls_sync_all_members', array( $this, 'ajax_sync_all_members' ) );
+		add_action( 'wp_ajax_mpmls_autosave_sync', array( $this, 'ajax_autosave_sync' ) );
 		add_action( 'admin_post_mpmls_clear_logs', array( $this, 'handle_clear_logs' ) );
 	}
 
@@ -23,9 +25,27 @@ class MPMLS_Admin_Settings {
 			'MP - MailerLite',
 			'manage_options',
 			self::PAGE_SLUG,
-			array( $this, 'render_page' ),
+			array( $this, 'render_settings_page' ),
 			'dashicons-email-alt2',
 			80
+		);
+
+		add_submenu_page(
+			self::PAGE_SLUG,
+			'Settings',
+			'Settings',
+			'manage_options',
+			self::PAGE_SLUG,
+			array( $this, 'render_settings_page' )
+		);
+
+		add_submenu_page(
+			self::PAGE_SLUG,
+			'Sync',
+			'Sync',
+			'manage_options',
+			self::SYNC_PAGE_SLUG,
+			array( $this, 'render_sync_page' )
 		);
 	}
 
@@ -36,12 +56,12 @@ class MPMLS_Admin_Settings {
 			return;
 		}
 
-		$mpmls_item = null;
+		$mpmls_item  = null;
 		$mpmls_index = null;
 
 		foreach ( $menu as $index => $item ) {
 			if ( is_array( $item ) && isset( $item[2] ) && $item[2] === self::PAGE_SLUG ) {
-				$mpmls_item = $item;
+				$mpmls_item  = $item;
 				$mpmls_index = $index;
 				break;
 			}
@@ -58,7 +78,7 @@ class MPMLS_Admin_Settings {
 			}
 
 			$label = isset( $item[0] ) ? trim( wp_strip_all_tags( $item[0] ) ) : '';
-			$slug = isset( $item[2] ) ? (string) $item[2] : '';
+			$slug  = isset( $item[2] ) ? (string) $item[2] : '';
 
 			if ( $label !== '' && 0 === strcasecmp( $label, 'MailerLite' ) ) {
 				$mailerlite_index = $index;
@@ -90,7 +110,7 @@ class MPMLS_Admin_Settings {
 					continue;
 				}
 				$label = isset( $item[0] ) ? trim( wp_strip_all_tags( $item[0] ) ) : '';
-				$slug = isset( $item[2] ) ? (string) $item[2] : '';
+				$slug  = isset( $item[2] ) ? (string) $item[2] : '';
 				if ( $label !== '' && 0 === strcasecmp( $label, 'MailerLite' ) ) {
 					$mailerlite_index = $index;
 					break;
@@ -109,54 +129,125 @@ class MPMLS_Admin_Settings {
 		array_splice( $menu, $mailerlite_index + 1, 0, array( $mpmls_item ) );
 	}
 
-	public function register_settings() {
-		register_setting( 'mpmls_settings_group', MPMLS_OPTION_KEY );
-	}
+	/* ------------------------------------------------------------------ */
+	/*  Settings page (API key)                                           */
+	/* ------------------------------------------------------------------ */
 
-	public function sanitize_settings( $input ) {
-		$output = array();
-
-		$output['api_key'] = isset( $input['api_key'] ) ? sanitize_text_field( $input['api_key'] ) : '';
-
-		$output['expired_group_id'] = $this->normalize_group_id(
-			isset( $input['expired_group_id'] ) ? sanitize_text_field( $input['expired_group_id'] ) : ''
-		);
-		$output['cancelled_group_id'] = $this->normalize_group_id(
-			isset( $input['cancelled_group_id'] ) ? sanitize_text_field( $input['cancelled_group_id'] ) : ''
-		);
-		$output['logging_enabled']  = ! empty( $input['logging_enabled'] ) ? 1 : 0;
-		$output['remove_on_expired'] = ! empty( $input['remove_on_expired'] ) ? 1 : 0;
-
-		$mapping = array();
-		if ( ! empty( $input['mapping'] ) && is_array( $input['mapping'] ) ) {
-			foreach ( $input['mapping'] as $row ) {
-				$membership_id = isset( $row['membership_id'] ) ? absint( $row['membership_id'] ) : 0;
-				$group_id      = $this->normalize_group_id(
-					isset( $row['group_id'] ) ? sanitize_text_field( $row['group_id'] ) : ''
-				);
-				if ( $membership_id && $group_id !== '' ) {
-					$mapping[ $membership_id ] = $group_id;
-				}
-			}
-		}
-		$output['mapping'] = $mapping;
-
-		return $output;
-	}
-
-	public function render_page() {
+	public function render_settings_page() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 
-		$settings         = get_option( MPMLS_OPTION_KEY, array() );
-		$api_key          = isset( $settings['api_key'] ) ? $settings['api_key'] : '';
-		$expired_group_id = isset( $settings['expired_group_id'] ) ? $this->normalize_group_id( $settings['expired_group_id'] ) : '';
+		$settings          = get_option( MPMLS_OPTION_KEY, array() );
+		$api_key           = isset( $settings['api_key'] ) ? $settings['api_key'] : '';
+		$connection_status = get_option( 'mpmls_connection_status', array() );
+		$connection_ok     = ! empty( $connection_status['ok'] )
+			&& ! empty( $connection_status['key_hash'] )
+			&& $connection_status['key_hash'] === md5( $api_key );
+		$nonce = wp_create_nonce( 'mpmls_test_connection' );
+
+		?>
+		<div class="wrap mpmls-wrap">
+			<style>
+				.mpmls-wrap .form-table th { width: 260px; }
+				.mpmls-wrap .form-table td { padding-top: 14px; padding-bottom: 14px; }
+				.mpmls-wrap .mpmls-inline-actions { display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+				.mpmls-wrap .mpmls-badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; line-height: 1.6; vertical-align: middle; margin-left: 8px; }
+				.mpmls-wrap .mpmls-badge--ok { background: #d4edda; color: #155724; }
+				.mpmls-wrap .mpmls-badge--fail { background: #f8d7da; color: #721c24; }
+			</style>
+			<h1>MP - MailerLite &mdash; Settings</h1>
+
+			<table class="form-table" role="presentation">
+				<tr>
+					<th scope="row">
+						<label for="mpmls_api_key">MailerLite API key</label>
+						<?php if ( $connection_ok ) : ?>
+							<span class="mpmls-badge mpmls-badge--ok">Connected</span>
+						<?php elseif ( $api_key !== '' ) : ?>
+							<span class="mpmls-badge mpmls-badge--fail">Not connected</span>
+						<?php endif; ?>
+					</th>
+					<td>
+						<?php if ( $connection_ok ) : ?>
+							<input type="password" id="mpmls_api_key" value="<?php echo esc_attr( $api_key ); ?>" class="regular-text" disabled />
+							<div class="mpmls-inline-actions">
+								<button type="button" class="button" id="mpmls-disconnect-api" data-nonce="<?php echo esc_attr( $nonce ); ?>">Disconnect</button>
+								<span id="mpmls-test-result"></span>
+							</div>
+						<?php else : ?>
+							<input type="password" id="mpmls_api_key" value="<?php echo esc_attr( $api_key ); ?>" class="regular-text" autocomplete="new-password" />
+							<div class="mpmls-inline-actions">
+								<button type="button" class="button button-primary" id="mpmls-test-connection" data-nonce="<?php echo esc_attr( $nonce ); ?>">Test connection</button>
+								<span id="mpmls-test-result"></span>
+							</div>
+						<?php endif; ?>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<script>
+		jQuery(function($){
+			$('#mpmls-test-connection').on('click', function(){
+				var $result = $('#mpmls-test-result');
+				var apiKey = $.trim($('#mpmls_api_key').val());
+				if (!apiKey) {
+					$result.text('Please enter an API key.');
+					return;
+				}
+				$result.text('Testing...');
+				$.post(ajaxurl, {
+					action: 'mpmls_test_connection',
+					nonce: $(this).data('nonce'),
+					api_key: apiKey
+				}, function(response){
+					if(response.success){
+						$result.text('Success: ' + response.data.message);
+						setTimeout(function(){ location.reload(); }, 600);
+					} else {
+						$result.text('Error: ' + response.data.message);
+					}
+				});
+			});
+
+			$('#mpmls-disconnect-api').on('click', function(){
+				if (!confirm('Disconnect MailerLite API key?')) return;
+				var $result = $('#mpmls-test-result');
+				$result.text('Disconnecting...');
+				$.post(ajaxurl, {
+					action: 'mpmls_disconnect_api',
+					nonce: $(this).data('nonce')
+				}, function(response){
+					if(response.success){
+						location.reload();
+					} else {
+						$result.text('Error: ' + response.data.message);
+					}
+				});
+			});
+		});
+		</script>
+		<?php
+	}
+
+	/* ------------------------------------------------------------------ */
+	/*  Sync page (mapping, test, bulk sync, logs)                        */
+	/* ------------------------------------------------------------------ */
+
+	public function render_sync_page() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$settings           = get_option( MPMLS_OPTION_KEY, array() );
+		$api_key            = isset( $settings['api_key'] ) ? $settings['api_key'] : '';
+		$expired_group_id   = isset( $settings['expired_group_id'] ) ? $this->normalize_group_id( $settings['expired_group_id'] ) : '';
 		$cancelled_group_id = isset( $settings['cancelled_group_id'] ) ? $this->normalize_group_id( $settings['cancelled_group_id'] ) : '';
-		$logging_enabled  = ! empty( $settings['logging_enabled'] );
-		$remove_on_expired = ! empty( $settings['remove_on_expired'] );
-		$raw_mapping      = isset( $settings['mapping'] ) && is_array( $settings['mapping'] ) ? $settings['mapping'] : array();
-		$mapping          = array();
+		$logging_enabled    = ! empty( $settings['logging_enabled'] );
+		$remove_on_expired  = ! empty( $settings['remove_on_expired'] );
+		$raw_mapping        = isset( $settings['mapping'] ) && is_array( $settings['mapping'] ) ? $settings['mapping'] : array();
+		$mapping            = array();
 		foreach ( $raw_mapping as $mid => $gid ) {
 			$mapping[ $mid ] = $this->normalize_group_id( $gid );
 		}
@@ -175,19 +266,21 @@ class MPMLS_Admin_Settings {
 		}
 
 		$connection_status = get_option( 'mpmls_connection_status', array() );
-		$connection_ok = ! empty( $connection_status['ok'] ) && ! empty( $connection_status['key_hash'] ) && $connection_status['key_hash'] === md5( $api_key );
+		$connection_ok     = ! empty( $connection_status['ok'] )
+			&& ! empty( $connection_status['key_hash'] )
+			&& $connection_status['key_hash'] === md5( $api_key );
 
-		$products = $this->get_memberpress_products();
-		$groups_result = $this->get_mailerlite_groups( $api_key );
-		$groups_error = is_wp_error( $groups_result ) ? $groups_result->get_error_message() : '';
-		$groups = is_wp_error( $groups_result ) ? array() : $groups_result;
+		$products       = $this->get_memberpress_products();
+		$groups_result  = $this->get_mailerlite_groups( $api_key );
+		$groups_error   = is_wp_error( $groups_result ) ? $groups_result->get_error_message() : '';
+		$groups         = is_wp_error( $groups_result ) ? array() : $groups_result;
 
 		$product_options = $this->render_product_options( $products, '' );
-		$group_options = $this->render_group_options( $groups, '' );
+		$group_options   = $this->render_group_options( $groups, '' );
 
-		$logs = $this->get_logs();
+		$logs         = $this->get_logs();
 		$event_filter = isset( $_GET['mpmls_event'] ) ? sanitize_text_field( wp_unslash( $_GET['mpmls_event'] ) ) : '';
-		$events = $this->get_log_events();
+		$events       = $this->get_log_events();
 
 		?>
 		<div class="wrap mpmls-wrap">
@@ -195,8 +288,7 @@ class MPMLS_Admin_Settings {
 				.mpmls-wrap .form-table th { width: 260px; }
 				.mpmls-wrap .form-table td { padding-top: 14px; padding-bottom: 14px; }
 				.mpmls-wrap .form-table .description { margin-top: 6px; }
-				.mpmls-wrap .mpmls-inline-actions { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
-				.mpmls-wrap #mpmls-test-result { display: inline-block; min-width: 120px; }
+				.mpmls-wrap .mpmls-inline-actions { display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
 				.mpmls-wrap .mpmls-table-wrap { overflow-x: auto; margin-top: 8px; }
 				.mpmls-wrap .widefat { border-radius: 6px; overflow: hidden; }
 				.mpmls-wrap .widefat thead th { background: #f6f7f7; }
@@ -213,29 +305,17 @@ class MPMLS_Admin_Settings {
 				.mpmls-wrap #mpmls-mapping-table select { width: 100%; max-width: 260px; height: 32px; }
 				.mpmls-wrap .mpmls-section-spacer { margin-top: 24px; }
 				.mpmls-wrap .mpmls-logs-actions { display: flex; align-items: center; gap: 10px; margin: 10px 0 16px; }
-				.mpmls-wrap .mpmls-inline-actions { flex-wrap: wrap; }
 				.mpmls-wrap .mpmls-quick-actions { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
 			</style>
-			<h1>MP - MailerLite</h1>
+			<h1>MP - MailerLite &mdash; Sync</h1>
 
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-				<input type="hidden" name="action" value="mpmls_save_settings" />
-				<?php wp_nonce_field( 'mpmls_save_settings' ); ?>
-				<table class="form-table" role="presentation">
-					<tr>
-						<th scope="row"><label for="mpmls_api_key">MailerLite API key</label></th>
-						<td>
-							<input type="password" id="mpmls_api_key" name="<?php echo esc_attr( MPMLS_OPTION_KEY ); ?>[api_key]" value="<?php echo esc_attr( $api_key ); ?>" class="regular-text" autocomplete="new-password" />
-							<p class="description">Use a MailerLite API key (classic or new). The plugin auto-detects the API type.</p>
-							<?php if ( $connection_ok ) : ?>
-								<p class="description"><strong>Status:</strong> Connected<?php echo ! empty( $connection_status['time'] ) ? ' (last checked ' . esc_html( $connection_status['time'] ) . ')' : ''; ?>.</p>
-							<?php endif; ?>
-							<div class="mpmls-inline-actions">
-								<button type="button" class="button" id="mpmls-test-connection" data-nonce="<?php echo esc_attr( $nonce ); ?>">Test connection</button>
-								<span id="mpmls-test-result"></span>
-							</div>
-						</td>
-					</tr>
+			<?php if ( ! $connection_ok ) : ?>
+				<div class="notice notice-warning"><p>MailerLite API is not connected. <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . self::PAGE_SLUG ) ); ?>">Go to Settings</a> to connect.</p></div>
+			<?php endif; ?>
+
+			<div class="notice notice-info"><p>Custom fields synced to MailerLite: <strong>name</strong>, <strong>last_name</strong>, <strong>membership_name</strong>, <strong>membership_expiry</strong>, <strong>signup_date</strong>, <strong>membership_status</strong>. Create these as custom fields in your MailerLite account (Subscribers &rarr; Fields) for full functionality.</p></div>
+
+			<table class="form-table" role="presentation">
 					<tr>
 						<th scope="row">Membership - Group mapping</th>
 						<td>
@@ -321,15 +401,15 @@ class MPMLS_Admin_Settings {
 					</tr>
 				</table>
 				<div class="mpmls-quick-actions">
-					<?php submit_button( 'Save Changes', 'primary', 'submit', false ); ?>
-					<button type="button" class="button" id="mpmls-test-event">Send test event</button>
+					<button type="button" class="button" id="mpmls-test-event" data-nonce="<?php echo esc_attr( $nonce ); ?>">Send test event</button>
+					<button type="button" class="button" id="mpmls-sync-all" data-nonce="<?php echo esc_attr( $nonce ); ?>">Sync all members</button>
+					<span id="mpmls-sync-result"></span>
 				</div>
-			</form>
 
 			<hr class="mpmls-section-spacer" />
 			<h2>Logs</h2>
 			<form method="get" class="mpmls-logs-actions">
-				<input type="hidden" name="page" value="<?php echo esc_attr( self::PAGE_SLUG ); ?>" />
+				<input type="hidden" name="page" value="<?php echo esc_attr( self::SYNC_PAGE_SLUG ); ?>" />
 				<label for="mpmls_event">Filter by event:</label>
 				<select name="mpmls_event" id="mpmls_event">
 					<option value="">All</option>
@@ -391,6 +471,51 @@ class MPMLS_Admin_Settings {
 			var hasGroups = <?php echo ! empty( $groups ) ? 'true' : 'false'; ?>;
 			var productOptions = <?php echo wp_json_encode( $product_options ); ?>;
 			var groupOptions = <?php echo wp_json_encode( $group_options ); ?>;
+			var syncNonce = <?php echo wp_json_encode( $nonce ); ?>;
+
+			function collectSettings() {
+				var settings = {};
+				settings['cancelled_group_id'] = $('#mpmls-cancelled-group').val() || '';
+				settings['expired_group_id'] = $('#mpmls-expired-group').val() || '';
+				settings['logging_enabled'] = $('input[name="<?php echo esc_js( MPMLS_OPTION_KEY ); ?>[logging_enabled]"]').is(':checked') ? '1' : '';
+				settings['remove_on_expired'] = $('input[name="<?php echo esc_js( MPMLS_OPTION_KEY ); ?>[remove_on_expired]"]').is(':checked') ? '1' : '';
+				var mapping = {};
+				$('#mpmls-mapping-table tbody tr').each(function(i){
+					var mid = $(this).find('select, input').eq(0).val();
+					var gid = $(this).find('select, input').eq(1).val();
+					if (mid && gid) {
+						mapping[i] = { membership_id: mid, group_id: gid };
+					}
+				});
+				settings['mapping'] = mapping;
+				return settings;
+			}
+
+			var saveTimer = null;
+			var $status = $('#mpmls-sync-result');
+			function autosave() {
+				clearTimeout(saveTimer);
+				saveTimer = setTimeout(function(){
+					$status.text('Saving...');
+					$.post(ajaxurl, {
+						action: 'mpmls_autosave_sync',
+						nonce: syncNonce,
+						settings: collectSettings()
+					}, function(response){
+						if (response.success) {
+							$status.text('Saved.');
+							setTimeout(function(){ if ($status.text() === 'Saved.') $status.text(''); }, 2000);
+						} else {
+							$status.text('Save failed.');
+						}
+					}).fail(function(){
+						$status.text('Save failed.');
+					});
+				}, 300);
+			}
+
+			$(document).on('change', '#mpmls-mapping-table select, #mpmls-mapping-table input, #mpmls-cancelled-group, #mpmls-expired-group, input[name="<?php echo esc_js( MPMLS_OPTION_KEY ); ?>[logging_enabled]"], input[name="<?php echo esc_js( MPMLS_OPTION_KEY ); ?>[remove_on_expired]"]', autosave);
+
 			$('#mpmls-add-row').on('click', function(){
 				var membershipField = hasProducts
 					? '<select name="<?php echo esc_js( MPMLS_OPTION_KEY ); ?>[mapping][' + rowIndex + '][membership_id]">' + productOptions + '</select>'
@@ -409,77 +534,154 @@ class MPMLS_Admin_Settings {
 
 			$('#mpmls-mapping-table').on('click', '.mpmls-remove-row', function(){
 				$(this).closest('tr').remove();
-			});
-
-			$('#mpmls-test-connection').on('click', function(){
-				var $result = $('#mpmls-test-result');
-				$result.text('Testing...');
-				$.post(ajaxurl, {
-					action: 'mpmls_test_connection',
-					nonce: $(this).data('nonce')
-				}, function(response){
-					if(response.success){
-						$result.text('Success: ' + response.data.message);
-						setTimeout(function(){ location.reload(); }, 600);
-					} else {
-						$result.text('Error: ' + response.data.message);
-					}
-				});
+				autosave();
 			});
 
 			$('#mpmls-test-event').on('click', function(){
-				var $result = $('#mpmls-test-result');
-				$result.text('Sending test...');
+				$status.text('Sending test...');
 				$.post(ajaxurl, {
 					action: 'mpmls_send_test_event',
 					nonce: $(this).data('nonce')
 				}, function(response){
 					if(response.success){
-						$result.text('Success: ' + response.data.message);
+						$status.text('Success: ' + response.data.message);
 					} else {
-						$result.text('Error: ' + response.data.message);
+						$status.text('Error: ' + response.data.message);
 					}
 				});
+			});
+
+			$('#mpmls-sync-all').on('click', function(){
+				var $btn = $(this);
+				var nonce = $btn.data('nonce');
+				var totalSynced = 0, totalSkipped = 0, totalErrors = 0;
+
+				if (!confirm('This will sync all active MemberPress members to their mapped MailerLite groups. Continue?')) {
+					return;
+				}
+
+				$btn.prop('disabled', true);
+				$status.text('Starting sync...');
+
+				function syncBatch(offset) {
+					$.post(ajaxurl, {
+						action: 'mpmls_sync_all_members',
+						nonce: nonce,
+						offset: offset
+					}, function(response){
+						if (!response.success) {
+							$status.text('Error: ' + response.data.message);
+							$btn.prop('disabled', false);
+							return;
+						}
+						var d = response.data;
+						totalSynced += d.synced;
+						totalSkipped += d.skipped;
+						totalErrors += d.errors;
+						$status.text('Syncing... ' + d.processed + '/' + d.total + ' members');
+
+						if (!d.done) {
+							syncBatch(d.offset);
+						} else {
+							$status.text('Done! Synced: ' + totalSynced + ', Skipped: ' + totalSkipped + ', Errors: ' + totalErrors);
+							$btn.prop('disabled', false);
+						}
+					}).fail(function(){
+						$status.text('Request failed. Check server logs.');
+						$btn.prop('disabled', false);
+					});
+				}
+
+				syncBatch(0);
 			});
 		});
 		</script>
 		<?php
 	}
 
-	public function handle_save_settings() {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( 'Unauthorized' );
+	/* ------------------------------------------------------------------ */
+	/*  Save / AJAX handlers                                              */
+	/* ------------------------------------------------------------------ */
+
+	public function sanitize_settings( $input ) {
+		$output = array();
+
+		$output['api_key'] = isset( $input['api_key'] ) ? sanitize_text_field( $input['api_key'] ) : '';
+
+		$output['expired_group_id'] = $this->normalize_group_id(
+			isset( $input['expired_group_id'] ) ? sanitize_text_field( $input['expired_group_id'] ) : ''
+		);
+		$output['cancelled_group_id'] = $this->normalize_group_id(
+			isset( $input['cancelled_group_id'] ) ? sanitize_text_field( $input['cancelled_group_id'] ) : ''
+		);
+		$output['logging_enabled']  = ! empty( $input['logging_enabled'] ) ? 1 : 0;
+		$output['remove_on_expired'] = ! empty( $input['remove_on_expired'] ) ? 1 : 0;
+
+		$mapping = array();
+		if ( ! empty( $input['mapping'] ) && is_array( $input['mapping'] ) ) {
+			foreach ( $input['mapping'] as $row ) {
+				$membership_id = isset( $row['membership_id'] ) ? absint( $row['membership_id'] ) : 0;
+				$group_id      = $this->normalize_group_id(
+					isset( $row['group_id'] ) ? sanitize_text_field( $row['group_id'] ) : ''
+				);
+				if ( $membership_id && $group_id !== '' ) {
+					$mapping[ $membership_id ] = $group_id;
+				}
+			}
 		}
-		check_admin_referer( 'mpmls_save_settings' );
+		$output['mapping'] = $mapping;
 
-		$input = isset( $_POST[ MPMLS_OPTION_KEY ] ) && is_array( $_POST[ MPMLS_OPTION_KEY ] )
-			? wp_unslash( $_POST[ MPMLS_OPTION_KEY ] )
-			: array();
-
-		$sanitized = $this->sanitize_settings( $input );
-		update_option( MPMLS_OPTION_KEY, $sanitized );
-
-		wp_safe_redirect( admin_url( 'admin.php?page=' . self::PAGE_SLUG . '&settings-updated=1' ) );
-		exit;
+		return $output;
 	}
 
 	public function ajax_test_connection() {
 		check_ajax_referer( 'mpmls_test_connection', 'nonce' );
 
-		$api_key = mpmls_get_setting( 'api_key', '' );
+		$api_key = isset( $_POST['api_key'] ) ? sanitize_text_field( wp_unslash( $_POST['api_key'] ) ) : '';
 		if ( empty( $api_key ) ) {
 			wp_send_json_error( array( 'message' => 'MailerLite API key is missing.' ) );
 		}
 
-		$client = new MPMLS_MailerLite_Client( $api_key );
+		$client   = new MPMLS_MailerLite_Client( $api_key );
 		$response = $client->test_connection();
 		if ( is_wp_error( $response ) ) {
 			update_option( 'mpmls_connection_status', array( 'ok' => false, 'key_hash' => md5( $api_key ) ) );
 			wp_send_json_error( array( 'message' => $response->get_error_message() ) );
 		}
 
+		$settings            = get_option( MPMLS_OPTION_KEY, array() );
+		$settings['api_key'] = $api_key;
+		update_option( MPMLS_OPTION_KEY, $settings );
+
 		update_option( 'mpmls_connection_status', array( 'ok' => true, 'key_hash' => md5( $api_key ), 'time' => current_time( 'mysql' ) ) );
 		wp_send_json_success( array( 'message' => 'Connection OK.' ) );
+	}
+
+	public function ajax_disconnect_api() {
+		check_ajax_referer( 'mpmls_test_connection', 'nonce' );
+
+		$settings = get_option( MPMLS_OPTION_KEY, array() );
+		$settings['api_key'] = '';
+		update_option( MPMLS_OPTION_KEY, $settings );
+		delete_option( 'mpmls_connection_status' );
+
+		wp_send_json_success( array( 'message' => 'Disconnected.' ) );
+	}
+
+	public function ajax_autosave_sync() {
+		check_ajax_referer( 'mpmls_test_connection', 'nonce' );
+
+		$input = isset( $_POST['settings'] ) && is_array( $_POST['settings'] )
+			? wp_unslash( $_POST['settings'] )
+			: array();
+
+		$settings            = get_option( MPMLS_OPTION_KEY, array() );
+		$sanitized           = $this->sanitize_settings( $input );
+		$sanitized['api_key'] = isset( $settings['api_key'] ) ? $settings['api_key'] : '';
+
+		update_option( MPMLS_OPTION_KEY, $sanitized );
+
+		wp_send_json_success( array( 'message' => 'Saved.' ) );
 	}
 
 	public function ajax_send_test_event() {
@@ -491,13 +693,13 @@ class MPMLS_Admin_Settings {
 		}
 
 		$settings = get_option( MPMLS_OPTION_KEY, array() );
-		$mapping = isset( $settings['mapping'] ) && is_array( $settings['mapping'] ) ? $settings['mapping'] : array();
+		$mapping  = isset( $settings['mapping'] ) && is_array( $settings['mapping'] ) ? $settings['mapping'] : array();
 		if ( empty( $mapping ) ) {
-			wp_send_json_error( array( 'message' => 'No membership → group mapping found.' ) );
+			wp_send_json_error( array( 'message' => 'No membership - group mapping found.' ) );
 		}
 
 		$first_membership_id = (int) array_key_first( $mapping );
-		$group_id = (string) $mapping[ $first_membership_id ];
+		$group_id            = (string) $mapping[ $first_membership_id ];
 		if ( ! $first_membership_id || $group_id === '' ) {
 			wp_send_json_error( array( 'message' => 'Invalid mapping data.' ) );
 		}
@@ -507,7 +709,7 @@ class MPMLS_Admin_Settings {
 			wp_send_json_error( array( 'message' => 'No current user email found.' ) );
 		}
 
-		$client = new MPMLS_MailerLite_Client( $api_key );
+		$client        = new MPMLS_MailerLite_Client( $api_key );
 		$subscriber_id = $client->upsert_subscriber( $user->user_email );
 		if ( is_wp_error( $subscriber_id ) ) {
 			wp_send_json_error( array( 'message' => $subscriber_id->get_error_message() ) );
@@ -532,6 +734,122 @@ class MPMLS_Admin_Settings {
 		wp_send_json_success( array( 'message' => 'Test event sent to group.' ) );
 	}
 
+	public function ajax_sync_all_members() {
+		check_ajax_referer( 'mpmls_test_connection', 'nonce' );
+
+		$api_key = mpmls_get_setting( 'api_key', '' );
+		if ( empty( $api_key ) ) {
+			wp_send_json_error( array( 'message' => 'MailerLite API key is missing.' ) );
+		}
+
+		$settings = get_option( MPMLS_OPTION_KEY, array() );
+		$mapping  = isset( $settings['mapping'] ) && is_array( $settings['mapping'] ) ? $settings['mapping'] : array();
+		if ( empty( $mapping ) ) {
+			wp_send_json_error( array( 'message' => 'No membership - group mapping found.' ) );
+		}
+
+		$offset  = isset( $_POST['offset'] ) ? absint( $_POST['offset'] ) : 0;
+		$batch   = 10;
+		$members = $this->get_active_members();
+		$total   = count( $members );
+		$slice   = array_slice( $members, $offset, $batch );
+		$synced  = 0;
+		$skipped = 0;
+		$errors  = 0;
+		$client  = new MPMLS_MailerLite_Client( $api_key );
+
+		foreach ( $slice as $member ) {
+			$product_id = (int) $member['product_id'];
+			$user_id    = (int) $member['user_id'];
+			$group_id   = isset( $mapping[ $product_id ] ) ? (string) $mapping[ $product_id ] : '';
+
+			if ( $group_id === '' ) {
+				$skipped++;
+				continue;
+			}
+
+			$user = get_userdata( $user_id );
+			if ( ! $user || empty( $user->user_email ) ) {
+				$skipped++;
+				continue;
+			}
+
+			$expires_at = isset( $member['expires_at'] ) && $member['expires_at'] !== '0000-00-00 00:00:00'
+				? (string) $member['expires_at'] : '';
+
+			$fields = array(
+				'name'              => $user->first_name ?: '',
+				'last_name'         => $user->last_name ?: '',
+				'membership_name'   => get_the_title( $product_id ) ?: '',
+				'membership_status' => 'active',
+			);
+			if ( $user->user_registered ) {
+				$fields['signup_date'] = date( 'Y-m-d', strtotime( $user->user_registered ) );
+			}
+			if ( $expires_at !== '' ) {
+				$fields['membership_expiry'] = date( 'Y-m-d', strtotime( $expires_at ) );
+			}
+			$fields = array_filter( $fields, function ( $v ) { return $v !== ''; } );
+
+			$subscriber_id = $client->upsert_subscriber( $user->user_email, $fields );
+			if ( is_wp_error( $subscriber_id ) ) {
+				$errors++;
+				MPMLS_Logger::log( array(
+					'event'         => 'bulk_sync',
+					'email'         => $user->user_email,
+					'wp_user_id'    => $user_id,
+					'membership_id' => $product_id,
+					'group_id'      => $group_id,
+					'action'        => 'activate',
+					'success'       => 0,
+					'message'       => $subscriber_id->get_error_message(),
+				) );
+				continue;
+			}
+
+			$result = $client->add_to_group( $subscriber_id, $group_id, $user->user_email, $fields );
+			if ( is_wp_error( $result ) ) {
+				$errors++;
+				MPMLS_Logger::log( array(
+					'event'         => 'bulk_sync',
+					'email'         => $user->user_email,
+					'wp_user_id'    => $user_id,
+					'membership_id' => $product_id,
+					'group_id'      => $group_id,
+					'action'        => 'activate',
+					'success'       => 0,
+					'message'       => $result->get_error_message(),
+				) );
+				continue;
+			}
+
+			$synced++;
+			MPMLS_Logger::log( array(
+				'event'         => 'bulk_sync',
+				'email'         => $user->user_email,
+				'wp_user_id'    => $user_id,
+				'membership_id' => $product_id,
+				'group_id'      => $group_id,
+				'action'        => 'activate',
+				'success'       => 1,
+				'message'       => 'Bulk sync: added to group.',
+			) );
+		}
+
+		$new_offset = $offset + $batch;
+		$done       = $new_offset >= $total;
+
+		wp_send_json_success( array(
+			'processed' => min( $new_offset, $total ),
+			'total'     => $total,
+			'synced'    => $synced,
+			'skipped'   => $skipped,
+			'errors'    => $errors,
+			'done'      => $done,
+			'offset'    => $new_offset,
+		) );
+	}
+
 	public function handle_clear_logs() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( 'Unauthorized' );
@@ -541,19 +859,38 @@ class MPMLS_Admin_Settings {
 		global $wpdb;
 		$wpdb->query( 'TRUNCATE TABLE ' . MPMLS_Logger::table_name() );
 
-		wp_safe_redirect( admin_url( 'options-general.php?page=' . self::PAGE_SLUG ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=' . self::SYNC_PAGE_SLUG ) );
 		exit;
+	}
+
+	/* ------------------------------------------------------------------ */
+	/*  Helpers                                                           */
+	/* ------------------------------------------------------------------ */
+
+	protected function get_active_members() {
+		global $wpdb;
+
+		$sql = "SELECT DISTINCT t.user_id, t.product_id, t.expires_at
+			FROM {$wpdb->prefix}mepr_transactions t
+			WHERE t.status IN ('complete', 'confirmed')
+			AND (t.expires_at = '0000-00-00 00:00:00' OR t.expires_at >= %s)
+			ORDER BY t.user_id, t.product_id";
+
+		return $wpdb->get_results(
+			$wpdb->prepare( $sql, current_time( 'mysql' ) ),
+			ARRAY_A
+		);
 	}
 
 	protected function get_logs() {
 		global $wpdb;
-		$table = MPMLS_Logger::table_name();
+		$table        = MPMLS_Logger::table_name();
 		$event_filter = isset( $_GET['mpmls_event'] ) ? sanitize_text_field( wp_unslash( $_GET['mpmls_event'] ) ) : '';
 
-		$sql = "SELECT * FROM {$table}";
+		$sql    = "SELECT * FROM {$table}";
 		$params = array();
 		if ( $event_filter !== '' ) {
-			$sql .= ' WHERE event = %s';
+			$sql     .= ' WHERE event = %s';
 			$params[] = $event_filter;
 		}
 		$sql .= ' ORDER BY id DESC LIMIT 200';
@@ -593,7 +930,7 @@ class MPMLS_Admin_Settings {
 			return array();
 		}
 		$cache_key = 'mpmls_groups_' . md5( $api_key );
-		$cached = get_transient( $cache_key );
+		$cached    = get_transient( $cache_key );
 		if ( $cached !== false ) {
 			return $cached;
 		}
@@ -608,10 +945,10 @@ class MPMLS_Admin_Settings {
 
 	protected function render_product_options( $products, $selected ) {
 		$selected = (string) $selected;
-		$options = '<option value="">Select product</option>';
-		$found = false;
+		$options  = '<option value="">Select product</option>';
+		$found    = false;
 		foreach ( $products as $product ) {
-			$value = (string) $product['id'];
+			$value       = (string) $product['id'];
 			$is_selected = selected( $selected, $value, false );
 			if ( $is_selected ) {
 				$found = true;
@@ -626,10 +963,10 @@ class MPMLS_Admin_Settings {
 
 	protected function render_group_options( $groups, $selected, $allow_empty = false ) {
 		$selected = (string) $selected;
-		$options = $allow_empty ? '<option value="">No group</option>' : '<option value="">Select group</option>';
-		$found = false;
+		$options  = $allow_empty ? '<option value="">No group</option>' : '<option value="">Select group</option>';
+		$found    = false;
 		foreach ( $groups as $group ) {
-			$value = (string) $group['id'];
+			$value       = (string) $group['id'];
 			$is_selected = selected( $selected, $value, false );
 			if ( $is_selected ) {
 				$found = true;
@@ -644,16 +981,13 @@ class MPMLS_Admin_Settings {
 
 	protected function normalize_group_id( $value ) {
 		$value = trim( (string) $value );
-		// Remove backslashes from corrupted escaped data
 		$value = stripslashes( $value );
-		// Remove any leading/trailing quotes
 		$value = trim( $value, '"\'' );
 		if ( $value === '' ) {
 			return '';
 		}
 		return $value;
 	}
-
 
 	protected function get_log_events() {
 		global $wpdb;
