@@ -339,15 +339,41 @@ class MPMLS_MemberPress_Hooks {
 			return array();
 		}
 
-		$sql = "SELECT DISTINCT t.product_id
-			FROM {$wpdb->prefix}mepr_transactions t
-			WHERE t.user_id = %d
-			AND t.status IN ('complete', 'confirmed')
-			AND (t.expires_at = '0000-00-00 00:00:00' OR t.expires_at >= %s)";
+		$now   = current_time( 'mysql' );
+		$parts = array();
 
-		$ids = $wpdb->get_col(
-			$wpdb->prepare( $sql, $user_id, current_time( 'mysql' ) )
-		);
+		$subscriptions_table = $wpdb->prefix . 'mepr_subscriptions';
+		$subscriptions_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $subscriptions_table ) );
+		if ( $subscriptions_exists === $subscriptions_table ) {
+			$sql = "SELECT s.product_id
+				FROM {$subscriptions_table} s
+				WHERE s.status = 'active'
+				AND (s.expires_at = '0000-00-00 00:00:00' OR s.expires_at >= %s)
+				AND s.user_id = %d";
+			$parts[] = $wpdb->prepare( $sql, $now, $user_id );
+		}
+
+		$subscription_id_exists = $wpdb->get_var( $wpdb->prepare(
+			"SHOW COLUMNS FROM {$wpdb->prefix}mepr_transactions LIKE %s",
+			'subscription_id'
+		) );
+
+		$sql = "SELECT t.product_id
+			FROM {$wpdb->prefix}mepr_transactions t
+			WHERE t.status IN ('complete', 'confirmed')
+			AND (t.expires_at = '0000-00-00 00:00:00' OR t.expires_at >= %s)
+			AND t.user_id = %d";
+		if ( $subscription_id_exists ) {
+			$sql .= ' AND (t.subscription_id IS NULL OR t.subscription_id = 0)';
+		}
+		$parts[] = $wpdb->prepare( $sql, $now, $user_id );
+
+		if ( empty( $parts ) ) {
+			return array();
+		}
+
+		$union = implode( ' UNION ALL ', $parts );
+		$ids = $wpdb->get_col( "SELECT DISTINCT product_id FROM ( {$union} ) active_rows" );
 
 		return array_map( 'intval', $ids );
 	}

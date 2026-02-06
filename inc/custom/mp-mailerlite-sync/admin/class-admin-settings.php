@@ -15,6 +15,7 @@ class MPMLS_Admin_Settings {
 		add_action( 'wp_ajax_mpmls_disconnect_api', array( $this, 'ajax_disconnect_api' ) );
 		add_action( 'wp_ajax_mpmls_send_test_event', array( $this, 'ajax_send_test_event' ) );
 		add_action( 'wp_ajax_mpmls_sync_all_members', array( $this, 'ajax_sync_all_members' ) );
+		add_action( 'wp_ajax_mpmls_reconcile_active_members', array( $this, 'ajax_reconcile_active_members' ) );
 		add_action( 'wp_ajax_mpmls_sync_expired_members', array( $this, 'ajax_sync_expired_members' ) );
 		add_action( 'wp_ajax_mpmls_sync_cancelled_members', array( $this, 'ajax_sync_cancelled_members' ) );
 		add_action( 'wp_ajax_mpmls_autosave_sync', array( $this, 'ajax_autosave_sync' ) );
@@ -279,9 +280,12 @@ class MPMLS_Admin_Settings {
 		$product_options = $this->render_product_options( $products, '' );
 		$group_options   = $this->render_group_options( $groups, '' );
 
-		$logs         = $this->get_logs();
-		$event_filter = isset( $_GET['mpmls_event'] ) ? sanitize_text_field( wp_unslash( $_GET['mpmls_event'] ) ) : '';
-		$events       = $this->get_log_events();
+		$logs            = $this->get_logs();
+		$event_filter    = isset( $_GET['mpmls_event'] ) ? sanitize_text_field( wp_unslash( $_GET['mpmls_event'] ) ) : '';
+		$events          = $this->get_log_events();
+		$active_counts   = $this->get_member_counts( $this->get_active_members_sql( 0, false ) );
+		$expired_counts  = $this->get_member_counts( $this->get_expired_members_sql( false ) );
+		$cancelled_counts = $this->get_member_counts( $this->get_cancelled_members_sql( false ) );
 
 		?>
 		<div class="wrap mpmls-wrap">
@@ -398,10 +402,43 @@ class MPMLS_Admin_Settings {
 				<div class="mpmls-quick-actions">
 					<button type="button" class="button" id="mpmls-test-event" data-nonce="<?php echo esc_attr( $nonce ); ?>">Send test event</button>
 					<button type="button" class="button" id="mpmls-sync-all" data-nonce="<?php echo esc_attr( $nonce ); ?>">Sync all members</button>
+					<button type="button" class="button" id="mpmls-reconcile" data-nonce="<?php echo esc_attr( $nonce ); ?>">Reconcile active members</button>
 					<button type="button" class="button" id="mpmls-sync-expired" data-nonce="<?php echo esc_attr( $nonce ); ?>">Sync expired members</button>
 					<button type="button" class="button" id="mpmls-sync-cancelled" data-nonce="<?php echo esc_attr( $nonce ); ?>">Sync cancelled members</button>
 					<span id="mpmls-sync-result"></span>
 				</div>
+
+			<hr class="mpmls-section-spacer" />
+			<h2>MemberPress Counts</h2>
+			<p class="description">Memberships count unique user + membership pairs. Users count unique subscribers. MailerLite groups always show unique subscribers.</p>
+			<div class="mpmls-table-wrap">
+				<table class="widefat striped">
+				<thead>
+					<tr>
+						<th>Status</th>
+						<th>Memberships</th>
+						<th>Users</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>Active</td>
+						<td><?php echo esc_html( (string) $active_counts['memberships'] ); ?></td>
+						<td><?php echo esc_html( (string) $active_counts['users'] ); ?></td>
+					</tr>
+					<tr>
+						<td>Expired</td>
+						<td><?php echo esc_html( (string) $expired_counts['memberships'] ); ?></td>
+						<td><?php echo esc_html( (string) $expired_counts['users'] ); ?></td>
+					</tr>
+					<tr>
+						<td>Cancelled</td>
+						<td><?php echo esc_html( (string) $cancelled_counts['memberships'] ); ?></td>
+						<td><?php echo esc_html( (string) $cancelled_counts['users'] ); ?></td>
+					</tr>
+				</tbody>
+				</table>
+			</div>
 
 			<hr class="mpmls-section-spacer" />
 			<h2>Logs</h2>
@@ -580,6 +617,50 @@ class MPMLS_Admin_Settings {
 							syncBatch(d.offset);
 						} else {
 							$status.text('Done! Synced: ' + totalSynced + ', Skipped: ' + totalSkipped + ', Errors: ' + totalErrors);
+							$btn.prop('disabled', false);
+						}
+					}).fail(function(){
+						$status.text('Request failed. Check server logs.');
+						$btn.prop('disabled', false);
+					});
+				}
+
+				syncBatch(0);
+			});
+
+			$('#mpmls-reconcile').on('click', function(){
+				var $btn = $(this);
+				var nonce = $btn.data('nonce');
+				var totalSynced = 0, totalSkipped = 0, totalErrors = 0;
+
+				if (!confirm('This will reconcile active MemberPress members with their mapped MailerLite groups. Continue?')) {
+					return;
+				}
+
+				$btn.prop('disabled', true);
+				$status.text('Starting reconcile...');
+
+				function syncBatch(offset) {
+					$.post(ajaxurl, {
+						action: 'mpmls_reconcile_active_members',
+						nonce: nonce,
+						offset: offset
+					}, function(response){
+						if (!response.success) {
+							$status.text('Error: ' + response.data.message);
+							$btn.prop('disabled', false);
+							return;
+						}
+						var d = response.data;
+						totalSynced += d.synced;
+						totalSkipped += d.skipped;
+						totalErrors += d.errors;
+						$status.text('Reconciling... ' + d.processed + '/' + d.total + ' members');
+
+						if (!d.done) {
+							syncBatch(d.offset);
+						} else {
+							$status.text('Done! Reconciled: ' + totalSynced + ', Skipped: ' + totalSkipped + ', Errors: ' + totalErrors);
 							$btn.prop('disabled', false);
 						}
 					}).fail(function(){
@@ -933,6 +1014,124 @@ class MPMLS_Admin_Settings {
 		) );
 	}
 
+	public function ajax_reconcile_active_members() {
+		check_ajax_referer( 'mpmls_test_connection', 'nonce' );
+
+		$api_key = mpmls_get_setting( 'api_key', '' );
+		if ( empty( $api_key ) ) {
+			wp_send_json_error( array( 'message' => 'MailerLite API key is missing.' ) );
+		}
+
+		$settings = get_option( MPMLS_OPTION_KEY, array() );
+		$mapping  = isset( $settings['mapping'] ) && is_array( $settings['mapping'] ) ? $settings['mapping'] : array();
+		if ( empty( $mapping ) ) {
+			wp_send_json_error( array( 'message' => 'No membership - group mapping found.' ) );
+		}
+
+		$offset  = isset( $_POST['offset'] ) ? absint( $_POST['offset'] ) : 0;
+		$batch   = 10;
+		$members = $this->get_active_members();
+		$total   = count( $members );
+		$slice   = array_slice( $members, $offset, $batch );
+		$synced  = 0;
+		$skipped = 0;
+		$errors  = 0;
+		$client  = new MPMLS_MailerLite_Client( $api_key );
+
+		foreach ( $slice as $member ) {
+			$product_id = (int) $member['product_id'];
+			$user_id    = (int) $member['user_id'];
+			$group_id   = isset( $mapping[ $product_id ] ) ? (string) $mapping[ $product_id ] : '';
+
+			if ( $group_id === '' ) {
+				$skipped++;
+				continue;
+			}
+
+			$user = get_userdata( $user_id );
+			if ( ! $user || empty( $user->user_email ) ) {
+				$skipped++;
+				continue;
+			}
+
+			$expires_at = isset( $member['expires_at'] ) && $member['expires_at'] !== '0000-00-00 00:00:00'
+				? (string) $member['expires_at'] : '';
+
+			$fields = array(
+				'name'              => $user->first_name ?: '',
+				'last_name'         => $user->last_name ?: '',
+				'membership_name'   => get_the_title( $product_id ) ?: '',
+				'membership_status' => 'active',
+			);
+			if ( $user->user_registered ) {
+				$fields['signup_date'] = date( 'Y-m-d', strtotime( $user->user_registered ) );
+			}
+			if ( $expires_at !== '' ) {
+				$fields['membership_expiry'] = date( 'Y-m-d', strtotime( $expires_at ) );
+			}
+			$fields = array_filter( $fields, function ( $v ) { return $v !== ''; } );
+
+			$subscriber_id = $client->upsert_subscriber( $user->user_email, $fields );
+			if ( is_wp_error( $subscriber_id ) ) {
+				$errors++;
+				MPMLS_Logger::log( array(
+					'event'         => 'bulk_reconcile',
+					'email'         => $user->user_email,
+					'wp_user_id'    => $user_id,
+					'membership_id' => $product_id,
+					'group_id'      => $group_id,
+					'action'        => 'activate',
+					'success'       => 0,
+					'message'       => $subscriber_id->get_error_message(),
+				) );
+				continue;
+			}
+
+			$result = $client->add_to_group( $subscriber_id, $group_id, $user->user_email, $fields );
+			if ( is_wp_error( $result ) ) {
+				$errors++;
+				MPMLS_Logger::log( array(
+					'event'         => 'bulk_reconcile',
+					'email'         => $user->user_email,
+					'wp_user_id'    => $user_id,
+					'membership_id' => $product_id,
+					'group_id'      => $group_id,
+					'action'        => 'activate',
+					'success'       => 0,
+					'message'       => $result->get_error_message(),
+				) );
+				continue;
+			}
+
+			$this->remove_from_inactive_mapped_groups( $client, $subscriber_id, $user_id, $user->user_email, 'bulk_reconcile' );
+
+			$synced++;
+			MPMLS_Logger::log( array(
+				'event'         => 'bulk_reconcile',
+				'email'         => $user->user_email,
+				'wp_user_id'    => $user_id,
+				'membership_id' => $product_id,
+				'group_id'      => $group_id,
+				'action'        => 'activate',
+				'success'       => 1,
+				'message'       => 'Reconcile: added to group and cleaned inactive mapped groups.',
+			) );
+		}
+
+		$new_offset = $offset + $batch;
+		$done       = $new_offset >= $total;
+
+		wp_send_json_success( array(
+			'processed' => min( $new_offset, $total ),
+			'total'     => $total,
+			'synced'    => $synced,
+			'skipped'   => $skipped,
+			'errors'    => $errors,
+			'done'      => $done,
+			'offset'    => $new_offset,
+		) );
+	}
+
 	public function ajax_sync_expired_members() {
 		check_ajax_referer( 'mpmls_test_connection', 'nonce' );
 
@@ -1146,56 +1345,309 @@ class MPMLS_Admin_Settings {
 	protected function get_active_members() {
 		global $wpdb;
 
-		$sql = "SELECT DISTINCT t.user_id, t.product_id, t.expires_at
-			FROM {$wpdb->prefix}mepr_transactions t
-			WHERE t.status IN ('complete', 'confirmed')
-			AND (t.expires_at = '0000-00-00 00:00:00' OR t.expires_at >= %s)
-			ORDER BY t.user_id, t.product_id";
+		$sql = $this->get_active_members_sql( 0, true );
+		if ( $sql === '' ) {
+			return array();
+		}
 
 		return $wpdb->get_results(
-			$wpdb->prepare( $sql, current_time( 'mysql' ) ),
+			$sql,
 			ARRAY_A
 		);
+	}
+
+	protected function get_active_members_sql( $user_id = 0, $with_order = true ) {
+		global $wpdb;
+
+		$now   = current_time( 'mysql' );
+		$parts = array();
+
+		$subscriptions_table = $wpdb->prefix . 'mepr_subscriptions';
+		$subscriptions_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $subscriptions_table ) );
+		if ( $subscriptions_exists === $subscriptions_table ) {
+			$sql = "SELECT s.user_id, s.product_id, s.expires_at
+				FROM {$subscriptions_table} s
+				WHERE s.status = 'active'
+				AND (s.expires_at = '0000-00-00 00:00:00' OR s.expires_at >= %s)";
+			if ( $user_id ) {
+				$sql .= ' AND s.user_id = %d';
+				$sql = $wpdb->prepare( $sql, $now, $user_id );
+			} else {
+				$sql = $wpdb->prepare( $sql, $now );
+			}
+			$parts[] = $sql;
+		}
+
+		$subscription_id_exists = $wpdb->get_var( $wpdb->prepare(
+			"SHOW COLUMNS FROM {$wpdb->prefix}mepr_transactions LIKE %s",
+			'subscription_id'
+		) );
+
+		$sql = "SELECT t.user_id, t.product_id, t.expires_at
+			FROM {$wpdb->prefix}mepr_transactions t
+			WHERE t.status IN ('complete', 'confirmed')
+			AND (t.expires_at = '0000-00-00 00:00:00' OR t.expires_at >= %s)";
+		if ( $subscription_id_exists ) {
+			$sql .= ' AND (t.subscription_id IS NULL OR t.subscription_id = 0)';
+		}
+		if ( $user_id ) {
+			$sql .= ' AND t.user_id = %d';
+			$sql = $wpdb->prepare( $sql, $now, $user_id );
+		} else {
+			$sql = $wpdb->prepare( $sql, $now );
+		}
+		$parts[] = $sql;
+
+		if ( empty( $parts ) ) {
+			return '';
+		}
+
+		$union = implode( ' UNION ALL ', $parts );
+		$sql = "SELECT user_id, product_id, MAX(expires_at) AS expires_at
+			FROM ( {$union} ) active_rows
+			GROUP BY user_id, product_id";
+		if ( $with_order ) {
+			$sql .= ' ORDER BY user_id, product_id';
+		}
+		return $sql;
+	}
+
+	protected function get_mapping() {
+		$settings = get_option( MPMLS_OPTION_KEY, array() );
+		if ( empty( $settings['mapping'] ) || ! is_array( $settings['mapping'] ) ) {
+			return array();
+		}
+		return $settings['mapping'];
+	}
+
+	protected function get_active_membership_ids_for_user( $user_id ) {
+		global $wpdb;
+
+		if ( ! $user_id ) {
+			return array();
+		}
+
+		$sql = $this->get_active_members_sql( (int) $user_id, false );
+		if ( $sql === '' ) {
+			return array();
+		}
+
+		$rows = $wpdb->get_results( $sql, ARRAY_A );
+		if ( empty( $rows ) ) {
+			return array();
+		}
+
+		$ids = array();
+		foreach ( $rows as $row ) {
+			$ids[] = (int) $row['product_id'];
+		}
+
+		return array_values( array_unique( $ids ) );
+	}
+
+	protected function get_active_group_ids_for_user( $user_id ) {
+		$mapping = $this->get_mapping();
+		if ( empty( $mapping ) ) {
+			return array();
+		}
+
+		$membership_ids = $this->get_active_membership_ids_for_user( $user_id );
+		if ( empty( $membership_ids ) ) {
+			return array();
+		}
+
+		$active = array();
+		foreach ( $membership_ids as $membership_id ) {
+			if ( isset( $mapping[ $membership_id ] ) ) {
+				$group_id = (string) $mapping[ $membership_id ];
+				if ( $group_id !== '' ) {
+					$active[] = $group_id;
+				}
+			}
+		}
+
+		return array_values( array_unique( $active ) );
+	}
+
+	protected function remove_from_inactive_mapped_groups( $client, $subscriber_id, $user_id, $email, $event_name ) {
+		$mapping = $this->get_mapping();
+		if ( empty( $mapping ) ) {
+			return;
+		}
+
+		$active_group_ids = $this->get_active_group_ids_for_user( $user_id );
+		$active_group_ids = array_values( array_unique( $active_group_ids ) );
+
+		$mapped_group_ids = array();
+		foreach ( $mapping as $group_id ) {
+			$mapped_group_ids[] = (string) $group_id;
+		}
+		$mapped_group_ids = array_values( array_unique( $mapped_group_ids ) );
+
+		foreach ( $mapped_group_ids as $group_id ) {
+			if ( $group_id === '' ) {
+				continue;
+			}
+			if ( in_array( $group_id, $active_group_ids, true ) ) {
+				continue;
+			}
+
+			$result = $client->remove_from_group( $subscriber_id, $group_id, $email );
+			if ( is_wp_error( $result ) ) {
+				MPMLS_Logger::log( array(
+					'event'         => $event_name,
+					'email'         => $email,
+					'wp_user_id'    => (int) $user_id,
+					'membership_id' => 0,
+					'group_id'      => $group_id,
+					'action'        => 'remove_inactive',
+					'success'       => 0,
+					'message'       => $result->get_error_message(),
+				) );
+				continue;
+			}
+
+			MPMLS_Logger::log( array(
+				'event'         => $event_name,
+				'email'         => $email,
+				'wp_user_id'    => (int) $user_id,
+				'membership_id' => 0,
+				'group_id'      => $group_id,
+				'action'        => 'remove_inactive',
+				'success'       => 1,
+				'message'       => 'Removed from inactive mapped group.',
+			) );
+		}
 	}
 
 	protected function get_expired_members() {
 		global $wpdb;
 
-		$sql = "SELECT t.user_id, t.product_id, MAX(t.expires_at) AS expires_at
-			FROM {$wpdb->prefix}mepr_transactions t
-			WHERE t.status IN ('complete', 'confirmed')
-			AND t.expires_at <> '0000-00-00 00:00:00'
-			AND t.expires_at < %s
-			GROUP BY t.user_id, t.product_id
-			ORDER BY t.user_id, t.product_id";
+		$sql = $this->get_expired_members_sql( true );
+		if ( $sql === '' ) {
+			return array();
+		}
 
-		return $wpdb->get_results(
-			$wpdb->prepare( $sql, current_time( 'mysql' ) ),
-			ARRAY_A
-		);
+		return $wpdb->get_results( $sql, ARRAY_A );
 	}
 
 	protected function get_cancelled_members() {
 		global $wpdb;
 
-		$subscriptions_table = $wpdb->prefix . 'mepr_subscriptions';
-		$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $subscriptions_table ) );
-		if ( $exists === $subscriptions_table ) {
-			$sql = "SELECT s.user_id, s.product_id, MAX(s.expires_at) AS expires_at
-				FROM {$subscriptions_table} s
-				WHERE s.status IN ('cancelled', 'suspended')
-				GROUP BY s.user_id, s.product_id
-				ORDER BY s.user_id, s.product_id";
-			return $wpdb->get_results( $sql, ARRAY_A );
+		$sql = $this->get_cancelled_members_sql( true );
+		if ( $sql === '' ) {
+			return array();
 		}
 
-		$sql = "SELECT t.user_id, t.product_id, MAX(t.expires_at) AS expires_at
-			FROM {$wpdb->prefix}mepr_transactions t
-			WHERE t.status IN ('refunded')
-			GROUP BY t.user_id, t.product_id
-			ORDER BY t.user_id, t.product_id";
-
 		return $wpdb->get_results( $sql, ARRAY_A );
+	}
+
+	protected function get_expired_members_sql( $with_order = true ) {
+		global $wpdb;
+
+		$now   = current_time( 'mysql' );
+		$parts = array();
+
+		$subscriptions_table = $wpdb->prefix . 'mepr_subscriptions';
+		$subscriptions_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $subscriptions_table ) );
+		if ( $subscriptions_exists === $subscriptions_table ) {
+			$sql = "SELECT s.user_id, s.product_id, s.expires_at
+				FROM {$subscriptions_table} s
+				WHERE s.status = 'expired'";
+			$parts[] = $sql;
+		}
+
+		$subscription_id_exists = $wpdb->get_var( $wpdb->prepare(
+			"SHOW COLUMNS FROM {$wpdb->prefix}mepr_transactions LIKE %s",
+			'subscription_id'
+		) );
+
+		$sql = "SELECT t.user_id, t.product_id, t.expires_at
+			FROM {$wpdb->prefix}mepr_transactions t
+			WHERE (
+				(t.status IN ('complete', 'confirmed')
+					AND t.expires_at <> '0000-00-00 00:00:00'
+					AND t.expires_at < %s)
+				OR t.status IN ('expired')
+			)";
+		if ( $subscription_id_exists ) {
+			$sql .= ' AND (t.subscription_id IS NULL OR t.subscription_id = 0)';
+		}
+		$sql = $wpdb->prepare( $sql, $now );
+		$parts[] = $sql;
+
+		if ( empty( $parts ) ) {
+			return '';
+		}
+
+		$union = implode( ' UNION ALL ', $parts );
+		$sql = "SELECT user_id, product_id, MAX(expires_at) AS expires_at
+			FROM ( {$union} ) expired_rows
+			GROUP BY user_id, product_id";
+		if ( $with_order ) {
+			$sql .= ' ORDER BY user_id, product_id';
+		}
+		return $sql;
+	}
+
+	protected function get_cancelled_members_sql( $with_order = true ) {
+		global $wpdb;
+
+		$parts = array();
+
+		$subscriptions_table = $wpdb->prefix . 'mepr_subscriptions';
+		$subscriptions_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $subscriptions_table ) );
+		if ( $subscriptions_exists === $subscriptions_table ) {
+			$sql = "SELECT s.user_id, s.product_id, s.expires_at
+				FROM {$subscriptions_table} s
+				WHERE s.status IN ('cancelled', 'suspended', 'stopped')";
+			$parts[] = $sql;
+		}
+
+		$subscription_id_exists = $wpdb->get_var( $wpdb->prepare(
+			"SHOW COLUMNS FROM {$wpdb->prefix}mepr_transactions LIKE %s",
+			'subscription_id'
+		) );
+
+		$sql = "SELECT t.user_id, t.product_id, t.expires_at
+			FROM {$wpdb->prefix}mepr_transactions t
+			WHERE t.status IN ('refunded')";
+		if ( $subscription_id_exists ) {
+			$sql .= ' AND (t.subscription_id IS NULL OR t.subscription_id = 0)';
+		}
+		$parts[] = $sql;
+
+		if ( empty( $parts ) ) {
+			return '';
+		}
+
+		$union = implode( ' UNION ALL ', $parts );
+		$sql = "SELECT user_id, product_id, MAX(expires_at) AS expires_at
+			FROM ( {$union} ) cancelled_rows
+			GROUP BY user_id, product_id";
+		if ( $with_order ) {
+			$sql .= ' ORDER BY user_id, product_id';
+		}
+		return $sql;
+	}
+
+	protected function get_member_counts( $sql ) {
+		global $wpdb;
+
+		if ( $sql === '' ) {
+			return array(
+				'memberships' => 0,
+				'users'       => 0,
+			);
+		}
+
+		$count_sql = "SELECT COUNT(*) AS memberships, COUNT(DISTINCT user_id) AS users FROM ( {$sql} ) mpmls_counts";
+		$counts = $wpdb->get_row( $count_sql, ARRAY_A );
+
+		return array(
+			'memberships' => isset( $counts['memberships'] ) ? (int) $counts['memberships'] : 0,
+			'users'       => isset( $counts['users'] ) ? (int) $counts['users'] : 0,
+		);
 	}
 
 	protected function build_subscriber_fields( $user, $product_id, $expires_at, $status ) {
