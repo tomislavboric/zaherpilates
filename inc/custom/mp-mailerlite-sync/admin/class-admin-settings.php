@@ -11,6 +11,7 @@ class MPMLS_Admin_Settings {
 		add_action( 'admin_menu', array( $this, 'register_menu' ) );
 		add_action( 'admin_menu', array( $this, 'reorder_menu' ), 999 );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
+		add_action( 'admin_post_mpmls_save_settings', array( $this, 'handle_save_settings' ) );
 		add_action( 'wp_ajax_mpmls_test_connection', array( $this, 'ajax_test_connection' ) );
 		add_action( 'wp_ajax_mpmls_send_test_event', array( $this, 'ajax_send_test_event' ) );
 		add_action( 'admin_post_mpmls_clear_logs', array( $this, 'handle_clear_logs' ) );
@@ -109,7 +110,7 @@ class MPMLS_Admin_Settings {
 	}
 
 	public function register_settings() {
-		register_setting( 'mpmls_settings_group', MPMLS_OPTION_KEY, array( $this, 'sanitize_settings' ) );
+		register_setting( 'mpmls_settings_group', MPMLS_OPTION_KEY );
 	}
 
 	public function sanitize_settings( $input ) {
@@ -117,8 +118,12 @@ class MPMLS_Admin_Settings {
 
 		$output['api_key'] = isset( $input['api_key'] ) ? sanitize_text_field( $input['api_key'] ) : '';
 
-		$output['expired_group_id'] = isset( $input['expired_group_id'] ) ? sanitize_text_field( $input['expired_group_id'] ) : '';
-		$output['cancelled_group_id'] = isset( $input['cancelled_group_id'] ) ? sanitize_text_field( $input['cancelled_group_id'] ) : '';
+		$output['expired_group_id'] = $this->normalize_group_id(
+			isset( $input['expired_group_id'] ) ? sanitize_text_field( $input['expired_group_id'] ) : ''
+		);
+		$output['cancelled_group_id'] = $this->normalize_group_id(
+			isset( $input['cancelled_group_id'] ) ? sanitize_text_field( $input['cancelled_group_id'] ) : ''
+		);
 		$output['logging_enabled']  = ! empty( $input['logging_enabled'] ) ? 1 : 0;
 		$output['remove_on_expired'] = ! empty( $input['remove_on_expired'] ) ? 1 : 0;
 
@@ -126,7 +131,9 @@ class MPMLS_Admin_Settings {
 		if ( ! empty( $input['mapping'] ) && is_array( $input['mapping'] ) ) {
 			foreach ( $input['mapping'] as $row ) {
 				$membership_id = isset( $row['membership_id'] ) ? absint( $row['membership_id'] ) : 0;
-				$group_id      = isset( $row['group_id'] ) ? sanitize_text_field( $row['group_id'] ) : '';
+				$group_id      = $this->normalize_group_id(
+					isset( $row['group_id'] ) ? sanitize_text_field( $row['group_id'] ) : ''
+				);
 				if ( $membership_id && $group_id !== '' ) {
 					$mapping[ $membership_id ] = $group_id;
 				}
@@ -144,11 +151,15 @@ class MPMLS_Admin_Settings {
 
 		$settings         = get_option( MPMLS_OPTION_KEY, array() );
 		$api_key          = isset( $settings['api_key'] ) ? $settings['api_key'] : '';
-		$expired_group_id = isset( $settings['expired_group_id'] ) ? $settings['expired_group_id'] : '';
-		$cancelled_group_id = isset( $settings['cancelled_group_id'] ) ? $settings['cancelled_group_id'] : '';
+		$expired_group_id = isset( $settings['expired_group_id'] ) ? $this->normalize_group_id( $settings['expired_group_id'] ) : '';
+		$cancelled_group_id = isset( $settings['cancelled_group_id'] ) ? $this->normalize_group_id( $settings['cancelled_group_id'] ) : '';
 		$logging_enabled  = ! empty( $settings['logging_enabled'] );
 		$remove_on_expired = ! empty( $settings['remove_on_expired'] );
-		$mapping          = isset( $settings['mapping'] ) && is_array( $settings['mapping'] ) ? $settings['mapping'] : array();
+		$raw_mapping      = isset( $settings['mapping'] ) && is_array( $settings['mapping'] ) ? $settings['mapping'] : array();
+		$mapping          = array();
+		foreach ( $raw_mapping as $mid => $gid ) {
+			$mapping[ $mid ] = $this->normalize_group_id( $gid );
+		}
 
 		$nonce = wp_create_nonce( 'mpmls_test_connection' );
 
@@ -207,8 +218,9 @@ class MPMLS_Admin_Settings {
 			</style>
 			<h1>MP - MailerLite</h1>
 
-			<form method="post" action="options.php">
-				<?php settings_fields( 'mpmls_settings_group' ); ?>
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+				<input type="hidden" name="action" value="mpmls_save_settings" />
+				<?php wp_nonce_field( 'mpmls_save_settings' ); ?>
 				<table class="form-table" role="presentation">
 					<tr>
 						<th scope="row"><label for="mpmls_api_key">MailerLite API key</label></th>
@@ -434,6 +446,23 @@ class MPMLS_Admin_Settings {
 		<?php
 	}
 
+	public function handle_save_settings() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( 'Unauthorized' );
+		}
+		check_admin_referer( 'mpmls_save_settings' );
+
+		$input = isset( $_POST[ MPMLS_OPTION_KEY ] ) && is_array( $_POST[ MPMLS_OPTION_KEY ] )
+			? wp_unslash( $_POST[ MPMLS_OPTION_KEY ] )
+			: array();
+
+		$sanitized = $this->sanitize_settings( $input );
+		update_option( MPMLS_OPTION_KEY, $sanitized );
+
+		wp_safe_redirect( admin_url( 'admin.php?page=' . self::PAGE_SLUG . '&settings-updated=1' ) );
+		exit;
+	}
+
 	public function ajax_test_connection() {
 		check_ajax_referer( 'mpmls_test_connection', 'nonce' );
 
@@ -579,7 +608,7 @@ class MPMLS_Admin_Settings {
 
 	protected function render_product_options( $products, $selected ) {
 		$selected = (string) $selected;
-		$options = '<option value=\"\">Select product</option>';
+		$options = '<option value="">Select product</option>';
 		$found = false;
 		foreach ( $products as $product ) {
 			$value = (string) $product['id'];
@@ -587,17 +616,17 @@ class MPMLS_Admin_Settings {
 			if ( $is_selected ) {
 				$found = true;
 			}
-			$options .= '<option value=\"' . esc_attr( $value ) . '\" ' . $is_selected . '>' . esc_html( $product['title'] . ' (#' . $value . ')' ) . '</option>';
+			$options .= '<option value="' . esc_attr( $value ) . '" ' . $is_selected . '>' . esc_html( $product['title'] . ' (#' . $value . ')' ) . '</option>';
 		}
 		if ( $selected !== '' && ! $found ) {
-			$options = '<option value=\"' . esc_attr( $selected ) . '\" selected>Unknown product (#' . esc_html( $selected ) . ')</option>' . $options;
+			$options = '<option value="' . esc_attr( $selected ) . '" selected>Unknown product (#' . esc_html( $selected ) . ')</option>' . $options;
 		}
 		return $options;
 	}
 
 	protected function render_group_options( $groups, $selected, $allow_empty = false ) {
 		$selected = (string) $selected;
-		$options = $allow_empty ? '<option value=\"\">No group</option>' : '<option value=\"\">Select group</option>';
+		$options = $allow_empty ? '<option value="">No group</option>' : '<option value="">Select group</option>';
 		$found = false;
 		foreach ( $groups as $group ) {
 			$value = (string) $group['id'];
@@ -605,12 +634,24 @@ class MPMLS_Admin_Settings {
 			if ( $is_selected ) {
 				$found = true;
 			}
-			$options .= '<option value=\"' . esc_attr( $value ) . '\" ' . $is_selected . '>' . esc_html( $group['name'] . ' (#' . $value . ')' ) . '</option>';
+			$options .= '<option value="' . esc_attr( $value ) . '" ' . $is_selected . '>' . esc_html( $group['name'] . ' (#' . $value . ')' ) . '</option>';
 		}
 		if ( $selected !== '' && ! $found ) {
-			$options = '<option value=\"' . esc_attr( $selected ) . '\" selected>Unknown group (#' . esc_html( $selected ) . ')</option>' . $options;
+			$options = '<option value="' . esc_attr( $selected ) . '" selected>Unknown group (#' . esc_html( $selected ) . ')</option>' . $options;
 		}
 		return $options;
+	}
+
+	protected function normalize_group_id( $value ) {
+		$value = trim( (string) $value );
+		// Remove backslashes from corrupted escaped data
+		$value = stripslashes( $value );
+		// Remove any leading/trailing quotes
+		$value = trim( $value, '"\'' );
+		if ( $value === '' ) {
+			return '';
+		}
+		return $value;
 	}
 
 
