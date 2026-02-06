@@ -947,7 +947,7 @@ class MPMLS_Admin_Settings {
 		}
 
 		$offset  = isset( $_POST['offset'] ) ? absint( $_POST['offset'] ) : 0;
-		$batch   = 10;
+		$batch   = 5;
 		$members = $this->get_expired_members();
 		$total   = count( $members );
 		$slice   = array_slice( $members, $offset, $batch );
@@ -957,6 +957,8 @@ class MPMLS_Admin_Settings {
 		$client  = new MPMLS_MailerLite_Client( $api_key );
 
 		foreach ( $slice as $member ) {
+			usleep( 300000 );
+
 			$product_id = (int) $member['product_id'];
 			$user_id    = (int) $member['user_id'];
 			$expires_at = isset( $member['expires_at'] ) ? (string) $member['expires_at'] : '';
@@ -1045,7 +1047,7 @@ class MPMLS_Admin_Settings {
 		}
 
 		$offset  = isset( $_POST['offset'] ) ? absint( $_POST['offset'] ) : 0;
-		$batch   = 10;
+		$batch   = 5;
 		$members = $this->get_cancelled_members();
 		$total   = count( $members );
 		$slice   = array_slice( $members, $offset, $batch );
@@ -1055,6 +1057,8 @@ class MPMLS_Admin_Settings {
 		$client  = new MPMLS_MailerLite_Client( $api_key );
 
 		foreach ( $slice as $member ) {
+			usleep( 300000 );
+
 			$product_id = (int) $member['product_id'];
 			$user_id    = (int) $member['user_id'];
 			$expires_at = isset( $member['expires_at'] ) ? (string) $member['expires_at'] : '';
@@ -1161,11 +1165,12 @@ class MPMLS_Admin_Settings {
 	protected function get_expired_members() {
 		global $wpdb;
 
-		$sql = "SELECT DISTINCT t.user_id, t.product_id, t.expires_at
+		$sql = "SELECT t.user_id, t.product_id, MAX(t.expires_at) AS expires_at
 			FROM {$wpdb->prefix}mepr_transactions t
 			WHERE t.status IN ('complete', 'confirmed')
 			AND t.expires_at <> '0000-00-00 00:00:00'
 			AND t.expires_at < %s
+			GROUP BY t.user_id, t.product_id
 			ORDER BY t.user_id, t.product_id";
 
 		return $wpdb->get_results(
@@ -1180,16 +1185,18 @@ class MPMLS_Admin_Settings {
 		$subscriptions_table = $wpdb->prefix . 'mepr_subscriptions';
 		$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $subscriptions_table ) );
 		if ( $exists === $subscriptions_table ) {
-			$sql = "SELECT DISTINCT s.user_id, s.product_id, s.expires_at
+			$sql = "SELECT s.user_id, s.product_id, MAX(s.expires_at) AS expires_at
 				FROM {$subscriptions_table} s
 				WHERE s.status IN ('cancelled', 'suspended')
+				GROUP BY s.user_id, s.product_id
 				ORDER BY s.user_id, s.product_id";
 			return $wpdb->get_results( $sql, ARRAY_A );
 		}
 
-		$sql = "SELECT DISTINCT t.user_id, t.product_id, t.expires_at
+		$sql = "SELECT t.user_id, t.product_id, MAX(t.expires_at) AS expires_at
 			FROM {$wpdb->prefix}mepr_transactions t
 			WHERE t.status IN ('refunded')
+			GROUP BY t.user_id, t.product_id
 			ORDER BY t.user_id, t.product_id";
 
 		return $wpdb->get_results( $sql, ARRAY_A );
