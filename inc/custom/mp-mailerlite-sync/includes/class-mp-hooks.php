@@ -345,12 +345,20 @@ class MPMLS_MemberPress_Hooks {
 		$subscriptions_table = $wpdb->prefix . 'mepr_subscriptions';
 		$subscriptions_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $subscriptions_table ) );
 		if ( $subscriptions_exists === $subscriptions_table ) {
+			$subscriptions_expires = $wpdb->get_var( $wpdb->prepare(
+				"SHOW COLUMNS FROM {$subscriptions_table} LIKE %s",
+				'expires_at'
+			) );
 			$sql = "SELECT s.product_id
 				FROM {$subscriptions_table} s
 				WHERE s.status = 'active'
-				AND (s.expires_at IS NULL OR s.expires_at = '' OR s.expires_at = '0000-00-00 00:00:00' OR s.expires_at >= %s)
 				AND s.user_id = %d";
-			$parts[] = $wpdb->prepare( $sql, $now, $user_id );
+			if ( $subscriptions_expires ) {
+				$sql .= ' AND (s.expires_at IS NULL OR s.expires_at = \'\' OR s.expires_at = \'0000-00-00 00:00:00\' OR s.expires_at >= %s)';
+				$parts[] = $wpdb->prepare( $sql, $user_id, $now );
+			} else {
+				$parts[] = $wpdb->prepare( $sql, $user_id );
+			}
 		}
 
 		$subscription_id_exists = $wpdb->get_var( $wpdb->prepare(
@@ -455,12 +463,7 @@ class MPMLS_MemberPress_Hooks {
 	}
 
 	protected function get_cancelled_group_id() {
-		$settings = get_option( MPMLS_OPTION_KEY, array() );
-		$cancelled = isset( $settings['cancelled_group_id'] ) ? (string) $settings['cancelled_group_id'] : '';
-		if ( $cancelled === '' ) {
-			return $this->get_expired_group_id();
-		}
-		return $cancelled;
+		return $this->get_expired_group_id();
 	}
 
 	protected function get_deactivation_group_id( $event_name ) {
