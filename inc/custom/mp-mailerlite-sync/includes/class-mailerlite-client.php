@@ -8,9 +8,11 @@ class MPMLS_MailerLite_Client {
 	const API_BASE_NEW = 'https://connect.mailerlite.com/api';
 	const API_BASE_CLASSIC = 'https://api.mailerlite.com/api/v2';
 	const API_VERSION = '2022-11-21';
+	const MIN_REQUEST_INTERVAL = 1.0;
 
 	protected $api_key;
 	protected $api_type;
+	protected static $last_request_at = 0.0;
 
 	public function __construct( $api_key ) {
 		$this->api_key = trim( (string) $api_key );
@@ -137,6 +139,8 @@ class MPMLS_MailerLite_Client {
 			return new WP_Error( 'mpmls_missing_api_key', 'MailerLite API key is missing.' );
 		}
 
+		$this->throttle_requests();
+
 		$url = $this->get_api_base() . $endpoint;
 		$headers = $this->get_headers();
 
@@ -181,6 +185,13 @@ class MPMLS_MailerLite_Client {
 		}
 
 		if ( ( $status >= 500 || 429 === $status ) && $retry > 0 ) {
+			if ( 429 === $status ) {
+				$retry_after = wp_remote_retrieve_header( $response, 'retry-after' );
+				if ( $retry_after !== '' ) {
+					$wait = max( 1, (int) $retry_after );
+					sleep( $wait );
+				}
+			}
 			return $this->request( $method, $endpoint, $body, $retry - 1, $allow_fallback );
 		}
 
@@ -227,6 +238,23 @@ class MPMLS_MailerLite_Client {
 		}
 
 		return $error;
+	}
+
+	protected function throttle_requests() {
+		$min_interval = apply_filters( 'mpmls_mailerlite_min_interval', self::MIN_REQUEST_INTERVAL );
+		$min_interval = is_numeric( $min_interval ) ? (float) $min_interval : self::MIN_REQUEST_INTERVAL;
+		if ( $min_interval <= 0 ) {
+			return;
+		}
+
+		$now = microtime( true );
+		if ( self::$last_request_at > 0 ) {
+			$elapsed = $now - self::$last_request_at;
+			if ( $elapsed < $min_interval ) {
+				usleep( (int) ( ( $min_interval - $elapsed ) * 1000000 ) );
+			}
+		}
+		self::$last_request_at = microtime( true );
 	}
 
 	protected function detect_api_type( $key ) {

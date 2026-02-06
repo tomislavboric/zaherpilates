@@ -957,8 +957,6 @@ class MPMLS_Admin_Settings {
 		$client  = new MPMLS_MailerLite_Client( $api_key );
 
 		foreach ( $slice as $member ) {
-			usleep( 300000 );
-
 			$product_id = (int) $member['product_id'];
 			$user_id    = (int) $member['user_id'];
 			$expires_at = isset( $member['expires_at'] ) ? (string) $member['expires_at'] : '';
@@ -1057,8 +1055,6 @@ class MPMLS_Admin_Settings {
 		$client  = new MPMLS_MailerLite_Client( $api_key );
 
 		foreach ( $slice as $member ) {
-			usleep( 300000 );
-
 			$product_id = (int) $member['product_id'];
 			$user_id    = (int) $member['user_id'];
 			$expires_at = isset( $member['expires_at'] ) ? (string) $member['expires_at'] : '';
