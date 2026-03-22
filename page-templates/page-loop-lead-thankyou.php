@@ -21,6 +21,7 @@ the_post();
 		text-align: center;
 		position: relative;
 		overflow: hidden;
+		height: auto;
 	}
 
 	.hero--loop-lead-ty:before {
