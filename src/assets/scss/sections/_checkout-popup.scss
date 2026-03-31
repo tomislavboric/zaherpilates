@@ -1,0 +1,391 @@
+// ── Checkout Upgrade Popup ──────────────────────────────────────────────────
+//
+// Displayed on configured MemberPress checkout pages.
+// Supports multiple promo templates with a session-timed countdown.
+
+$popup-radius: 32px;
+$popup-cta-gradient: linear-gradient(120deg, #f97316, #f43f5e);
+
+// Prevent body scroll while popup is open.
+body.zaher-popup-open {
+  overflow: hidden;
+}
+
+.zaher-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  // Hidden state — no pointer events, invisible.
+  pointer-events: none;
+  visibility: hidden;
+
+  &.is-open {
+    pointer-events: auto;
+    visibility: visible;
+
+    .zaher-popup__overlay {
+      opacity: 1;
+    }
+
+    .zaher-popup__card {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+}
+
+// ── Overlay ─────────────────────────────────────────────────────────────────
+
+.zaher-popup__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba($gray-900, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  cursor: pointer;
+}
+
+// ── Card ────────────────────────────────────────────────────────────────────
+
+.zaher-popup__card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 560px;
+  background: $white;
+  border-radius: $popup-radius;
+  border: 1px solid rgba($primary-color, 0.2);
+  box-shadow:
+    0 50px 100px -40px rgba($gray-900, 0.6),
+    0 0 0 1px rgba($white, 0.08) inset;
+  padding: clamp(2rem, 5vw, 2.75rem) clamp(1.5rem, 4vw, 2.25rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.25rem;
+
+  opacity: 0;
+  transform: translateY(24px) scale(0.97);
+  transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+
+  // Soft decorative blobs (matching checkout page aesthetic).
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  &::before {
+    width: 220px;
+    height: 220px;
+    background: rgba($primary-color, 0.18);
+    top: -60px;
+    right: -60px;
+  }
+
+  &::after {
+    width: 180px;
+    height: 180px;
+    background: rgba(#f97316, 0.14);
+    bottom: -50px;
+    left: -50px;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// ── Close button ─────────────────────────────────────────────────────────────
+
+.zaher-popup__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba($gray-300, 0.8);
+  background: $white;
+  color: $gray-500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  z-index: 2;
+
+  &:hover {
+    color: $gray-800;
+    border-color: $gray-400;
+    box-shadow: 0 4px 12px rgba($gray-900, 0.1);
+  }
+}
+
+// ── Badge ────────────────────────────────────────────────────────────────────
+
+.zaher-popup__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background: rgba($primary-color, 0.12);
+  border: 1px solid rgba($primary-color, 0.28);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: darken($primary-color, 12%);
+}
+
+// ── Title ────────────────────────────────────────────────────────────────────
+
+.zaher-popup__title {
+  font-size: clamp(1.35rem, 4vw, 1.7rem);
+  font-weight: 700;
+  line-height: 1.25;
+  color: $gray-900;
+  margin: 0;
+}
+
+// ── Subtitle ─────────────────────────────────────────────────────────────────
+
+.zaher-popup__subtitle {
+  font-size: 0.92rem;
+  color: $gray-500;
+  line-height: 1.6;
+  margin: 0;
+
+  strong {
+    color: $gray-800;
+    font-weight: 700;
+  }
+}
+
+.zaher-popup__description {
+  display: grid;
+  gap: 0.85rem;
+  width: 100%;
+}
+
+.zaher-popup__body {
+  width: 100%;
+  display: grid;
+  gap: 0.8rem;
+  text-align: left;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: $gray-600;
+
+  &[hidden] {
+    display: none;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  strong {
+    color: $gray-800;
+    font-weight: 700;
+  }
+}
+
+// ── Price comparison ─────────────────────────────────────────────────────────
+
+.zaher-popup__prices {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 1.25rem 1.75rem;
+  width: 100%;
+  background: linear-gradient(135deg, rgba($primary-color, 0.07), rgba(#f97316, 0.06));
+  border: 1px solid rgba($primary-color, 0.15);
+  border-radius: 20px;
+}
+
+.zaher-popup__price-old {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: $gray-400;
+  text-decoration: line-through;
+  text-decoration-color: rgba($gray-400, 0.7);
+}
+
+.zaher-popup__price-new {
+  font-size: 2rem;
+  font-weight: 800;
+  color: $gray-900;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+
+  span {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: $gray-500;
+    letter-spacing: 0;
+  }
+}
+
+// ── Timer ────────────────────────────────────────────────────────────────────
+
+.zaher-popup__timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.zaher-popup__timer-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $gray-400;
+  margin: 0;
+}
+
+.zaher-popup__countdown {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.zaher-popup__unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+
+  small {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: $gray-400;
+  }
+}
+
+.zaher-popup__digit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3rem;
+  padding: 0.4rem 0.5rem;
+  background: $gray-900;
+  color: $white;
+  border-radius: 10px;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.zaher-popup__sep {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: $gray-400;
+  line-height: 1;
+  margin-bottom: 1.1rem; // align with digits, above the small labels
+}
+
+// ── CTA button ───────────────────────────────────────────────────────────────
+
+.zaher-popup__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 1rem 1.5rem;
+  border-radius: 16px;
+  background: $popup-cta-gradient;
+  color: $white;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 0;
+  box-shadow: 0 20px 40px -20px rgba(#f43f5e, 0.7);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover,
+  &:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 28px 50px -20px rgba(#f43f5e, 0.85);
+    color: $white;
+  }
+
+  svg {
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+
+  &:hover svg {
+    transform: translateX(3px);
+  }
+}
+
+// ── Skip link ────────────────────────────────────────────────────────────────
+
+.zaher-popup__skip {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: 0.82rem;
+  color: $gray-400;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-style: dashed;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: $gray-600;
+  }
+}
+
+// ── Mobile ───────────────────────────────────────────────────────────────────
+
+@include breakpoint(small only) {
+  .zaher-popup {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .zaher-popup__card {
+    border-radius: $popup-radius $popup-radius 0 0;
+    max-width: 100%;
+    transform: translateY(100%);
+    max-height: 92vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 2rem 1.5rem 2.5rem;
+  }
+
+  .zaher-popup.is-open .zaher-popup__card {
+    transform: translateY(0);
+  }
+}

@@ -386,7 +386,7 @@ if ( ! in_array( $current_tab, $allowed_tabs, true ) ) {
 									<?php endif; ?>
 								</div>
 								<?php if ( $is_subscription && $can_manage && ! empty( $manage_url ) ) : ?>
-									<a href="<?php echo esc_url( $manage_url ); ?>" class="button button--small button--outline">
+									<a href="<?php echo esc_url( $manage_url ); ?>"class="button button--small">
 										Upravljaj pretplatom
 									</a>
 								<?php endif; ?>

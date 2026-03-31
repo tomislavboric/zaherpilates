@@ -19,9 +19,16 @@ $checkout-highlight: rgba($primary-color, 0.12);
     padding-top: 8rem;
     position: relative;
     min-height: 100dvh;
-    > p {
+    > p, ul, div {
       max-width: 1000px;
       margin: 0 auto 1rem;
+      box-shadow: none;
+    }
+    ul {
+      padding-left: 1.25rem;
+      li {
+        margin-bottom: 0.5rem;
+      }
     }
   }
   &::before {

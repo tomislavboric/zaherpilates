@@ -16,6 +16,7 @@ import './lib/catalog-search.js';
 import './lib/vimeo-progress.js';
 import './lib/favorites-list.js';
 // import './lib/lazy-loading.js';
+import './lib/checkout-popup.js';
 
 $(document).foundation();
 
