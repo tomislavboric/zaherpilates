@@ -579,14 +579,11 @@ function zaher_render_checkout_popup_settings_page() {
 			}
 
 			function getOldPriceDisplay(source, target) {
-				if (!source) {
-					return 'Odaberi izvornu pretplatu.';
+				if (!target) {
+					return 'Odaberi ciljanu pretplatu.';
 				}
 
-				const ratio = getPeriodRatio(source, target);
-				const sourcePrice = formatMoney(source.price);
-
-				return ratio > 1 ? ratio + ' × ' + sourcePrice : sourcePrice;
+				return getPriceDisplay(target, null);
 			}
 
 			function getTargetUrl(target, coupon) {
@@ -639,10 +636,14 @@ function zaher_render_checkout_popup_settings_page() {
 				if (preview) {
 					const lines = [
 						'<div><strong>Template:</strong> ' + (templateMeta ? templateMeta.label : 'Odaberi template.') + '</div>',
-						'<div><strong>Stara cijena:</strong> ' + getOldPriceDisplay(source, target) + '</div>',
-						'<div><strong>Nova cijena:</strong> ' + getPriceDisplay(target, couponValid ? coupon : null) + '</div>',
+						'<div><strong>Redovna cijena:</strong> ' + getOldPriceDisplay(source, target) + '</div>',
+						'<div><strong>Danas plaćaš:</strong> ' + getPriceDisplay(target, couponValid ? coupon : null) + '</div>',
 						'<div><strong>CTA URL:</strong> ' + (ctaUrl ? ctaUrl : 'Odaberi ciljanu pretplatu.') + '</div>',
 					];
+
+					if (couponValid && coupon && (coupon.discountMode === 'first-payment' || coupon.discountMode === 'trial-override') && target) {
+						lines.splice(3, 0, '<div><strong>Obnova nakon popusta:</strong> ' + getPriceDisplay(target, null) + '</div>');
+					}
 
 					if (coupon && !couponValid) {
 						lines.push('<div class="is-warning"><strong>Napomena:</strong> odabrani kupon nije valjan za ciljanu pretplatu.</div>');

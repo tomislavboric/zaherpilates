@@ -215,12 +215,36 @@ body.zaher-popup-open {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.7rem;
   padding: 1.25rem 1.75rem;
   width: 100%;
   background: linear-gradient(135deg, rgba($primary-color, 0.07), rgba(#f97316, 0.06));
   border: 1px solid rgba($primary-color, 0.15);
   border-radius: 20px;
+}
+
+.zaher-popup__price-kicker {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: darken($primary-color, 10%);
+}
+
+.zaher-popup__price-old-wrap,
+.zaher-popup__price-new-wrap {
+  display: grid;
+  gap: 0.2rem;
+  justify-items: center;
+}
+
+.zaher-popup__price-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: $gray-400;
 }
 
 .zaher-popup__price-old {
@@ -229,6 +253,10 @@ body.zaher-popup-open {
   color: $gray-400;
   text-decoration: line-through;
   text-decoration-color: rgba($gray-400, 0.7);
+
+  span {
+    font-size: 0.85em;
+  }
 }
 
 .zaher-popup__price-new {
@@ -244,6 +272,37 @@ body.zaher-popup-open {
     color: $gray-500;
     letter-spacing: 0;
   }
+}
+
+.zaher-popup__price-renewal {
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: $gray-500;
+}
+
+.zaher-popup__price-benefits {
+  display: grid;
+  gap: 0.45rem;
+  width: 100%;
+}
+
+.zaher-popup__price-benefit {
+  margin: 0;
+  padding: 0.65rem 0.85rem;
+  border-radius: 14px;
+  background: rgba($white, 0.7);
+  border: 1px solid rgba($primary-color, 0.12);
+  color: $gray-700;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.zaher-popup__price-benefit.is-primary {
+  background: rgba($primary-color, 0.1);
+  border-color: rgba($primary-color, 0.18);
+  color: $gray-900;
 }
 
 // ── Timer ────────────────────────────────────────────────────────────────────

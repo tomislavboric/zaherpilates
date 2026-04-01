@@ -67,6 +67,7 @@
 	const TARGET_URL  = popupConfig.targetUrl || '';
 	const OLD_PRICE   = popupConfig.oldPrice || '';
 	const NEW_PRICE   = popupConfig.newPrice || '';
+	const PRICE_BOX   = popupConfig.priceBox || {};
 	const TEMPLATE    = popupConfig.template || {};
 	const OFFER_VERSION = popupConfig.offerVersion || String(currentProductId);
 	const TIMER_KEY   = TIMER_KEY_BASE + '_' + String(OFFER_VERSION);
@@ -83,9 +84,45 @@
 	const titleEl   = popup.querySelector('.js-popup-title');
 	const subtitleEl = popup.querySelector('.js-popup-subtitle');
 	const bodyEl    = popup.querySelector('.js-popup-body');
+	const priceKickerEl = popup.querySelector('.js-popup-price-kicker');
+	const oldPriceWrapEl = popup.querySelector('.js-popup-old-price-wrap');
+	const oldPriceLabelEl = popup.querySelector('.js-popup-old-price-label');
 	const oldPriceEl = popup.querySelector('.js-popup-old-price');
+	const newPriceLabelEl = popup.querySelector('.js-popup-new-price-label');
 	const newPriceEl = popup.querySelector('.js-popup-new-price');
+	const priceRenewalEl = popup.querySelector('.js-popup-price-renewal');
+	const priceBenefitPrimaryEl = popup.querySelector('.js-popup-price-benefit-primary');
+	const priceBenefitSecondaryEl = popup.querySelector('.js-popup-price-benefit-secondary');
 	const ctaLabelEl = popup.querySelector('.js-popup-cta-label');
+
+	const renderPriceText = function (element, value) {
+		if (!element) {
+			return;
+		}
+
+		if (!value) {
+			element.textContent = '';
+			return;
+		}
+
+		const parts = value.split(' / ');
+
+		if (parts.length === 2) {
+			element.innerHTML = parts[0] + ' <span>/ ' + parts[1] + '</span>';
+			return;
+		}
+
+		element.textContent = value;
+	};
+
+	const toggleTextElement = function (element, value) {
+		if (!element) {
+			return;
+		}
+
+		element.textContent = value || '';
+		element.hidden = !value;
+	};
 
 	// ── Inject dynamic content from PHP config ─────────────────────────────────
 
@@ -123,18 +160,24 @@
 		skipBtn.textContent = TEMPLATE.skipLabel;
 	}
 
+	toggleTextElement(priceKickerEl, PRICE_BOX.kicker || '');
+	toggleTextElement(oldPriceLabelEl, PRICE_BOX.oldPriceLabel || '');
+
 	if (OLD_PRICE && oldPriceEl) {
-		oldPriceEl.textContent = OLD_PRICE;
+		renderPriceText(oldPriceEl, OLD_PRICE);
 	}
 
+	if (oldPriceWrapEl) {
+		oldPriceWrapEl.hidden = !OLD_PRICE;
+	}
+
+	toggleTextElement(newPriceLabelEl, PRICE_BOX.newPriceLabel || '');
+	toggleTextElement(priceRenewalEl, PRICE_BOX.renewalNote || '');
+	toggleTextElement(priceBenefitPrimaryEl, PRICE_BOX.benefitPrimary || '');
+	toggleTextElement(priceBenefitSecondaryEl, PRICE_BOX.benefitSecondary || '');
+
 	if (NEW_PRICE && newPriceEl) {
-		// Split on " / " to wrap the billing period in <span>
-		const parts = NEW_PRICE.split(' / ');
-		if (parts.length === 2) {
-			newPriceEl.innerHTML = parts[0] + ' <span>/ ' + parts[1] + '</span>';
-		} else {
-			newPriceEl.textContent = NEW_PRICE;
-		}
+		renderPriceText(newPriceEl, NEW_PRICE);
 	}
 
 	// ── Session timer ──────────────────────────────────────────────────────────
