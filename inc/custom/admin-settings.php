@@ -122,6 +122,7 @@ function zaher_sanitize_checkout_popups( $value ) {
 		$coupon_code       = isset( $row['coupon_code'] ) ? sanitize_text_field( $row['coupon_code'] ) : '';
 		$timer_minutes     = isset( $row['timer_minutes'] ) && '' !== $row['timer_minutes'] ? max( 1, absint( $row['timer_minutes'] ) ) : $defaults['timer_minutes'];
 		$delay_seconds     = isset( $row['delay_seconds'] ) && '' !== $row['delay_seconds'] ? max( 0, absint( $row['delay_seconds'] ) ) : $defaults['delay_seconds'];
+		$enabled           = ! isset( $row['enabled'] ) || '0' !== (string) $row['enabled'];
 
 		if ( ! isset( $templates[ $template_key ] ) ) {
 			$template_key = $default_key;
@@ -166,6 +167,7 @@ function zaher_sanitize_checkout_popups( $value ) {
 			'coupon_code'       => $coupon_code,
 			'timer_minutes'     => $timer_minutes,
 			'delay_seconds'     => $delay_seconds,
+			'enabled'           => $enabled ? 1 : 0,
 		);
 
 		$seen_sources[ $source_product_id ] = true;
@@ -305,14 +307,23 @@ function zaher_render_checkout_popup_row( $index, $popup, $source_products, $tar
 	$coupon_code       = isset( $popup['coupon_code'] ) ? sanitize_text_field( $popup['coupon_code'] ) : '';
 	$timer_minutes     = isset( $popup['timer_minutes'] ) && '' !== $popup['timer_minutes'] ? max( 1, absint( $popup['timer_minutes'] ) ) : $defaults['timer_minutes'];
 	$delay_seconds     = isset( $popup['delay_seconds'] ) && '' !== $popup['delay_seconds'] ? max( 0, absint( $popup['delay_seconds'] ) ) : $defaults['delay_seconds'];
+	$enabled           = ! isset( $popup['enabled'] ) || ! empty( $popup['enabled'] );
 	?>
-	<div class="zaher-popup-card" data-popup-row>
+	<div class="zaher-popup-card<?php echo $enabled ? '' : ' is-disabled'; ?>" data-popup-row>
 		<div class="zaher-popup-card__header">
 			<div>
 				<h2 class="zaher-popup-card__title" data-popup-title>Popup</h2>
 				<p class="zaher-popup-card__subtitle" data-popup-subtitle>Odaberi checkout na kojem se popup prikazuje i pretplatu na koju vodi CTA.</p>
 			</div>
-			<button type="button" class="button-link-delete" data-remove-popup>Ukloni</button>
+			<div class="zaher-popup-card__actions">
+				<label class="zaher-popup-toggle">
+					<input type="hidden" name="zaher_checkout_popups[<?php echo esc_attr( $index ); ?>][enabled]" value="0" />
+					<input type="checkbox" name="zaher_checkout_popups[<?php echo esc_attr( $index ); ?>][enabled]" value="1" <?php checked( $enabled ); ?> data-popup-enabled />
+					<span class="zaher-popup-toggle__track" aria-hidden="true"></span>
+					<span class="zaher-popup-toggle__label" data-popup-enabled-label><?php echo $enabled ? 'Uključen' : 'Isključen'; ?></span>
+				</label>
+				<button type="button" class="button-link-delete" data-remove-popup>Ukloni</button>
+			</div>
 		</div>
 
 		<div class="zaher-popup-card__grid">
@@ -386,6 +397,7 @@ function zaher_render_checkout_popup_settings_page() {
 			'coupon_code'       => '',
 			'timer_minutes'     => $defaults['timer_minutes'],
 			'delay_seconds'     => $defaults['delay_seconds'],
+			'enabled'           => 1,
 		),
 	);
 	$currency_symbol = class_exists( 'MeprOptions' ) ? MeprOptions::fetch()->currency_symbol : '€';
@@ -413,9 +425,20 @@ function zaher_render_checkout_popup_settings_page() {
 			.zaher-popup-settings .zaher-popup-settings__toolbar p { margin: 0; color: #646970; }
 			.zaher-popup-settings .zaher-popup-settings__list { display: grid; gap: 18px; }
 			.zaher-popup-settings .zaher-popup-card { background: #fff; border: 1px solid #dcdcde; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04); }
+			.zaher-popup-settings .zaher-popup-card.is-disabled { opacity: 0.72; }
 			.zaher-popup-settings .zaher-popup-card__header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+			.zaher-popup-settings .zaher-popup-card__actions { display: flex; align-items: center; gap: 14px; }
 			.zaher-popup-settings .zaher-popup-card__title { margin: 0 0 4px; font-size: 18px; line-height: 1.3; }
 			.zaher-popup-settings .zaher-popup-card__subtitle { margin: 0; color: #646970; }
+			.zaher-popup-settings .zaher-popup-toggle { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+			.zaher-popup-settings .zaher-popup-toggle input[type="hidden"] { display: none; }
+			.zaher-popup-settings .zaher-popup-toggle input[type="checkbox"] { position: absolute; opacity: 0; pointer-events: none; }
+			.zaher-popup-settings .zaher-popup-toggle__track { position: relative; width: 44px; height: 24px; border-radius: 999px; background: #c3c4c7; transition: background 0.2s ease; }
+			.zaher-popup-settings .zaher-popup-toggle__track::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(15, 23, 42, 0.24); transition: transform 0.2s ease; }
+			.zaher-popup-settings .zaher-popup-toggle input[type="checkbox"]:checked + .zaher-popup-toggle__track { background: #2271b1; }
+			.zaher-popup-settings .zaher-popup-toggle input[type="checkbox"]:checked + .zaher-popup-toggle__track::after { transform: translateX(20px); }
+			.zaher-popup-settings .zaher-popup-toggle input[type="checkbox"]:focus-visible + .zaher-popup-toggle__track { outline: 2px solid #2271b1; outline-offset: 2px; }
+			.zaher-popup-settings .zaher-popup-toggle__label { font-weight: 600; color: #1d2327; }
 			.zaher-popup-settings .zaher-popup-card__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px; }
 			.zaher-popup-settings .zaher-popup-field { min-width: 0; }
 			.zaher-popup-settings .zaher-popup-field label { display: block; font-weight: 600; margin-bottom: 6px; }
@@ -603,9 +626,12 @@ function zaher_render_checkout_popup_settings_page() {
 				const targetSelect = row.querySelector('[data-popup-target]');
 				const templateSelect = row.querySelector('[data-popup-template]');
 				const couponSelect = row.querySelector('[data-popup-coupon]');
+				const enabledField = row.querySelector('[data-popup-enabled]');
+				const enabledLabel = row.querySelector('[data-popup-enabled-label]');
 				const title = row.querySelector('[data-popup-title]');
 				const subtitle = row.querySelector('[data-popup-subtitle]');
 				const preview = row.querySelector('[data-popup-preview]');
+				const isEnabled = !enabledField || enabledField.checked;
 				const templateKey = templateSelect && templateSelect.value ? templateSelect.value : data.defaultTemplateKey;
 				const templateMeta = templateKey ? data.templates[templateKey] || null : null;
 				const source = sourceSelect ? getProduct(data.sourceProducts, sourceSelect.value) : null;
@@ -623,18 +649,25 @@ function zaher_render_checkout_popup_settings_page() {
 					title.textContent = 'Popup #' + rowIndex;
 				}
 
+				row.classList.toggle('is-disabled', !isEnabled);
+
+				if (enabledLabel) {
+					enabledLabel.textContent = isEnabled ? 'Uključen' : 'Isključen';
+				}
+
 				if (subtitle) {
 					if (source && target) {
-						subtitle.textContent = source.title + ' -> ' + target.title + (templateMeta ? ' | ' + templateMeta.label : '');
+						subtitle.textContent = source.title + ' -> ' + target.title + (templateMeta ? ' | ' + templateMeta.label : '') + (isEnabled ? '' : ' | Popup ugašen');
 					} else if (source) {
-						subtitle.textContent = source.title + ' -> odaberi ciljanu pretplatu';
+						subtitle.textContent = source.title + ' -> odaberi ciljanu pretplatu' + (isEnabled ? '' : ' | Popup ugašen');
 					} else {
-						subtitle.textContent = 'Odaberi checkout na kojem se popup prikazuje i pretplatu na koju vodi CTA.';
+						subtitle.textContent = 'Odaberi checkout na kojem se popup prikazuje i pretplatu na koju vodi CTA.' + (isEnabled ? '' : ' Popup je trenutno ugašen.');
 					}
 				}
 
 				if (preview) {
 					const lines = [
+						'<div><strong>Status:</strong> ' + (isEnabled ? 'Uključen' : 'Isključen') + '</div>',
 						'<div><strong>Template:</strong> ' + (templateMeta ? templateMeta.label : 'Odaberi template.') + '</div>',
 						'<div><strong>Redovna cijena:</strong> ' + getOldPriceDisplay(source, target) + '</div>',
 						'<div><strong>Danas plaćaš:</strong> ' + getPriceDisplay(target, couponValid ? coupon : null) + '</div>',

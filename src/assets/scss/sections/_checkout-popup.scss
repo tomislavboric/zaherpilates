@@ -60,56 +60,39 @@ body.zaher-popup-open {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 560px;
+  max-width: 540px;
   background: $white;
   border-radius: $popup-radius;
-  border: 1px solid rgba($primary-color, 0.2);
+  border: 1px solid rgba($gray-300, 0.9);
   box-shadow:
-    0 50px 100px -40px rgba($gray-900, 0.6),
-    0 0 0 1px rgba($white, 0.08) inset;
-  padding: clamp(2rem, 5vw, 2.75rem) clamp(1.5rem, 4vw, 2.25rem);
+    0 30px 70px -38px rgba($gray-900, 0.35),
+    0 1px 0 rgba($white, 0.9) inset;
+  padding: clamp(2.1rem, 5vw, 2.6rem) clamp(1.5rem, 4vw, 2.25rem);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 1.25rem;
+  gap: 1rem;
 
   opacity: 0;
   transform: translateY(24px) scale(0.97);
   transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
               transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 
-  // Soft decorative blobs (matching checkout page aesthetic).
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(60px);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  &::before {
-    width: 220px;
-    height: 220px;
-    background: rgba($primary-color, 0.18);
-    top: -60px;
-    right: -60px;
-  }
-
-  &::after {
-    width: 180px;
-    height: 180px;
-    background: rgba(#f97316, 0.14);
-    bottom: -50px;
-    left: -50px;
-  }
-
   > * {
     position: relative;
     z-index: 1;
   }
+}
+
+.zaher-popup__accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  border-radius: $popup-radius $popup-radius 0 0;
+  background: linear-gradient(90deg, #f97316 0%, $primary-color 52%, #fb7185 100%);
 }
 
 // ── Close button ─────────────────────────────────────────────────────────────
@@ -139,29 +122,13 @@ body.zaher-popup-open {
   }
 }
 
-// ── Badge ────────────────────────────────────────────────────────────────────
-
-.zaher-popup__badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.35rem 0.85rem;
-  border-radius: 999px;
-  background: rgba($primary-color, 0.12);
-  border: 1px solid rgba($primary-color, 0.28);
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: darken($primary-color, 12%);
-}
-
 // ── Title ────────────────────────────────────────────────────────────────────
 
 .zaher-popup__title {
-  font-size: clamp(1.35rem, 4vw, 1.7rem);
-  font-weight: 700;
-  line-height: 1.25;
+  font-size: clamp(1.7rem, 4.8vw, 2.2rem);
+  font-weight: 300;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
   color: $gray-900;
   margin: 0;
 }
@@ -169,30 +136,30 @@ body.zaher-popup-open {
 // ── Subtitle ─────────────────────────────────────────────────────────────────
 
 .zaher-popup__subtitle {
-  font-size: 0.92rem;
-  color: $gray-500;
-  line-height: 1.6;
+  font-size: 0.98rem;
+  color: $gray-600;
+  line-height: 1.65;
   margin: 0;
 
   strong {
     color: $gray-800;
-    font-weight: 700;
+    font-weight: 600;
   }
 }
 
 .zaher-popup__description {
   display: grid;
-  gap: 0.85rem;
+  gap: 0.55rem;
   width: 100%;
 }
 
 .zaher-popup__body {
   width: 100%;
   display: grid;
-  gap: 0.8rem;
-  text-align: left;
+  gap: 0.55rem;
+  text-align: center;
   font-size: 0.92rem;
-  line-height: 1.65;
+  line-height: 1.55;
   color: $gray-600;
 
   &[hidden] {
@@ -212,44 +179,44 @@ body.zaher-popup-open {
 // ── Price comparison ─────────────────────────────────────────────────────────
 
 .zaher-popup__prices {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.7rem;
-  padding: 1.25rem 1.75rem;
+  display: grid;
+  gap: 0.85rem;
+  justify-items: center;
+  padding: 1.15rem 1.25rem;
   width: 100%;
-  background: linear-gradient(135deg, rgba($primary-color, 0.07), rgba(#f97316, 0.06));
-  border: 1px solid rgba($primary-color, 0.15);
-  border-radius: 20px;
+  background: #fafaf9;
+  border: 1px solid rgba($gray-300, 0.9);
+  border-radius: 18px;
 }
 
 .zaher-popup__price-kicker {
   margin: 0;
-  font-size: 0.72rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: darken($primary-color, 10%);
-}
-
-.zaher-popup__price-old-wrap,
-.zaher-popup__price-new-wrap {
-  display: grid;
-  gap: 0.2rem;
-  justify-items: center;
-}
-
-.zaher-popup__price-label {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: $gray-400;
+  letter-spacing: 0.14em;
+  color: rgba($primary-color, 0.9);
+}
+
+.zaher-popup__price-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  width: 100%;
+}
+
+.zaher-popup__price-arrow {
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: rgba($primary-color, 0.8);
+  line-height: 1;
 }
 
 .zaher-popup__price-old {
-  font-size: 0.92rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 400;
   color: $gray-400;
   text-decoration: line-through;
   text-decoration-color: rgba($gray-400, 0.7);
@@ -260,15 +227,15 @@ body.zaher-popup-open {
 }
 
 .zaher-popup__price-new {
-  font-size: 2rem;
-  font-weight: 800;
+  font-size: clamp(1.9rem, 5.5vw, 2.35rem);
+  font-weight: 600;
   color: $gray-900;
   line-height: 1.1;
   letter-spacing: -0.02em;
 
   span {
-    font-size: 0.95rem;
-    font-weight: 600;
+    font-size: 0.96rem;
+    font-weight: 500;
     color: $gray-500;
     letter-spacing: 0;
   }
@@ -276,27 +243,25 @@ body.zaher-popup-open {
 
 .zaher-popup__price-renewal {
   margin: 0;
-  font-size: 0.86rem;
-  font-weight: 600;
+  font-size: 0.82rem;
+  font-weight: 400;
   color: $gray-500;
-}
-
-.zaher-popup__price-benefits {
-  display: grid;
-  gap: 0.45rem;
-  width: 100%;
 }
 
 .zaher-popup__price-benefit {
   margin: 0;
-  padding: 0.65rem 0.85rem;
-  border-radius: 14px;
-  background: rgba($white, 0.7);
-  border: 1px solid rgba($primary-color, 0.12);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.25rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  background: rgba($primary-color, 0.1);
+  border: 1px solid rgba($primary-color, 0.18);
   color: $gray-700;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  line-height: 1.45;
+  line-height: 1.35;
 }
 
 .zaher-popup__price-benefit.is-primary {
@@ -305,67 +270,30 @@ body.zaher-popup-open {
   color: $gray-900;
 }
 
-// ── Timer ────────────────────────────────────────────────────────────────────
+// ── Urgency note ─────────────────────────────────────────────────────────────
 
-.zaher-popup__timer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.zaher-popup__timer-label {
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: $gray-400;
-  margin: 0;
-}
-
-.zaher-popup__countdown {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.zaher-popup__unit {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.15rem;
-
-  small {
-    font-size: 0.68rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: $gray-400;
-  }
-}
-
-.zaher-popup__digit {
+.zaher-popup__urgency {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 3rem;
-  padding: 0.4rem 0.5rem;
-  background: $gray-900;
-  color: $white;
-  border-radius: 10px;
-  font-size: 1.6rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
+  gap: 0.55rem;
+  min-height: 1.5rem;
 }
 
-.zaher-popup__sep {
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: $gray-400;
-  line-height: 1;
-  margin-bottom: 1.1rem; // align with digits, above the small labels
+.zaher-popup__urgency-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: $primary-color;
+  box-shadow: 0 0 0 0 rgba($primary-color, 0.4);
+  animation: zaher-popup-pulse 1.8s ease-out infinite;
+}
+
+.zaher-popup__urgency-text {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: $gray-500;
 }
 
 // ── CTA button ───────────────────────────────────────────────────────────────
@@ -423,6 +351,23 @@ body.zaher-popup-open {
 
   &:hover {
     color: $gray-600;
+  }
+}
+
+@keyframes zaher-popup-pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba($primary-color, 0.3);
+  }
+
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 8px rgba($primary-color, 0);
+  }
+
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba($primary-color, 0);
   }
 }
 

@@ -4,19 +4,13 @@
     <div class="zaher-popup__overlay" aria-hidden="true"></div>
 
     <div class="zaher-popup__card" tabindex="-1">
+        <div class="zaher-popup__accent" aria-hidden="true"></div>
 
         <button type="button" class="zaher-popup__close" aria-label="<?php esc_attr_e( 'Zatvori', 'zaherpilates' ); ?>">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
             </svg>
         </button>
-
-        <div class="zaher-popup__badge">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/>
-            </svg>
-            <span class="js-popup-badge-text">Ekskluzivna ponuda</span>
-        </div>
 
         <h2 class="zaher-popup__title js-popup-title" id="zaher-popup-title">
             Prije završetka,<br>pogledaj ovu ponudu
@@ -30,35 +24,19 @@
         </div>
 
         <div class="zaher-popup__prices">
-            <p class="zaher-popup__price-kicker js-popup-price-kicker">Prvi obračun s popustom</p>
-            <div class="zaher-popup__price-old-wrap js-popup-old-price-wrap">
-                <span class="zaher-popup__price-label js-popup-old-price-label">Redovna cijena bez popusta</span>
+            <p class="zaher-popup__price-kicker js-popup-price-kicker" hidden>Ponuda</p>
+            <div class="zaher-popup__price-row">
                 <div class="zaher-popup__price-old js-popup-old-price">79,99 € / 3 mj.</div>
-            </div>
-            <div class="zaher-popup__price-new-wrap">
-                <span class="zaher-popup__price-label js-popup-new-price-label">Danas plaćaš</span>
+                <span class="zaher-popup__price-arrow js-popup-price-arrow" aria-hidden="true">→</span>
                 <div class="zaher-popup__price-new js-popup-new-price">55,99 € <span>/ 3 mj.</span></div>
             </div>
-            <p class="zaher-popup__price-renewal js-popup-price-renewal">Nakon toga 79,99 € / 3 mj.</p>
-            <div class="zaher-popup__price-benefits">
-                <p class="zaher-popup__price-benefit is-primary js-popup-price-benefit-primary">Štediš 33,98 € u odnosu na mjesečnu pretplatu.</p>
-                <p class="zaher-popup__price-benefit js-popup-price-benefit-secondary">Ispadne 18,66 € / mj. umjesto 29,99 € / mj.</p>
-            </div>
+            <p class="zaher-popup__price-renewal js-popup-price-renewal" hidden>Popust vrijedi za prvi obračun. Nakon toga 79,99 € / 3 mj.</p>
+            <p class="zaher-popup__price-benefit is-primary js-popup-price-benefit-primary" hidden>Štediš 33,98 € kroz isti period.</p>
         </div>
 
-        <div class="zaher-popup__timer">
-            <p class="zaher-popup__timer-label">Ponuda ističe za:</p>
-            <div class="zaher-popup__countdown">
-                <div class="zaher-popup__unit">
-                    <span class="zaher-popup__digit" data-unit="minutes">15</span>
-                    <small>min</small>
-                </div>
-                <span class="zaher-popup__sep">:</span>
-                <div class="zaher-popup__unit">
-                    <span class="zaher-popup__digit" data-unit="seconds">00</span>
-                    <small>sek</small>
-                </div>
-            </div>
+        <div class="zaher-popup__urgency">
+            <span class="zaher-popup__urgency-dot" aria-hidden="true"></span>
+            <p class="zaher-popup__urgency-text">Ponuda vrijedi samo na ovom checkoutu</p>
         </div>
 
         <a href="#" class="zaher-popup__cta js-popup-cta-btn" rel="nofollow">

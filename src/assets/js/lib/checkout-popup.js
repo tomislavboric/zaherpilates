@@ -80,19 +80,15 @@
 	const card      = popup.querySelector('.zaher-popup__card');
 	const minEl     = popup.querySelector('[data-unit="minutes"]');
 	const secEl     = popup.querySelector('[data-unit="seconds"]');
-	const badgeTextEl = popup.querySelector('.js-popup-badge-text');
 	const titleEl   = popup.querySelector('.js-popup-title');
 	const subtitleEl = popup.querySelector('.js-popup-subtitle');
 	const bodyEl    = popup.querySelector('.js-popup-body');
 	const priceKickerEl = popup.querySelector('.js-popup-price-kicker');
-	const oldPriceWrapEl = popup.querySelector('.js-popup-old-price-wrap');
-	const oldPriceLabelEl = popup.querySelector('.js-popup-old-price-label');
 	const oldPriceEl = popup.querySelector('.js-popup-old-price');
-	const newPriceLabelEl = popup.querySelector('.js-popup-new-price-label');
+	const priceArrowEl = popup.querySelector('.js-popup-price-arrow');
 	const newPriceEl = popup.querySelector('.js-popup-new-price');
 	const priceRenewalEl = popup.querySelector('.js-popup-price-renewal');
 	const priceBenefitPrimaryEl = popup.querySelector('.js-popup-price-benefit-primary');
-	const priceBenefitSecondaryEl = popup.querySelector('.js-popup-price-benefit-secondary');
 	const ctaLabelEl = popup.querySelector('.js-popup-cta-label');
 
 	const renderPriceText = function (element, value) {
@@ -126,10 +122,6 @@
 
 	// ── Inject dynamic content from PHP config ─────────────────────────────────
 
-	if (TEMPLATE.badgeText && badgeTextEl) {
-		badgeTextEl.textContent = TEMPLATE.badgeText;
-	}
-
 	if (TEMPLATE.titleHtml && titleEl) {
 		titleEl.innerHTML = TEMPLATE.titleHtml;
 	}
@@ -161,20 +153,21 @@
 	}
 
 	toggleTextElement(priceKickerEl, PRICE_BOX.kicker || '');
-	toggleTextElement(oldPriceLabelEl, PRICE_BOX.oldPriceLabel || '');
 
 	if (OLD_PRICE && oldPriceEl) {
 		renderPriceText(oldPriceEl, OLD_PRICE);
 	}
 
-	if (oldPriceWrapEl) {
-		oldPriceWrapEl.hidden = !OLD_PRICE;
+	if (oldPriceEl) {
+		oldPriceEl.hidden = !OLD_PRICE;
 	}
 
-	toggleTextElement(newPriceLabelEl, PRICE_BOX.newPriceLabel || '');
+	if (priceArrowEl) {
+		priceArrowEl.hidden = !OLD_PRICE;
+	}
+
 	toggleTextElement(priceRenewalEl, PRICE_BOX.renewalNote || '');
 	toggleTextElement(priceBenefitPrimaryEl, PRICE_BOX.benefitPrimary || '');
-	toggleTextElement(priceBenefitSecondaryEl, PRICE_BOX.benefitSecondary || '');
 
 	if (NEW_PRICE && newPriceEl) {
 		renderPriceText(newPriceEl, NEW_PRICE);

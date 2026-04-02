@@ -98,9 +98,9 @@ function zaher_get_checkout_popup_templates() {
         'template_2' => array(
             'label'                   => 'Template 2 - Upgrade offer',
             'badge_text'              => 'Posebna ponuda',
-            'title_html'              => 'Prijeđi na {{target_plan_accusative}} i plati manje',
-            'subtitle_html'           => 'Ponuda vrijedi samo na ovom checkoutu. Ako je preskočiš, više ti je nećemo prikazivati.',
-            'body_html'               => '<p>Ako već krećeš s LOOP-om, isplativije je odmah prijeći na <strong>{{target_plan_accusative}}</strong>. {{offer_summary_html}}</p><p>{{vs_current_plan_benefit_html}} Daješ si i više kontinuiteta za prve vidljive rezultate.</p><p>Uz bolju cijenu, <strong>{{target_plan_nominative}}</strong> ti otključava i dodatne kategorije koje se kroz godinu pojavljuju u membershipu.</p>',
+            'title_html'              => 'Prijeđi na {{target_plan_accusative}}',
+            'subtitle_html'           => '{{value_sentence_html}}',
+            'body_html'               => '',
             'cta_label'               => 'Da, želim ovu ponudu',
             'skip_label'              => 'Ne, ostajem na trenutnoj pretplati',
             'recommended_period_type' => 'months',
@@ -211,6 +211,7 @@ function zaher_get_legacy_checkout_popup_rows() {
             'coupon_code'       => $coupon_code,
             'timer_minutes'     => max( 1, (int) get_option( 'zaher_popup_timer_minutes', $defaults['timer_minutes'] ) ),
             'delay_seconds'     => max( 0, (int) get_option( 'zaher_popup_delay_seconds', $defaults['delay_seconds'] ) ),
+            'enabled'           => 1,
         ),
     );
 }
@@ -540,6 +541,30 @@ function zaher_get_checkout_popup_offer_summary_html( $target_product, $coupon_c
     return (string) $pricing['offerSummaryHtml'];
 }
 
+function zaher_get_checkout_popup_value_sentence_html( $source_product, $target_product, $coupon_code = '' ) {
+    if ( ! $target_product instanceof MeprProduct ) {
+        return '';
+    }
+
+    $pricing      = zaher_get_checkout_popup_pricing_data( $target_product, $coupon_code );
+    $savings_text = zaher_get_checkout_popup_savings_text( $source_product, $target_product, $coupon_code );
+    $sentence     = '';
+
+    if ( 'first-payment' === $pricing['couponMode'] || 'trial-override' === $pricing['couponMode'] ) {
+        $sentence = 'Na ovom checkoutu prvi obračun plaćaš <strong>' . esc_html( $pricing['displayText'] ) . '</strong> umjesto <strong>' . esc_html( $pricing['baseText'] ) . '</strong>';
+    } elseif ( $pricing['displayText'] !== $pricing['baseText'] ) {
+        $sentence = 'Na ovom checkoutu plaćaš <strong>' . esc_html( $pricing['displayText'] ) . '</strong> umjesto <strong>' . esc_html( $pricing['baseText'] ) . '</strong>';
+    } else {
+        $sentence = 'Na ovom checkoutu odmah prelaziš na <strong>' . esc_html( zaher_get_checkout_popup_plan_label( $target_product, 'accusative' ) ) . '</strong>';
+    }
+
+    if ( '' !== $savings_text ) {
+        $sentence .= ', a kroz isti period štediš <strong>' . esc_html( $savings_text ) . '</strong> u odnosu na ostanak ' . esc_html( zaher_get_checkout_popup_plan_label( $source_product, 'locative' ) );
+    }
+
+    return $sentence . '.';
+}
+
 function zaher_get_checkout_popup_savings_sentence_html( $source_product, $target_product, $coupon_code = '' ) {
     $savings_text = zaher_get_checkout_popup_savings_text( $source_product, $target_product, $coupon_code );
 
@@ -577,13 +602,11 @@ function zaher_get_checkout_popup_vs_current_plan_benefit_html( $source_product,
 function zaher_get_checkout_popup_price_box_data( $source_product, $target_product, $coupon_code = '' ) {
     $pricing                  = zaher_get_checkout_popup_pricing_data( $target_product, $coupon_code );
     $savings_text             = zaher_get_checkout_popup_savings_text( $source_product, $target_product, $coupon_code );
-    $source_period_price_text = $source_product instanceof MeprProduct ? zaher_format_checkout_popup_product_amount_text( $source_product, $source_product->price ) : '';
-    $effective_price_text     = zaher_get_checkout_popup_equivalent_source_period_price_text( $source_product, $target_product, $pricing['displayAmount'] );
     $price_box                = array(
-        'kicker'           => 'Posebna cijena na ovom checkoutu',
+        'kicker'           => '',
         'oldPriceLabel'    => '',
         'oldPrice'         => '',
-        'newPriceLabel'    => 'Danas plaćaš',
+        'newPriceLabel'    => '',
         'newPrice'         => isset( $pricing['displayText'] ) ? (string) $pricing['displayText'] : '',
         'renewalNote'      => '',
         'benefitPrimary'   => '',
@@ -591,25 +614,17 @@ function zaher_get_checkout_popup_price_box_data( $source_product, $target_produ
     );
 
     if ( ! empty( $pricing['displayText'] ) && $pricing['displayText'] !== $pricing['baseText'] ) {
-        $price_box['oldPriceLabel'] = 'Redovna cijena ' . zaher_get_checkout_popup_plan_label( $target_product, 'genitive' );
         $price_box['oldPrice']      = isset( $pricing['baseText'] ) ? (string) $pricing['baseText'] : '';
     }
 
     if ( 'first-payment' === $pricing['couponMode'] || 'trial-override' === $pricing['couponMode'] ) {
-        $price_box['kicker']        = 'Prvi obračun s popustom';
-        $price_box['newPriceLabel'] = 'Danas za prvi obračun';
-
         if ( ! empty( $pricing['renewalText'] ) ) {
-            $price_box['renewalNote'] = 'Nakon toga ' . $pricing['renewalText'];
+            $price_box['renewalNote'] = 'Popust vrijedi za prvi obračun. Nakon toga ' . $pricing['renewalText'] . '.';
         }
     }
 
     if ( '' !== $savings_text ) {
-        $price_box['benefitPrimary'] = 'Štediš ' . $savings_text . ' u odnosu na ostanak ' . zaher_get_checkout_popup_plan_label( $source_product, 'locative' ) . ' kroz isti period.';
-    }
-
-    if ( '' !== $effective_price_text && '' !== $source_period_price_text && $effective_price_text !== $source_period_price_text ) {
-        $price_box['benefitSecondary'] = 'Ispadne ' . $effective_price_text . ' umjesto ' . $source_period_price_text . '.';
+        $price_box['benefitPrimary'] = 'Štediš ' . $savings_text . ' kroz isti period.';
     }
 
     return $price_box;
@@ -627,6 +642,7 @@ function zaher_get_checkout_popup_template_content( $template_key, $source_produ
         '{{target_plan_accusative}}' => esc_html( zaher_get_checkout_popup_plan_label( $target_product, 'accusative' ) ),
         '{{target_plan_genitive}}'   => esc_html( zaher_get_checkout_popup_plan_label( $target_product, 'genitive' ) ),
         '{{source_plan_locative}}'   => esc_html( zaher_get_checkout_popup_plan_label( $source_product, 'locative' ) ),
+        '{{value_sentence_html}}'    => zaher_get_checkout_popup_value_sentence_html( $source_product, $target_product, $coupon_code ),
         '{{price_comparison_html}}' => zaher_get_checkout_popup_price_comparison_html( $target_product, $coupon_code ),
         '{{offer_summary_html}}'    => zaher_get_checkout_popup_offer_summary_html( $target_product, $coupon_code ),
         '{{savings_text}}'          => esc_html( zaher_get_checkout_popup_savings_text( $source_product, $target_product, $coupon_code ) ),
@@ -667,6 +683,11 @@ function zaher_build_checkout_popup_runtime_config( $row ) {
     $source_product = zaher_get_checkout_popup_product( isset( $row['source_product_id'] ) ? $row['source_product_id'] : 0 );
     $target_product = zaher_get_checkout_popup_product( isset( $row['target_product_id'] ) ? $row['target_product_id'] : 0 );
     $coupon_code    = isset( $row['coupon_code'] ) ? sanitize_text_field( $row['coupon_code'] ) : '';
+    $enabled        = ! isset( $row['enabled'] ) || ! empty( $row['enabled'] );
+
+    if ( ! $enabled ) {
+        return null;
+    }
 
     if ( ! $source_product || ! $target_product ) {
         return null;
