@@ -1399,6 +1399,14 @@ function zaher_render_checkout_popup_settings_page() {
 				return stripTags(replaceTokens(value, replacements)).trim();
 			}
 
+			function normalizeTitleHtml(value) {
+				return String(value || '')
+					.replace(/<\s*\/p>\s*<\s*p[^>]*>\s*/gi, '<br>')
+					.replace(/<\s*p[^>]*>\s*/gi, '')
+					.replace(/\s*<\s*\/p>\s*/gi, '')
+					.trim();
+			}
+
 			function getFieldValue(field) {
 				if (!field) {
 					return '';
@@ -1811,7 +1819,7 @@ function zaher_render_checkout_popup_settings_page() {
 
 				return {
 					badgeText: applyPlainText(templateSource.badgeText, replacements),
-					titleHtml: applyRichText(templateSource.titleHtml, replacements),
+					titleHtml: normalizeTitleHtml(applyRichText(templateSource.titleHtml, replacements)),
 					subtitleHtml: applyRichText(templateSource.subtitleHtml, replacements),
 					bodyHtml: applyRichText(templateSource.bodyHtml, replacements),
 					ctaLabel: applyPlainText(templateSource.ctaLabel, replacements),
