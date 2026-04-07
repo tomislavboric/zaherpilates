@@ -915,12 +915,13 @@ function zaher_render_checkout_popup_settings_page() {
 				border: 1px solid rgba(229, 231, 235, 0.96);
 				box-shadow: 0 26px 60px -38px rgba(15, 23, 42, 0.52);
 				text-align: center;
+				overflow: hidden;
 			}
 			.zaher-popup-settings .zaher-popup-preview__accent {
 				position: absolute;
-				top: 0;
-				left: 0;
-				width: 100%;
+				top: -1px;
+				left: -1px;
+				width: calc(100% + 2px);
 				height: 4px;
 				border-radius: 28px 28px 0 0;
 				background: linear-gradient(90deg, #f97316 0%, #db2777 100%);
@@ -960,7 +961,7 @@ function zaher_render_checkout_popup_settings_page() {
 				font-size: 31px;
 				line-height: 1.06;
 				letter-spacing: -0.04em;
-				font-weight: 300;
+				font-weight: 700;
 				color: #111827;
 			}
 			.zaher-popup-settings .zaher-popup-preview__subtitle,

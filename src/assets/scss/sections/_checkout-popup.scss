@@ -73,6 +73,7 @@ body.zaher-popup-open {
   align-items: center;
   text-align: center;
   gap: 1rem;
+  overflow: hidden;
 
   opacity: 0;
   transform: translateY(24px) scale(0.97);
@@ -87,9 +88,9 @@ body.zaher-popup-open {
 
 .zaher-popup__accent {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
+  top: -1px;
+  left: -1px;
+  width: calc(100% + 2px);
   height: 4px;
   border-radius: $popup-radius $popup-radius 0 0;
   background: linear-gradient(90deg, #f97316 0%, $primary-color 52%, #fb7185 100%);
@@ -126,7 +127,7 @@ body.zaher-popup-open {
 
 .zaher-popup__title {
   font-size: clamp(1.7rem, 4.8vw, 2.2rem);
-  font-weight: 300;
+  font-weight: 700;
   line-height: 1.12;
   letter-spacing: -0.03em;
   color: $gray-900;
@@ -375,18 +376,26 @@ body.zaher-popup-open {
 
 @include breakpoint(small only) {
   .zaher-popup {
-    align-items: flex-end;
+    align-items: stretch;
+    justify-content: stretch;
     padding: 0;
   }
 
   .zaher-popup__card {
-    border-radius: $popup-radius $popup-radius 0 0;
-    max-width: 100%;
+    border-radius: 0;
+    max-width: none;
+    width: 100vw;
+    min-height: 100dvh;
+    height: 100dvh;
     transform: translateY(100%);
-    max-height: 92vh;
+    max-height: none;
     overflow-y: auto;
     overflow-x: hidden;
     padding: 2rem 1.5rem 2.5rem;
+  }
+
+  .zaher-popup__accent {
+    border-radius: 0;
   }
 
   .zaher-popup.is-open .zaher-popup__card {
