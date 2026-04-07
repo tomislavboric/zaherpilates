@@ -930,13 +930,22 @@ function zaher_render_checkout_popup_settings_page() {
 				line-height: 1.58;
 				margin: 14px 0 0;
 				font-size: 15px;
-				display: grid;
-				gap: 10px;
 			}
 			.zaher-popup-settings .zaher-popup-preview__subtitle p,
 			.zaher-popup-settings .zaher-popup-preview__subtitle ul,
 			.zaher-popup-settings .zaher-popup-preview__subtitle ol {
 				margin: 0;
+			}
+			.zaher-popup-settings .zaher-popup-preview__subtitle p + p,
+			.zaher-popup-settings .zaher-popup-preview__subtitle p + ul,
+			.zaher-popup-settings .zaher-popup-preview__subtitle p + ol,
+			.zaher-popup-settings .zaher-popup-preview__subtitle ul + p,
+			.zaher-popup-settings .zaher-popup-preview__subtitle ul + ul,
+			.zaher-popup-settings .zaher-popup-preview__subtitle ul + ol,
+			.zaher-popup-settings .zaher-popup-preview__subtitle ol + p,
+			.zaher-popup-settings .zaher-popup-preview__subtitle ol + ul,
+			.zaher-popup-settings .zaher-popup-preview__subtitle ol + ol {
+				margin-top: 9px;
 			}
 			.zaher-popup-settings .zaher-popup-preview__subtitle strong {
 				color: #111827;
@@ -1341,26 +1350,51 @@ function zaher_render_checkout_popup_settings_page() {
 				return output;
 			}
 
-			function applyRichText(value, replacements) {
-				return sanitizePreviewHtml(
-					replaceTokens(
-						String(value || '').replace(/\r\n?/g, '\n').replace(/\n/g, '<br>'),
-						replacements
-					)
-				);
-			}
+				function applyRichText(value, replacements) {
+					return sanitizePreviewHtml(
+						normalizeContentHtml(
+							replaceTokens(
+								String(value || '').replace(/\r\n?/g, '\n'),
+								replacements
+							)
+						)
+					);
+				}
 
-			function applyPlainText(value, replacements) {
-				return stripTags(replaceTokens(value, replacements)).trim();
-			}
+				function applyPlainText(value, replacements) {
+					return stripTags(replaceTokens(value, replacements)).trim();
+				}
 
-			function normalizeTitleHtml(value) {
-				return String(value || '')
-					.replace(/<\s*\/p>\s*<\s*p[^>]*>\s*/gi, '<br>')
-					.replace(/<\s*p[^>]*>\s*/gi, '')
-					.replace(/\s*<\s*\/p>\s*/gi, '')
-					.trim();
-			}
+				function normalizeTitleHtml(value) {
+					return String(value || '')
+						.replace(/<\s*\/p>\s*<\s*p[^>]*>\s*/gi, '<br>')
+						.replace(/<\s*p[^>]*>\s*/gi, '')
+						.replace(/\s*<\s*\/p>\s*/gi, '')
+						.trim();
+				}
+
+				function normalizeContentHtml(value) {
+					const html = String(value || '').trim();
+
+					if (!stripTags(html).trim()) {
+						return '';
+					}
+
+					if (/<(?:p|ul|ol|li|blockquote|h[1-6]|div|table|pre)\b/i.test(html)) {
+						return html;
+					}
+
+					return html
+						.split(/\n{2,}/)
+						.map(function(part) {
+							return part.trim();
+						})
+						.filter(Boolean)
+						.map(function(part) {
+							return '<p>' + part.replace(/\n+/g, '<br>') + '</p>';
+						})
+						.join('');
+				}
 
 			function getFieldValue(field) {
 				if (!field) {

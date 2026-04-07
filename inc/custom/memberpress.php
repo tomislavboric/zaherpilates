@@ -97,6 +97,20 @@ function zaher_normalize_checkout_popup_title_html( $value ) {
     return trim( $value );
 }
 
+function zaher_normalize_checkout_popup_content_html( $value ) {
+    $value = trim( preg_replace( "/\r\n?/", "\n", (string) $value ) );
+
+    if ( '' === trim( wp_strip_all_tags( $value ) ) ) {
+        return '';
+    }
+
+    if ( ! preg_match( '#<(?:p|ul|ol|li|blockquote|h[1-6]|div|table|pre)\b#i', $value ) ) {
+        return trim( wpautop( $value ) );
+    }
+
+    return $value;
+}
+
 function zaher_merge_checkout_popup_content_html( $primary, $secondary ) {
     $parts = array();
 
@@ -108,7 +122,7 @@ function zaher_merge_checkout_popup_content_html( $primary, $secondary ) {
         }
     }
 
-    return implode( "\n", $parts );
+    return implode( "\n\n", $parts );
 }
 
 function zaher_get_checkout_popup_custom_copy_field_map() {
@@ -709,7 +723,7 @@ function zaher_get_checkout_popup_template_content( $template_key, $source_produ
         'label'        => isset( $template['label'] ) ? (string) $template['label'] : $template_key,
         'badgeText'    => wp_strip_all_tags( strtr( (string) $template['badge_text'], $replacements ) ),
         'titleHtml'    => wp_kses_post( zaher_normalize_checkout_popup_title_html( strtr( $content['title_html'], $replacements ) ) ),
-        'subtitleHtml' => wp_kses_post( strtr( $content['subtitle_html'], $replacements ) ),
+        'subtitleHtml' => wp_kses_post( zaher_normalize_checkout_popup_content_html( strtr( $content['subtitle_html'], $replacements ) ) ),
         'ctaLabel'     => wp_strip_all_tags( strtr( (string) $template['cta_label'], $replacements ) ),
         'skipLabel'    => wp_strip_all_tags( strtr( (string) $template['skip_label'], $replacements ) ),
     );
