@@ -1,9 +1,8 @@
 /**
  * Checkout upgrade popup.
  *
- * Shows a timed promotional popup on configured checkout pages.
- * The countdown timer is session-persistent: it starts once per browser
- * session and continues across page refreshes.
+ * Shows a promotional popup on configured checkout pages.
+ * Popup opens after a fixed delay and stays closed only after CTA/decline.
  *
  * Config is injected by PHP via wp_localize_script as window.zaherPopupConfig.
  */
@@ -12,8 +11,8 @@
 	'use strict';
 
 	const POPUP_ID       = 'zaher-checkout-popup';
-	const TIMER_KEY_BASE = 'zaher_popup_deadline';
 	const DISMISSED_KEY_BASE = 'zaher_popup_dismissed';
+	const OPEN_DELAY_MS = 6000;
 	const FOCUSABLE_SELECTOR = [
 		'a[href]',
 		'button:not([disabled])',
@@ -27,6 +26,18 @@
 	const parseInteger = function (value, fallback) {
 		const parsed = parseInt(value, 10);
 		return Number.isNaN(parsed) ? fallback : parsed;
+	};
+	const normalizePath = function (value) {
+		if (!value) {
+			return '';
+		}
+
+		try {
+			const url = new URL(value, window.location.origin);
+			return String(url.pathname || '').replace(/\/+$/, '') || '/';
+		} catch (error) {
+			return '';
+		}
 	};
 	const readPersistentValue = function (key) {
 		try {
@@ -43,8 +54,6 @@
 			sessionStorage.setItem(key, value);
 		}
 	};
-	const defaults = config.defaults || {};
-
 	// ── DOM ────────────────────────────────────────────────────────────────────
 
 	const popup     = document.getElementById(POPUP_ID);
@@ -52,36 +61,36 @@
 
 	const productInput = document.querySelector('input[name="mepr_product_id"]');
 	const currentProductId = parseInt(productInput ? productInput.value : 0, 10);
+	const currentPath = normalizePath(window.location.href);
 	const popupConfigs = Array.isArray(config.popups) && config.popups.length ? config.popups : [config];
 	const popupConfig = popupConfigs.find(function (item) {
 		const sourceProductId = item && (item.sourceProductId || item.monthlyProductId);
-		return parseInteger(sourceProductId, 0) === currentProductId;
+		const sourcePath = normalizePath(item && item.sourceUrl);
+
+		return (
+			(currentProductId && parseInteger(sourceProductId, 0) === currentProductId) ||
+			(currentPath && sourcePath && currentPath === sourcePath)
+		);
 	});
 
-	if (!currentProductId || !popupConfig) {
+	if (!popupConfig) {
 		return;
 	}
 
-	const TIMER_MS    = Math.max(1, parseInteger(popupConfig.timerMinutes, defaults.timerMinutes || 10)) * 60 * 1000;
-	const DELAY_MS    = Math.max(0, parseInteger(popupConfig.delaySeconds, defaults.delaySeconds || 6)) * 1000;
 	const TARGET_URL  = popupConfig.targetUrl || '';
 	const OLD_PRICE   = popupConfig.oldPrice || '';
 	const NEW_PRICE   = popupConfig.newPrice || '';
 	const PRICE_BOX   = popupConfig.priceBox || {};
 	const TEMPLATE    = popupConfig.template || {};
-	const OFFER_VERSION = popupConfig.offerVersion || String(currentProductId);
-	const TIMER_KEY   = TIMER_KEY_BASE + '_' + String(OFFER_VERSION);
+	const OFFER_VERSION = popupConfig.offerVersion || String(currentProductId || currentPath || 'popup');
 	const DISMISSED_KEY = DISMISSED_KEY_BASE + '_' + String(OFFER_VERSION);
 
 	const closeBtn  = popup.querySelector('.zaher-popup__close');
 	const skipBtn   = popup.querySelector('.js-popup-skip');
 	const ctaBtn    = popup.querySelector('.js-popup-cta-btn');
 	const card      = popup.querySelector('.zaher-popup__card');
-	const minEl     = popup.querySelector('[data-unit="minutes"]');
-	const secEl     = popup.querySelector('[data-unit="seconds"]');
 	const titleEl   = popup.querySelector('.js-popup-title');
 	const subtitleEl = popup.querySelector('.js-popup-subtitle');
-	const bodyEl    = popup.querySelector('.js-popup-body');
 	const priceKickerEl = popup.querySelector('.js-popup-price-kicker');
 	const oldPriceEl = popup.querySelector('.js-popup-old-price');
 	const priceArrowEl = popup.querySelector('.js-popup-price-arrow');
@@ -129,16 +138,6 @@
 		subtitleEl.innerHTML = TEMPLATE.subtitleHtml;
 	}
 
-	if (bodyEl) {
-		if (TEMPLATE.bodyHtml) {
-			bodyEl.innerHTML = TEMPLATE.bodyHtml;
-			bodyEl.hidden = false;
-		} else {
-			bodyEl.innerHTML = '';
-			bodyEl.hidden = true;
-		}
-	}
-
 	if (TARGET_URL && ctaBtn) {
 		ctaBtn.setAttribute('href', TARGET_URL);
 	}
@@ -172,24 +171,9 @@
 		renderPriceText(newPriceEl, NEW_PRICE);
 	}
 
-	// ── Session timer ──────────────────────────────────────────────────────────
-
 	// If user already dismissed this exact offer version, bail out entirely.
 	if (readPersistentValue(DISMISSED_KEY)) return;
 
-	let deadline = parseInt(sessionStorage.getItem(TIMER_KEY), 10);
-
-	if (!deadline || isNaN(deadline)) {
-		deadline = Date.now() + TIMER_MS;
-		sessionStorage.setItem(TIMER_KEY, String(deadline));
-	}
-
-	// Timer already expired before popup even loaded → don't show.
-	if (Date.now() >= deadline) return;
-
-	// ── Countdown ─────────────────────────────────────────────────────────────
-
-	let intervalId = null;
 	let previouslyFocusedElement = null;
 
 	function getFocusableElements() {
@@ -219,32 +203,14 @@
 		previouslyFocusedElement = null;
 	}
 
-	function updateCountdown() {
-		const diff    = Math.max(0, deadline - Date.now());
-		const minutes = Math.floor(diff / 60000);
-		const seconds = Math.floor((diff % 60000) / 1000);
-
-		if (minEl) minEl.textContent = String(minutes).padStart(2, '0');
-		if (secEl) secEl.textContent = String(seconds).padStart(2, '0');
-
-		if (diff === 0) {
-			closePopup();
-		}
-	}
-
 	// ── Show / hide ────────────────────────────────────────────────────────────
 
 	function openPopup() {
-		if (Date.now() >= deadline) return; // expired while waiting for delay
-
 		previouslyFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-		updateCountdown();
 		popup.setAttribute('aria-hidden', 'false');
 		popup.classList.add('is-open');
 		document.body.classList.add('zaher-popup-open');
 		focusPopup();
-
-		intervalId = setInterval(updateCountdown, 1000);
 	}
 
 	function closePopup(options) {
@@ -252,7 +218,6 @@
 			persistDismissal: false,
 		}, options || {});
 
-		clearInterval(intervalId);
 		popup.classList.remove('is-open');
 		popup.setAttribute('aria-hidden', 'true');
 		document.body.classList.remove('zaher-popup-open');
@@ -337,9 +302,9 @@
 
 	if (document.readyState === 'loading') {
 		document.addEventListener('DOMContentLoaded', function () {
-			setTimeout(openPopup, DELAY_MS);
+			setTimeout(openPopup, OPEN_DELAY_MS);
 		});
 	} else {
-		setTimeout(openPopup, DELAY_MS);
+		setTimeout(openPopup, OPEN_DELAY_MS);
 	}
 })();

@@ -114,7 +114,6 @@ function zaher_register_checkout_popup_settings() {
 }
 
 function zaher_sanitize_checkout_popups( $value ) {
-	$defaults      = zaher_get_checkout_popup_defaults();
 	$field_map     = zaher_get_checkout_popup_custom_copy_field_map();
 	$default_key   = zaher_get_checkout_popup_default_template_key();
 	$rows          = is_array( $value ) ? $value : array();
@@ -133,13 +132,18 @@ function zaher_sanitize_checkout_popups( $value ) {
 		$source_product_id = isset( $row['source_product_id'] ) ? absint( $row['source_product_id'] ) : 0;
 		$target_product_id = isset( $row['target_product_id'] ) ? absint( $row['target_product_id'] ) : 0;
 		$coupon_code       = isset( $row['coupon_code'] ) ? sanitize_text_field( $row['coupon_code'] ) : '';
-		$timer_minutes     = isset( $row['timer_minutes'] ) && '' !== $row['timer_minutes'] ? max( 1, absint( $row['timer_minutes'] ) ) : $defaults['timer_minutes'];
-		$delay_seconds     = isset( $row['delay_seconds'] ) && '' !== $row['delay_seconds'] ? max( 0, absint( $row['delay_seconds'] ) ) : $defaults['delay_seconds'];
 		$enabled           = ! isset( $row['enabled'] ) || '0' !== (string) $row['enabled'];
 		$custom_copy       = array();
 
 		foreach ( $field_map as $row_key => $template_field ) {
 			$custom_copy[ $row_key ] = isset( $row[ $row_key ] ) ? wp_kses_post( wp_unslash( $row[ $row_key ] ) ) : '';
+		}
+
+		if ( isset( $row['custom_body_html'] ) ) {
+			$custom_copy['custom_subtitle_html'] = zaher_merge_checkout_popup_content_html(
+				$custom_copy['custom_subtitle_html'],
+				wp_kses_post( wp_unslash( $row['custom_body_html'] ) )
+			);
 		}
 
 		if ( ! $source_product_id && ! $target_product_id && '' === $coupon_code ) {
@@ -174,18 +178,16 @@ function zaher_sanitize_checkout_popups( $value ) {
 			$coupon_code = '';
 		}
 
-		$sanitized[] = array_merge(
-			array(
-				'template_key'      => $template_key,
-				'source_product_id' => $source_product_id,
-				'target_product_id' => $target_product_id,
-				'coupon_code'       => $coupon_code,
-				'timer_minutes'     => $timer_minutes,
-				'delay_seconds'     => $delay_seconds,
-				'enabled'           => $enabled ? 1 : 0,
-			),
-			$custom_copy
-		);
+			$sanitized[] = array_merge(
+				array(
+					'template_key'      => $template_key,
+					'source_product_id' => $source_product_id,
+					'target_product_id' => $target_product_id,
+					'coupon_code'       => $coupon_code,
+					'enabled'           => $enabled ? 1 : 0,
+				),
+				$custom_copy
+			);
 
 		$seen_sources[ $source_product_id ] = true;
 	}
@@ -330,32 +332,20 @@ function zaher_get_checkout_popup_custom_copy_fields() {
 		),
 		'custom_subtitle_html' => array(
 			'templateField' => 'subtitle_html',
-			'label'         => 'Glavni tekst',
+			'label'         => 'Sadržaj',
 			'type'          => 'textarea',
 			'rows'          => 8,
 			'wide'          => true,
 			'rich'          => true,
-			'description'   => 'Glavni opis ispod naslova. Koristi rich editor za bold, linkove, liste i prijelome.',
-		),
-		'custom_body_html' => array(
-			'templateField' => 'body_html',
-			'label'         => 'Dodatni tekst',
-			'type'          => 'textarea',
-			'rows'          => 6,
-			'wide'          => true,
-			'rich'          => true,
-			'description'   => 'Opcionalni dodatni blok ispod glavnog teksta, npr. kratka lista benefita ili pojašnjenje.',
+			'description'   => 'Glavni sadržaj ispod naslova. Koristi rich editor za bold, linkove, liste i prijelome.',
 		),
 	);
 }
 
 function zaher_render_checkout_popup_row( $index, $popup, $source_products, $target_products, $coupon_choices ) {
-	$defaults          = zaher_get_checkout_popup_defaults();
 	$source_product_id = isset( $popup['source_product_id'] ) ? absint( $popup['source_product_id'] ) : 0;
 	$target_product_id = isset( $popup['target_product_id'] ) ? absint( $popup['target_product_id'] ) : 0;
 	$coupon_code       = isset( $popup['coupon_code'] ) ? sanitize_text_field( $popup['coupon_code'] ) : '';
-	$timer_minutes     = isset( $popup['timer_minutes'] ) && '' !== $popup['timer_minutes'] ? max( 1, absint( $popup['timer_minutes'] ) ) : $defaults['timer_minutes'];
-	$delay_seconds     = isset( $popup['delay_seconds'] ) && '' !== $popup['delay_seconds'] ? max( 0, absint( $popup['delay_seconds'] ) ) : $defaults['delay_seconds'];
 	$enabled           = ! isset( $popup['enabled'] ) || ! empty( $popup['enabled'] );
 	$custom_copy       = zaher_get_checkout_popup_row_custom_copy( $popup );
 	$custom_fields     = zaher_get_checkout_popup_custom_copy_fields();
@@ -413,16 +403,16 @@ function zaher_render_checkout_popup_row( $index, $popup, $source_products, $tar
 					</div>
 				</section>
 
-				<section class="zaher-popup-card__section">
-					<div class="zaher-popup-card__section-header">
-						<p class="zaher-popup-card__eyebrow">Sadržaj</p>
-						<h3>Naslov i tekst popupa</h3>
-						<p>Ovdje upisuješ vlastiti naslov i tekst. Preview i stvarni popup koriste ovaj sadržaj umjesto default copyja.</p>
-					</div>
+					<section class="zaher-popup-card__section">
+						<div class="zaher-popup-card__section-header">
+							<p class="zaher-popup-card__eyebrow">Sadržaj</p>
+							<h3>Naslov i sadržaj popupa</h3>
+							<p>Ovdje upisuješ vlastiti naslov i sadržaj. Preview i stvarni popup koriste ovaj sadržaj umjesto default copyja.</p>
+						</div>
 
-					<div class="zaher-popup-card__grid">
-						<?php foreach ( $custom_fields as $field_key => $field_config ) : ?>
-							<div class="zaher-popup-field<?php echo ! empty( $field_config['wide'] ) ? ' is-wide' : ''; ?>">
+						<div class="zaher-popup-card__grid">
+							<?php foreach ( $custom_fields as $field_key => $field_config ) : ?>
+								<div class="zaher-popup-field<?php echo ! empty( $field_config['wide'] ) ? ' is-wide' : ''; ?>">
 								<label for="zaher-popup-<?php echo esc_attr( $field_key ); ?>-<?php echo esc_attr( $index ); ?>"><?php echo esc_html( $field_config['label'] ); ?></label>
 								<textarea
 									id="zaher-popup-<?php echo esc_attr( $field_key ); ?>-<?php echo esc_attr( $index ); ?>"
@@ -433,32 +423,10 @@ function zaher_render_checkout_popup_row( $index, $popup, $source_products, $tar
 								><?php echo esc_textarea( isset( $custom_copy[ $field_config['templateField'] ] ) ? $custom_copy[ $field_config['templateField'] ] : '' ); ?></textarea>
 								<p class="description"><?php echo esc_html( $field_config['description'] ); ?></p>
 							</div>
-						<?php endforeach; ?>
-					</div>
-				</section>
-
-				<section class="zaher-popup-card__section">
-					<div class="zaher-popup-card__section-header">
-						<p class="zaher-popup-card__eyebrow">Ponašanje</p>
-						<h3>Vrijeme prikaza</h3>
-						<p>Kontroliraš koliko dugo ponuda ostaje aktivna i koliko čekati prije prvog otvaranja.</p>
-					</div>
-
-					<div class="zaher-popup-card__grid zaher-popup-card__grid--compact">
-						<div class="zaher-popup-field">
-							<label for="zaher-popup-timer-<?php echo esc_attr( $index ); ?>">Trajanje odbrojavanja (minuta)</label>
-							<input id="zaher-popup-timer-<?php echo esc_attr( $index ); ?>" type="number" min="1" step="1" name="zaher_checkout_popups[<?php echo esc_attr( $index ); ?>][timer_minutes]" value="<?php echo esc_attr( $timer_minutes ); ?>" data-popup-timer />
-							<p class="description">Default je podešen konzervativno za checkout UX: dovoljno urgentno, bez agresivnog pritiska.</p>
+							<?php endforeach; ?>
 						</div>
-
-						<div class="zaher-popup-field">
-							<label for="zaher-popup-delay-<?php echo esc_attr( $index ); ?>">Kašnjenje prikaza (sekunde)</label>
-							<input id="zaher-popup-delay-<?php echo esc_attr( $index ); ?>" type="number" min="0" step="1" name="zaher_checkout_popups[<?php echo esc_attr( $index ); ?>][delay_seconds]" value="<?php echo esc_attr( $delay_seconds ); ?>" data-popup-delay />
-							<p class="description">Lagani odmak nakon učitavanja checkouta da korisnik prvo uhvati kontekst stranice.</p>
-						</div>
-					</div>
-				</section>
-			</div>
+					</section>
+				</div>
 
 			<aside class="zaher-popup-card__preview-pane">
 				<div class="zaher-popup-card__preview-header">
@@ -485,7 +453,6 @@ function zaher_render_checkout_popup_settings_page() {
 	$coupon_choices  = zaher_get_checkout_popup_coupon_choices();
 	$template_choices = zaher_get_checkout_popup_template_choices();
 	$default_template = zaher_get_checkout_popup_default_template_key();
-	$defaults        = zaher_get_checkout_popup_defaults();
 	$saved_rows      = zaher_get_saved_checkout_popup_rows();
 	$rows            = is_array( $saved_rows ) && ! empty( $saved_rows ) ? array_values( $saved_rows ) : array(
 		array(
@@ -493,8 +460,6 @@ function zaher_render_checkout_popup_settings_page() {
 			'source_product_id' => 0,
 			'target_product_id' => 0,
 			'coupon_code'       => '',
-			'timer_minutes'     => $defaults['timer_minutes'],
-			'delay_seconds'     => $defaults['delay_seconds'],
 			'enabled'           => 1,
 		),
 	);
@@ -506,10 +471,6 @@ function zaher_render_checkout_popup_settings_page() {
 		'coupons'        => $coupon_choices,
 		'templates'      => $template_choices,
 		'defaultTemplateKey' => $default_template,
-		'defaults'       => array(
-			'timerMinutes' => $defaults['timer_minutes'],
-			'delaySeconds' => $defaults['delay_seconds'],
-		),
 		'currency'       => array(
 			'symbol' => $currency_symbol,
 			'after'  => $currency_after,
@@ -964,27 +925,20 @@ function zaher_render_checkout_popup_settings_page() {
 				font-weight: 700;
 				color: #111827;
 			}
-			.zaher-popup-settings .zaher-popup-preview__subtitle,
-			.zaher-popup-settings .zaher-popup-preview__body {
+			.zaher-popup-settings .zaher-popup-preview__subtitle {
 				color: #6b7280;
 				line-height: 1.58;
-			}
-			.zaher-popup-settings .zaher-popup-preview__subtitle {
 				margin: 14px 0 0;
 				font-size: 15px;
-			}
-			.zaher-popup-settings .zaher-popup-preview__body {
-				margin-top: 10px;
-				font-size: 14px;
+				display: grid;
+				gap: 10px;
 			}
 			.zaher-popup-settings .zaher-popup-preview__subtitle p,
-			.zaher-popup-settings .zaher-popup-preview__body p,
-			.zaher-popup-settings .zaher-popup-preview__body ul,
-			.zaher-popup-settings .zaher-popup-preview__body ol {
+			.zaher-popup-settings .zaher-popup-preview__subtitle ul,
+			.zaher-popup-settings .zaher-popup-preview__subtitle ol {
 				margin: 0;
 			}
-			.zaher-popup-settings .zaher-popup-preview__subtitle strong,
-			.zaher-popup-settings .zaher-popup-preview__body strong {
+			.zaher-popup-settings .zaher-popup-preview__subtitle strong {
 				color: #111827;
 			}
 			.zaher-popup-settings .zaher-popup-preview__prices {
@@ -1741,16 +1695,15 @@ function zaher_render_checkout_popup_settings_page() {
 				return priceBox;
 			}
 
-			function getTemplateSource(row) {
-				const defaults = data.templates[data.defaultTemplateKey] || {};
-				const source = {
-					badgeText: defaults.badgeText || '',
-					titleHtml: defaults.titleHtml || '',
-					subtitleHtml: defaults.subtitleHtml || '',
-					bodyHtml: defaults.bodyHtml || '',
-					ctaLabel: defaults.ctaLabel || '',
-					skipLabel: defaults.skipLabel || '',
-				};
+				function getTemplateSource(row) {
+					const defaults = data.templates[data.defaultTemplateKey] || {};
+					const source = {
+						badgeText: defaults.badgeText || '',
+						titleHtml: defaults.titleHtml || '',
+						subtitleHtml: defaults.subtitleHtml || '',
+						ctaLabel: defaults.ctaLabel || '',
+						skipLabel: defaults.skipLabel || '',
+					};
 
 				if (!row) {
 					return source;
@@ -1767,16 +1720,12 @@ function zaher_render_checkout_popup_settings_page() {
 						source.titleHtml = getFieldValue(field);
 					}
 
-					if (key === 'subtitle_html') {
-						source.subtitleHtml = getFieldValue(field);
-					}
+						if (key === 'subtitle_html') {
+							source.subtitleHtml = getFieldValue(field);
+						}
+					});
 
-					if (key === 'body_html') {
-						source.bodyHtml = getFieldValue(field);
-					}
-				});
-
-				return source;
+					return source;
 			}
 
 			function renderPriceMarkup(value, className) {
@@ -1818,15 +1767,14 @@ function zaher_render_checkout_popup_settings_page() {
 					'{{savings_suffix}}': '',
 				};
 
-				return {
-					badgeText: applyPlainText(templateSource.badgeText, replacements),
-					titleHtml: normalizeTitleHtml(applyRichText(templateSource.titleHtml, replacements)),
-					subtitleHtml: applyRichText(templateSource.subtitleHtml, replacements),
-					bodyHtml: applyRichText(templateSource.bodyHtml, replacements),
-					ctaLabel: applyPlainText(templateSource.ctaLabel, replacements),
-					skipLabel: applyPlainText(templateSource.skipLabel, replacements),
-				};
-			}
+					return {
+						badgeText: applyPlainText(templateSource.badgeText, replacements),
+						titleHtml: normalizeTitleHtml(applyRichText(templateSource.titleHtml, replacements)),
+						subtitleHtml: applyRichText(templateSource.subtitleHtml, replacements),
+						ctaLabel: applyPlainText(templateSource.ctaLabel, replacements),
+						skipLabel: applyPlainText(templateSource.skipLabel, replacements),
+					};
+				}
 
 			function buildPreview(row, state) {
 				const previewParts = [];
@@ -1848,16 +1796,12 @@ function zaher_render_checkout_popup_settings_page() {
 				previewParts.push('<div class="zaher-popup-preview__accent" aria-hidden="true"></div>');
 				previewParts.push('<button type="button" class="zaher-popup-preview__close" tabindex="-1" aria-hidden="true">&times;</button>');
 
-				if (content.badgeText) {
-					previewParts.push('<p class="zaher-popup-preview__badge">' + escapeHtml(content.badgeText) + '</p>');
-				}
+					if (content.badgeText) {
+						previewParts.push('<p class="zaher-popup-preview__badge">' + escapeHtml(content.badgeText) + '</p>');
+					}
 
-				previewParts.push('<h4 class="zaher-popup-preview__title">' + (content.titleHtml || 'Ovdje će se prikazati naslov popupa') + '</h4>');
-				previewParts.push('<div class="zaher-popup-preview__subtitle">' + (content.subtitleHtml || 'Odaberi ciljanu pretplatu za pregled popup poruke.') + '</div>');
-
-				if (content.bodyHtml) {
-					previewParts.push('<div class="zaher-popup-preview__body">' + content.bodyHtml + '</div>');
-				}
+					previewParts.push('<h4 class="zaher-popup-preview__title">' + (content.titleHtml || 'Ovdje će se prikazati naslov popupa') + '</h4>');
+					previewParts.push('<div class="zaher-popup-preview__subtitle">' + (content.subtitleHtml || 'Odaberi ciljanu pretplatu za pregled popup sadržaja.') + '</div>');
 
 				previewParts.push('<div class="zaher-popup-preview__prices">');
 				previewParts.push('<div class="zaher-popup-preview__price-row">');

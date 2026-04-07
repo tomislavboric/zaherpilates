@@ -66,18 +66,6 @@ add_filter(
     }
 );
 
-/**
- * Checkout upgrade popup — enqueue & render.
- *
- * Shows timed upgrade popups on configured MemberPress checkout pages.
- */
-function zaher_get_checkout_popup_defaults() {
-    return array(
-        'timer_minutes' => 10,
-        'delay_seconds' => 6,
-    );
-}
-
 function zaher_get_checkout_popup_default_template_key() {
     return 'template_1';
 }
@@ -109,11 +97,24 @@ function zaher_normalize_checkout_popup_title_html( $value ) {
     return trim( $value );
 }
 
+function zaher_merge_checkout_popup_content_html( $primary, $secondary ) {
+    $parts = array();
+
+    foreach ( array( $primary, $secondary ) as $value ) {
+        $value = trim( (string) $value );
+
+        if ( '' !== trim( wp_strip_all_tags( $value ) ) ) {
+            $parts[] = $value;
+        }
+    }
+
+    return implode( "\n", $parts );
+}
+
 function zaher_get_checkout_popup_custom_copy_field_map() {
     return array(
         'custom_title_html'    => 'title_html',
         'custom_subtitle_html' => 'subtitle_html',
-        'custom_body_html'     => 'body_html',
     );
 }
 
@@ -124,13 +125,16 @@ function zaher_get_checkout_popup_row_custom_copy( $row ) {
     $custom_copy  = array(
         'title_html'    => isset( $template['title_html'] ) ? (string) $template['title_html'] : '',
         'subtitle_html' => isset( $template['subtitle_html'] ) ? (string) $template['subtitle_html'] : '',
-        'body_html'     => isset( $template['body_html'] ) ? (string) $template['body_html'] : '',
     );
 
     foreach ( $field_map as $row_key => $template_field ) {
         if ( is_array( $row ) && array_key_exists( $row_key, $row ) ) {
             $custom_copy[ $template_field ] = (string) $row[ $row_key ];
         }
+    }
+
+    if ( is_array( $row ) && array_key_exists( 'custom_body_html', $row ) ) {
+        $custom_copy['subtitle_html'] = zaher_merge_checkout_popup_content_html( $custom_copy['subtitle_html'], $row['custom_body_html'] );
     }
 
     return $custom_copy;
@@ -150,7 +154,6 @@ function zaher_get_checkout_popup_template_choices() {
             'badgeText'             => isset( $template['badge_text'] ) ? (string) $template['badge_text'] : '',
             'titleHtml'             => isset( $template['title_html'] ) ? (string) $template['title_html'] : '',
             'subtitleHtml'          => isset( $template['subtitle_html'] ) ? (string) $template['subtitle_html'] : '',
-            'bodyHtml'              => isset( $template['body_html'] ) ? (string) $template['body_html'] : '',
             'ctaLabel'              => isset( $template['cta_label'] ) ? (string) $template['cta_label'] : '',
             'skipLabel'             => isset( $template['skip_label'] ) ? (string) $template['skip_label'] : '',
         );
@@ -221,7 +224,6 @@ function zaher_find_checkout_popup_product_id_by_url( $url ) {
 }
 
 function zaher_get_legacy_checkout_popup_rows() {
-    $defaults      = zaher_get_checkout_popup_defaults();
     $source_id     = (int) get_option( 'zaher_popup_monthly_product_id', 0 );
     $target_url    = trim( (string) get_option( 'zaher_popup_quarterly_url', '' ) );
     $target_id     = zaher_find_checkout_popup_product_id_by_url( $target_url );
@@ -244,8 +246,6 @@ function zaher_get_legacy_checkout_popup_rows() {
             'source_product_id' => $source_id,
             'target_product_id' => $target_id,
             'coupon_code'       => $coupon_code,
-            'timer_minutes'     => max( 1, (int) get_option( 'zaher_popup_timer_minutes', $defaults['timer_minutes'] ) ),
-            'delay_seconds'     => max( 0, (int) get_option( 'zaher_popup_delay_seconds', $defaults['delay_seconds'] ) ),
             'enabled'           => 1,
         ),
     );
@@ -680,7 +680,6 @@ function zaher_get_checkout_popup_template_content( $template_key, $source_produ
     $content       = array(
         'title_html'    => isset( $template['title_html'] ) ? (string) $template['title_html'] : '',
         'subtitle_html' => isset( $template['subtitle_html'] ) ? (string) $template['subtitle_html'] : '',
-        'body_html'     => isset( $template['body_html'] ) ? (string) $template['body_html'] : '',
     );
     $target_title  = $target_product instanceof MeprProduct ? get_the_title( $target_product->ID ) : '';
     $replacements  = array(
@@ -711,7 +710,6 @@ function zaher_get_checkout_popup_template_content( $template_key, $source_produ
         'badgeText'    => wp_strip_all_tags( strtr( (string) $template['badge_text'], $replacements ) ),
         'titleHtml'    => wp_kses_post( zaher_normalize_checkout_popup_title_html( strtr( $content['title_html'], $replacements ) ) ),
         'subtitleHtml' => wp_kses_post( strtr( $content['subtitle_html'], $replacements ) ),
-        'bodyHtml'     => wp_kses_post( strtr( $content['body_html'], $replacements ) ),
         'ctaLabel'     => wp_strip_all_tags( strtr( (string) $template['cta_label'], $replacements ) ),
         'skipLabel'    => wp_strip_all_tags( strtr( (string) $template['skip_label'], $replacements ) ),
     );
@@ -732,7 +730,6 @@ function zaher_get_checkout_popup_target_url( $target_product, $coupon_code = ''
 }
 
 function zaher_build_checkout_popup_runtime_config( $row ) {
-    $defaults       = zaher_get_checkout_popup_defaults();
     $template_key   = zaher_get_checkout_popup_default_template_key();
     $source_product = zaher_get_checkout_popup_product( isset( $row['source_product_id'] ) ? $row['source_product_id'] : 0 );
     $target_product = zaher_get_checkout_popup_product( isset( $row['target_product_id'] ) ? $row['target_product_id'] : 0 );
@@ -774,6 +771,7 @@ function zaher_build_checkout_popup_runtime_config( $row ) {
 
     return array(
         'sourceProductId'  => (int) $source_product->ID,
+        'sourceUrl'        => $source_product->url(),
         'targetProductId'  => (int) $target_product->ID,
         'offerVersion'     => $offer_version,
         'template'         => $template_content,
@@ -781,8 +779,6 @@ function zaher_build_checkout_popup_runtime_config( $row ) {
         'oldPrice'         => $old_price,
         'newPrice'         => $new_price,
         'priceBox'         => $price_box,
-        'timerMinutes'     => isset( $row['timer_minutes'] ) && '' !== $row['timer_minutes'] ? max( 1, (int) $row['timer_minutes'] ) : $defaults['timer_minutes'],
-        'delaySeconds'     => isset( $row['delay_seconds'] ) && '' !== $row['delay_seconds'] ? max( 0, (int) $row['delay_seconds'] ) : $defaults['delay_seconds'],
     );
 }
 
@@ -846,8 +842,7 @@ function zaher_enqueue_checkout_popup() {
         'foundation',
         'zaherPopupConfig',
         array(
-            'popups'   => $popup_configs,
-            'defaults' => zaher_get_checkout_popup_defaults(),
+            'popups' => $popup_configs,
         )
     );
 }
