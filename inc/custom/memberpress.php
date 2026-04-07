@@ -85,28 +85,46 @@ function zaher_get_checkout_popup_default_template_key() {
 function zaher_get_checkout_popup_templates() {
     return array(
         'template_1' => array(
-            'label'                   => 'Template 1 - Trenutni popup',
+            'label'                   => 'Popup copy',
+            'description'             => 'Osnovni popup s generičkim prodajnim copyjem i automatski izračunatim cijenama.',
             'badge_text'              => 'Ekskluzivna ponuda',
             'title_html'              => 'Prije završetka,<br>pogledaj ovu ponudu',
             'subtitle_html'           => 'Na ovom checkoutu možeš odmah prebaciti kupnju na <strong>povoljniju pretplatu</strong> uz posebnu ponudu dostupnu samo ovdje.',
             'body_html'               => '',
             'cta_label'               => 'Da, želim ovu ponudu',
-            'skip_label'              => 'Ne, ostajem na trenutnoj pretplati',
+            'skip_label'              => 'Ne, ostajem pri {{source_plan_locative_bare}}',
             'recommended_period_type' => '',
             'recommended_period'      => 0,
-        ),
-        'template_2' => array(
-            'label'                   => 'Template 2 - Upgrade offer',
-            'badge_text'              => 'Posebna ponuda',
-            'title_html'              => 'Prijeđi na {{target_plan_accusative}}',
-            'subtitle_html'           => '{{value_sentence_html}}',
-            'body_html'               => '',
-            'cta_label'               => 'Da, želim ovu ponudu',
-            'skip_label'              => 'Ne, ostajem na trenutnoj pretplati',
-            'recommended_period_type' => 'months',
-            'recommended_period'      => 3,
+            'supports_manual_copy'    => false,
         ),
     );
+}
+
+function zaher_get_checkout_popup_custom_copy_field_map() {
+    return array(
+        'custom_title_html'    => 'title_html',
+        'custom_subtitle_html' => 'subtitle_html',
+        'custom_body_html'     => 'body_html',
+    );
+}
+
+function zaher_get_checkout_popup_row_custom_copy( $row ) {
+    $templates    = zaher_get_checkout_popup_templates();
+    $template     = $templates[ zaher_get_checkout_popup_default_template_key() ];
+    $field_map    = zaher_get_checkout_popup_custom_copy_field_map();
+    $custom_copy  = array(
+        'title_html'    => isset( $template['title_html'] ) ? (string) $template['title_html'] : '',
+        'subtitle_html' => isset( $template['subtitle_html'] ) ? (string) $template['subtitle_html'] : '',
+        'body_html'     => isset( $template['body_html'] ) ? (string) $template['body_html'] : '',
+    );
+
+    foreach ( $field_map as $row_key => $template_field ) {
+        if ( is_array( $row ) && array_key_exists( $row_key, $row ) ) {
+            $custom_copy[ $template_field ] = (string) $row[ $row_key ];
+        }
+    }
+
+    return $custom_copy;
 }
 
 function zaher_get_checkout_popup_template_choices() {
@@ -116,8 +134,16 @@ function zaher_get_checkout_popup_template_choices() {
     foreach ( $templates as $key => $template ) {
         $choices[ $key ] = array(
             'label'                 => isset( $template['label'] ) ? (string) $template['label'] : $key,
+            'description'           => isset( $template['description'] ) ? (string) $template['description'] : '',
             'recommendedPeriodType' => isset( $template['recommended_period_type'] ) ? (string) $template['recommended_period_type'] : '',
             'recommendedPeriod'     => isset( $template['recommended_period'] ) ? (int) $template['recommended_period'] : 0,
+            'supportsManualCopy'    => ! empty( $template['supports_manual_copy'] ),
+            'badgeText'             => isset( $template['badge_text'] ) ? (string) $template['badge_text'] : '',
+            'titleHtml'             => isset( $template['title_html'] ) ? (string) $template['title_html'] : '',
+            'subtitleHtml'          => isset( $template['subtitle_html'] ) ? (string) $template['subtitle_html'] : '',
+            'bodyHtml'              => isset( $template['body_html'] ) ? (string) $template['body_html'] : '',
+            'ctaLabel'              => isset( $template['cta_label'] ) ? (string) $template['cta_label'] : '',
+            'skipLabel'             => isset( $template['skip_label'] ) ? (string) $template['skip_label'] : '',
         );
     }
 
@@ -333,6 +359,8 @@ function zaher_get_checkout_popup_plan_label( $product, $case = 'nominative' ) {
         switch ( $case ) {
             case 'accusative':
                 return 'odabranu pretplatu';
+            case 'locative_bare':
+                return 'odabranoj pretplati';
             case 'locative':
                 return 'na odabranoj pretplati';
             case 'genitive':
@@ -347,30 +375,35 @@ function zaher_get_checkout_popup_plan_label( $product, $case = 'nominative' ) {
         'months:1'  => array(
             'nominative' => 'mjesečna pretplata',
             'accusative' => 'mjesečnu pretplatu',
+            'locative_bare' => 'mjesečnoj pretplati',
             'locative'   => 'na mjesečnoj pretplati',
             'genitive'   => 'mjesečne pretplate',
         ),
         'months:3'  => array(
             'nominative' => 'tromjesečna pretplata',
             'accusative' => 'tromjesečnu pretplatu',
+            'locative_bare' => 'tromjesečnoj pretplati',
             'locative'   => 'na tromjesečnoj pretplati',
             'genitive'   => 'tromjesečne pretplate',
         ),
         'months:6'  => array(
             'nominative' => 'polugodišnja pretplata',
             'accusative' => 'polugodišnju pretplatu',
+            'locative_bare' => 'polugodišnjoj pretplati',
             'locative'   => 'na polugodišnjoj pretplati',
             'genitive'   => 'polugodišnje pretplate',
         ),
         'months:12' => array(
             'nominative' => 'godišnja pretplata',
             'accusative' => 'godišnju pretplatu',
+            'locative_bare' => 'godišnjoj pretplati',
             'locative'   => 'na godišnjoj pretplati',
             'genitive'   => 'godišnje pretplate',
         ),
         'years:1'   => array(
             'nominative' => 'godišnja pretplata',
             'accusative' => 'godišnju pretplatu',
+            'locative_bare' => 'godišnjoj pretplati',
             'locative'   => 'na godišnjoj pretplati',
             'genitive'   => 'godišnje pretplate',
         ),
@@ -630,17 +663,23 @@ function zaher_get_checkout_popup_price_box_data( $source_product, $target_produ
     return $price_box;
 }
 
-function zaher_get_checkout_popup_template_content( $template_key, $source_product, $target_product, $coupon_code = '' ) {
+function zaher_get_checkout_popup_template_content( $template_key, $source_product, $target_product, $coupon_code = '', $custom_copy = array() ) {
     $templates     = zaher_get_checkout_popup_templates();
     $default_key   = zaher_get_checkout_popup_default_template_key();
     $template_key  = isset( $templates[ $template_key ] ) ? $template_key : $default_key;
     $template      = $templates[ $template_key ];
+    $content       = array(
+        'title_html'    => isset( $template['title_html'] ) ? (string) $template['title_html'] : '',
+        'subtitle_html' => isset( $template['subtitle_html'] ) ? (string) $template['subtitle_html'] : '',
+        'body_html'     => isset( $template['body_html'] ) ? (string) $template['body_html'] : '',
+    );
     $target_title  = $target_product instanceof MeprProduct ? get_the_title( $target_product->ID ) : '';
     $replacements  = array(
         '{{target_title}}'          => esc_html( $target_title ),
         '{{target_plan_nominative}}' => esc_html( zaher_get_checkout_popup_plan_label( $target_product, 'nominative' ) ),
         '{{target_plan_accusative}}' => esc_html( zaher_get_checkout_popup_plan_label( $target_product, 'accusative' ) ),
         '{{target_plan_genitive}}'   => esc_html( zaher_get_checkout_popup_plan_label( $target_product, 'genitive' ) ),
+        '{{source_plan_locative_bare}}' => esc_html( zaher_get_checkout_popup_plan_label( $source_product, 'locative_bare' ) ),
         '{{source_plan_locative}}'   => esc_html( zaher_get_checkout_popup_plan_label( $source_product, 'locative' ) ),
         '{{value_sentence_html}}'    => zaher_get_checkout_popup_value_sentence_html( $source_product, $target_product, $coupon_code ),
         '{{price_comparison_html}}' => zaher_get_checkout_popup_price_comparison_html( $target_product, $coupon_code ),
@@ -651,13 +690,19 @@ function zaher_get_checkout_popup_template_content( $template_key, $source_produ
         '{{savings_suffix}}'        => '',
     );
 
+    foreach ( $content as $key => $value ) {
+        if ( is_array( $custom_copy ) && array_key_exists( $key, $custom_copy ) ) {
+            $content[ $key ] = (string) $custom_copy[ $key ];
+        }
+    }
+
     return array(
         'key'          => $template_key,
         'label'        => isset( $template['label'] ) ? (string) $template['label'] : $template_key,
         'badgeText'    => wp_strip_all_tags( strtr( (string) $template['badge_text'], $replacements ) ),
-        'titleHtml'    => wp_kses_post( strtr( (string) $template['title_html'], $replacements ) ),
-        'subtitleHtml' => wp_kses_post( strtr( (string) $template['subtitle_html'], $replacements ) ),
-        'bodyHtml'     => wp_kses_post( strtr( (string) $template['body_html'], $replacements ) ),
+        'titleHtml'    => wp_kses_post( strtr( $content['title_html'], $replacements ) ),
+        'subtitleHtml' => wp_kses_post( strtr( $content['subtitle_html'], $replacements ) ),
+        'bodyHtml'     => wp_kses_post( strtr( $content['body_html'], $replacements ) ),
         'ctaLabel'     => wp_strip_all_tags( strtr( (string) $template['cta_label'], $replacements ) ),
         'skipLabel'    => wp_strip_all_tags( strtr( (string) $template['skip_label'], $replacements ) ),
     );
@@ -679,10 +724,11 @@ function zaher_get_checkout_popup_target_url( $target_product, $coupon_code = ''
 
 function zaher_build_checkout_popup_runtime_config( $row ) {
     $defaults       = zaher_get_checkout_popup_defaults();
-    $template_key   = isset( $row['template_key'] ) ? sanitize_key( $row['template_key'] ) : zaher_get_checkout_popup_default_template_key();
+    $template_key   = zaher_get_checkout_popup_default_template_key();
     $source_product = zaher_get_checkout_popup_product( isset( $row['source_product_id'] ) ? $row['source_product_id'] : 0 );
     $target_product = zaher_get_checkout_popup_product( isset( $row['target_product_id'] ) ? $row['target_product_id'] : 0 );
     $coupon_code    = isset( $row['coupon_code'] ) ? sanitize_text_field( $row['coupon_code'] ) : '';
+    $custom_copy    = zaher_get_checkout_popup_row_custom_copy( $row );
     $enabled        = ! isset( $row['enabled'] ) || ! empty( $row['enabled'] );
 
     if ( ! $enabled ) {
@@ -697,7 +743,7 @@ function zaher_build_checkout_popup_runtime_config( $row ) {
         $coupon_code = '';
     }
 
-    $template_content = zaher_get_checkout_popup_template_content( $template_key, $source_product, $target_product, $coupon_code );
+    $template_content = zaher_get_checkout_popup_template_content( $template_key, $source_product, $target_product, $coupon_code, $custom_copy );
     $pricing_data     = zaher_get_checkout_popup_pricing_data( $target_product, $coupon_code );
     $price_box        = zaher_get_checkout_popup_price_box_data( $source_product, $target_product, $coupon_code );
     $target_url       = zaher_get_checkout_popup_target_url( $target_product, $coupon_code );

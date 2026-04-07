@@ -47,7 +47,7 @@
         </a>
 
         <button type="button" class="zaher-popup__skip js-popup-skip">
-            Ne, ostajem na trenutnoj pretplati
+            Ne, ostajem pri originalnoj pretplati
         </button>
 
     </div>
