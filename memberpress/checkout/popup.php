@@ -16,7 +16,7 @@
             Prije završetka,<br>pogledaj ovu ponudu
         </h2>
 
-        <div class="zaher-popup__description js-popup-subtitle" id="zaher-popup-description">
+        <div class="zaher-popup__description" id="zaher-popup-description">
             Na ovom checkoutu možeš odmah prebaciti kupnju na <strong>povoljniju pretplatu</strong> uz posebnu ponudu dostupnu samo ovdje.
         </div>
 

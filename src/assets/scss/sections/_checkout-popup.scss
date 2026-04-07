@@ -138,8 +138,6 @@ body.zaher-popup-open {
 
 .zaher-popup__description {
   width: 100%;
-  display: grid;
-  gap: 0.55rem;
   text-align: center;
   font-size: 0.98rem;
   color: $gray-600;
@@ -150,6 +148,18 @@ body.zaher-popup-open {
   ul,
   ol {
     margin: 0;
+  }
+
+  p + p,
+  p + ul,
+  p + ol,
+  ul + p,
+  ul + ul,
+  ul + ol,
+  ol + p,
+  ol + ul,
+  ol + ol {
+    margin-top: 0.55rem;
   }
 
   strong {

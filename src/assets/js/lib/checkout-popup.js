@@ -90,7 +90,7 @@
 	const ctaBtn    = popup.querySelector('.js-popup-cta-btn');
 	const card      = popup.querySelector('.zaher-popup__card');
 	const titleEl   = popup.querySelector('.js-popup-title');
-	const subtitleEl = popup.querySelector('.js-popup-subtitle');
+	const subtitleEl = popup.querySelector('#zaher-popup-description');
 	const priceKickerEl = popup.querySelector('.js-popup-price-kicker');
 	const oldPriceEl = popup.querySelector('.js-popup-old-price');
 	const priceArrowEl = popup.querySelector('.js-popup-price-arrow');
