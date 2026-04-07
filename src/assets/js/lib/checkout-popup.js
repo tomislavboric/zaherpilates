@@ -73,7 +73,6 @@
 	const TIMER_KEY   = TIMER_KEY_BASE + '_' + String(OFFER_VERSION);
 	const DISMISSED_KEY = DISMISSED_KEY_BASE + '_' + String(OFFER_VERSION);
 
-	const overlay   = popup.querySelector('.zaher-popup__overlay');
 	const closeBtn  = popup.querySelector('.zaher-popup__close');
 	const skipBtn   = popup.querySelector('.js-popup-skip');
 	const ctaBtn    = popup.querySelector('.js-popup-cta-btn');
@@ -248,20 +247,36 @@
 		intervalId = setInterval(updateCountdown, 1000);
 	}
 
-	function closePopup() {
+	function closePopup(options) {
+		const settings = Object.assign({
+			persistDismissal: false,
+		}, options || {});
+
 		clearInterval(intervalId);
 		popup.classList.remove('is-open');
 		popup.setAttribute('aria-hidden', 'true');
 		document.body.classList.remove('zaher-popup-open');
-		writePersistentValue(DISMISSED_KEY, '1');
+
+		if (settings.persistDismissal) {
+			writePersistentValue(DISMISSED_KEY, '1');
+		}
+
 		restoreFocus();
 	}
 
 	// ── Event listeners ────────────────────────────────────────────────────────
 
-	[closeBtn, skipBtn, overlay].forEach(function (el) {
-		if (el) el.addEventListener('click', closePopup);
-	});
+	if (closeBtn) {
+		closeBtn.addEventListener('click', function () {
+			closePopup();
+		});
+	}
+
+	if (skipBtn) {
+		skipBtn.addEventListener('click', function () {
+			closePopup({ persistDismissal: true });
+		});
+	}
 
 	if (ctaBtn) {
 		ctaBtn.addEventListener('click', function () {
@@ -269,7 +284,7 @@
 		});
 	}
 
-	// Prevent overlay-click from firing when clicking inside the card.
+	// Keep interaction contained inside the modal while it is open.
 	if (card) {
 		card.addEventListener('click', function (e) { e.stopPropagation(); });
 	}
@@ -280,12 +295,6 @@
 		let lastElement;
 
 		if (!popup.classList.contains('is-open')) {
-			return;
-		}
-
-		if (e.key === 'Escape') {
-			e.preventDefault();
-			closePopup();
 			return;
 		}
 

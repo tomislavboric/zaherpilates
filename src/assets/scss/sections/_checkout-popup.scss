@@ -51,7 +51,7 @@ body.zaher-popup-open {
   -webkit-backdrop-filter: blur(4px);
   opacity: 0;
   transition: opacity 0.35s ease;
-  cursor: pointer;
+  cursor: default;
 }
 
 // ── Card ────────────────────────────────────────────────────────────────────
