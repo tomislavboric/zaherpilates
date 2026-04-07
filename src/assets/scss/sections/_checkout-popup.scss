@@ -136,7 +136,7 @@ body.zaher-popup-open {
 
 // ── Subtitle ─────────────────────────────────────────────────────────────────
 
-.zaher-popup__subtitle {
+.zaher-popup__description {
   width: 100%;
   display: grid;
   gap: 0.55rem;
@@ -156,12 +156,6 @@ body.zaher-popup-open {
     color: $gray-800;
     font-weight: 700;
   }
-}
-
-.zaher-popup__description {
-  display: grid;
-  gap: 0.55rem;
-  width: 100%;
 }
 
 // ── Price comparison ─────────────────────────────────────────────────────────

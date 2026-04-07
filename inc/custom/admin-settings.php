@@ -1868,6 +1868,9 @@ function zaher_render_checkout_popup_settings_page() {
 					quicktags: true,
 					tinymce: {
 						wpautop: true,
+						forced_root_block: 'p',
+						force_p_newlines: true,
+						force_br_newlines: false,
 						menubar: false,
 						branding: false,
 						statusbar: false,
