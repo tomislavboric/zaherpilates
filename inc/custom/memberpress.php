@@ -155,7 +155,7 @@ add_filter(
 
                 $class = 'mepr-price-box-benefits-item' . ( $is_muted ? ' is-muted' : '' );
 
-                return '<div class="' . esc_attr( $class ) . '">' . zaher_format_price_box_benefit_text( $benefit ) . '</div>';
+                return '<div class="' . esc_attr( $class ) . '"><span class="mepr-price-box-benefit-text">' . zaher_format_price_box_benefit_text( $benefit ) . '</span></div>';
             },
             $output
         );
