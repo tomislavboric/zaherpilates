@@ -66,6 +66,77 @@ add_filter(
     }
 );
 
+add_filter(
+    'gettext',
+    function( $translation, $text, $domain ) {
+        if ( 'memberpress' === $domain && 'Most Popular' === $text ) {
+            return 'Najpovoljnije';
+        }
+
+        return $translation;
+    },
+    20,
+    3
+);
+
+add_filter(
+    'mepr-group-page-item-output',
+    function( $output ) {
+        $output = preg_replace(
+            '/class="mepr-price-box([^"]*)"/',
+            'class="mepr-price-box pricing-plans__card$1"',
+            $output,
+            1
+        );
+
+        $output = preg_replace_callback(
+            '#<div class="mepr-price-box-price">\s*(.*?)\s*</div>#s',
+            function( $matches ) {
+                $price = trim( wp_strip_all_tags( $matches[1] ) );
+
+                if ( '' === $price ) {
+                    return $matches[0];
+                }
+
+                $parts  = preg_split( '#\s*/\s*#', $price, 2 );
+                $amount = preg_replace( '/(?<=\d)\.(?=\d{2}\b)/', ',', trim( $parts[0] ) );
+                $term   = isset( $parts[1] ) ? trim( $parts[1] ) : '';
+
+                $html  = '<div class="mepr-price-box-price">';
+                $html .= '<span class="mepr-price-box-price-amount">' . esc_html( $amount ) . '</span>';
+
+                if ( '' !== $term ) {
+                    $html .= ' <span class="mepr-price-box-price-term">/ ' . esc_html( $term ) . '</span>';
+                }
+
+                $html .= '</div>';
+
+                return $html;
+            },
+            $output
+        );
+
+        $output = preg_replace_callback(
+            '#<div class="mepr-price-box-benefits-item">(.*?)</div>#s',
+            function( $matches ) {
+                $benefit  = trim( $matches[1] );
+                $is_muted = preg_match( '/^\s*(?:\[x\]|\[no\]|x\s|×|✕|-|–)\s*/i', wp_strip_all_tags( $benefit ) );
+
+                if ( $is_muted ) {
+                    $benefit = preg_replace( '/^\s*(?:\[x\]|\[no\]|x\s|×|✕|-|–)\s*/iu', '', $benefit );
+                }
+
+                $class = 'mepr-price-box-benefits-item' . ( $is_muted ? ' is-muted' : '' );
+
+                return '<div class="' . esc_attr( $class ) . '">' . $benefit . '</div>';
+            },
+            $output
+        );
+
+        return $output;
+    }
+);
+
 function zaher_get_checkout_popup_default_template_key() {
     return 'template_1';
 }

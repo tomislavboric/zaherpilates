@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZaherPilates – Prijedlog redesigna</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ─── Brand Tokens ─── */
+  :root {
+    --primary:     #c79288;
+    --primary-dk:  #b47f75;
+    --primary-lt:  #f0e4e1;
+    --gray-50:     #FAFAF9;
+    --gray-100:    #F5F5F4;
+    --gray-200:    #E7E5E4;
+    --gray-300:    #D7D3D0;
+    --gray-400:    #A9A29D;
+    --gray-500:    #79716B;
+    --gray-600:    #57534E;
+    --gray-800:    #292524;
+    --gray-900:    #1C1917;
+    --radius:      8px;
+    --radius-lg:   12px;
+    --font:        'Poppins', sans-serif;
+    --transition:  all .18s ease;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    font-size: 15px;
+    color: var(--gray-600);
+    background: #fff;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── Page Switcher ─── */
+  .page-switcher {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    gap: 8px;
+    background: var(--gray-900);
+    padding: 6px;
+    border-radius: 100px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.25);
+  }
+  .page-switcher button {
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 100px;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    color: var(--gray-400);
+    transition: var(--transition);
+    letter-spacing: .02em;
+  }
+  .page-switcher button.active {
+    background: #fff;
+    color: var(--gray-900);
+  }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ─── Shared Header ─── */
+  .site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 40px;
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .site-logo {
+    font-family: var(--font);
+    font-size: 22px;
+    font-weight: 300;
+    color: var(--gray-900);
+    letter-spacing: -.03em;
+    text-decoration: none;
+  }
+  .site-logo strong { font-weight: 700; }
+  .site-nav { display: flex; gap: 28px; align-items: center; }
+  .site-nav a {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--gray-600);
+    text-decoration: none;
+    transition: var(--transition);
+  }
+  .site-nav a:hover { color: var(--gray-900); }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 22px;
+    border-radius: var(--radius);
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    border: none;
+    text-decoration: none;
+    line-height: 1;
+  }
+  .btn-primary {
+    background: var(--primary);
+    color: #fff;
+  }
+  .btn-primary:hover { background: var(--primary-dk); color: #fff; }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--gray-300);
+    color: var(--gray-800);
+  }
+  .btn-outline:hover { border-color: var(--gray-400); }
+  .btn-dark {
+    background: var(--gray-900);
+    color: #fff;
+  }
+  .btn-dark:hover { background: var(--gray-800); color: #fff; }
+  .btn-lg {
+    padding: 16px 28px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .btn-full { width: 100%; }
+
+
+  /* ═══════════════════════════════
+     PAGE 1 – PRICING / CJENIK
+  ═══════════════════════════════ */
+
+  .pricing-page {
+    background: #fff;
+    min-height: 100vh;
+  }
+
+  .pricing-hero {
+    text-align: center;
+    padding: 72px 40px 56px;
+    max-width: 620px;
+    margin: 0 auto;
+  }
+  .pricing-hero h1 {
+    font-size: 42px;
+    font-weight: 600;
+    color: var(--gray-900);
+    letter-spacing: -.02em;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  .pricing-hero p {
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--gray-500);
+    line-height: 1.7;
+  }
+
+  /* Billing toggle */
+  .billing-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--primary-lt);
+    color: var(--primary-dk);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 100px;
+    margin-top: 20px;
+  }
+  .billing-note svg { flex-shrink: 0; }
+
+  /* Cards grid */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 40px 80px;
+    align-items: start;
+  }
+
+  .plan-card {
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    background: #fff;
+    overflow: hidden;
+    transition: var(--transition);
+    position: relative;
+  }
+  .plan-card:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 20px rgba(199,146,136,.12);
+  }
+  .plan-card.featured {
+    border-color: var(--primary);
+    border-width: 1.5px;
+  }
+
+  /* Badge */
+  .plan-badge {
+    background: var(--primary);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 5px 0 6px;
+  }
+
+  .plan-body { padding: 28px 24px 24px; }
+
+  .plan-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 4px;
+  }
+  .plan-tagline {
+    font-size: 13px;
+    color: var(--gray-400);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  .plan-price {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-bottom: 6px;
+  }
+  .plan-price-amount {
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--gray-900);
+    letter-spacing: -.02em;
+  }
+  .plan-price-period {
+    font-size: 13px;
+    color: var(--gray-400);
+    font-weight: 400;
+  }
+
+  .plan-savings {
+    font-size: 12px;
+    color: var(--primary-dk);
+    font-weight: 500;
+    margin-bottom: 24px;
+    min-height: 18px;
+  }
+
+  .plan-divider {
+    height: 1px;
+    background: var(--gray-100);
+    margin: 0 -24px 20px;
+  }
+
+  .plan-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .plan-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13.5px;
+    color: var(--gray-600);
+    line-height: 1.5;
+  }
+  .plan-features li svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--primary);
+  }
+  .plan-features li.muted {
+    color: var(--gray-400);
+  }
+  .plan-features li.muted svg {
+    color: var(--gray-300);
+  }
+  .plan-features li strong {
+    font-weight: 500;
+    color: var(--gray-800);
+  }
+
+  .plan-cta-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: var(--radius);
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    border: none;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+  }
+  .plan-cta-btn.primary-btn {
+    background: var(--primary);
+    color: #fff;
+  }
+  .plan-cta-btn.primary-btn:hover { background: var(--primary-dk); }
+  .plan-cta-btn.outline-btn {
+    background: transparent;
+    border: 1px solid var(--gray-300);
+    color: var(--gray-800);
+  }
+  .plan-cta-btn.outline-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary-dk);
+  }
+
+  .plan-fine {
+    font-size: 11.5px;
+    color: var(--gray-400);
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  /* FAQ strip */
+  .pricing-footer-strip {
+    border-top: 1px solid var(--gray-100);
+    padding: 32px 40px;
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .guarantee-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--gray-500);
+  }
+  .guarantee-item svg { color: var(--primary); flex-shrink: 0; }
+
+
+  /* ═══════════════════════════════
+     PAGE 2 – CHECKOUT
+  ═══════════════════════════════ */
+
+  .checkout-page {
+    background: var(--gray-50);
+    min-height: 100vh;
+  }
+
+  .checkout-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 40px;
+    background: #fff;
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .checkout-header-back {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--gray-400);
+    text-decoration: none;
+    transition: var(--transition);
+  }
+  .checkout-header-back:hover { color: var(--gray-600); }
+
+  .checkout-steps {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--gray-400);
+  }
+  .checkout-steps .step { color: var(--gray-400); }
+  .checkout-steps .step.active { color: var(--primary-dk); font-weight: 600; }
+  .checkout-steps .sep { color: var(--gray-300); }
+
+  .checkout-layout {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 0;
+    max-width: 1060px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+    gap: 32px;
+    align-items: start;
+  }
+
+  /* ── Left: Order Summary ── */
+  .order-summary {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    position: sticky;
+    top: 32px;
+  }
+
+  .order-plan-header {
+    background: var(--primary-lt);
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .order-plan-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    background: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .order-plan-icon svg { color: #fff; }
+  .order-plan-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--gray-900);
+  }
+  .order-plan-sub {
+    font-size: 12px;
+    color: var(--primary-dk);
+    font-weight: 500;
+    margin-top: 2px;
+  }
+
+  .order-price-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--gray-100);
+  }
+  .order-price-label { font-size: 13px; color: var(--gray-500); }
+  .order-price-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--gray-900);
+    letter-spacing: -.02em;
+  }
+  .order-price-period {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--gray-400);
+    margin-left: 3px;
+  }
+
+  .order-features {
+    padding: 16px 24px 20px;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    border-bottom: 1px solid var(--gray-100);
+  }
+  .order-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    font-size: 13px;
+    color: var(--gray-600);
+    line-height: 1.4;
+  }
+  .order-features li svg { flex-shrink: 0; color: var(--primary); margin-top: 2px; }
+
+  .coupon-row {
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--gray-100);
+  }
+  .coupon-toggle {
+    background: none;
+    border: none;
+    font-family: var(--font);
+    font-size: 13px;
+    color: var(--gray-500);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0;
+    transition: var(--transition);
+  }
+  .coupon-toggle:hover { color: var(--gray-800); }
+  .coupon-input-row {
+    display: none;
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+  }
+  .coupon-input-row input {
+    flex: 1;
+    padding: 9px 12px;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius);
+    font-family: var(--font);
+    font-size: 13px;
+    color: var(--gray-800);
+    outline: none;
+  }
+  .coupon-input-row input:focus { border-color: var(--primary); }
+  .coupon-input-row button {
+    padding: 9px 14px;
+    background: var(--gray-900);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .order-trust {
+    padding: 16px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .trust-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 12.5px;
+    color: var(--gray-500);
+  }
+  .trust-item svg { color: var(--primary); flex-shrink: 0; }
+
+  /* ── Right: Form ── */
+  .checkout-form-wrap {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+  }
+
+  .form-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--gray-400);
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--gray-100);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 14px;
+  }
+  .form-group.no-mb { margin-bottom: 0; }
+  .form-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray-700);
+    letter-spacing: .01em;
+  }
+  .form-group input,
+  .form-group select {
+    padding: 11px 14px;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    font-family: var(--font);
+    font-size: 14px;
+    color: var(--gray-900);
+    outline: none;
+    transition: border-color .15s;
+    background: #fff;
+    appearance: none;
+  }
+  .form-group input:focus,
+  .form-group select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(199,146,136,.12);
+  }
+  .form-group input::placeholder { color: var(--gray-300); }
+
+  .form-section-gap { height: 24px; }
+
+  /* Password strength */
+  .password-strength {
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+  }
+  .ps-bar {
+    height: 3px;
+    flex: 1;
+    border-radius: 2px;
+    background: var(--gray-200);
+    transition: background .2s;
+  }
+  .ps-bar.weak { background: #e53e3e; }
+  .ps-bar.medium { background: var(--primary); }
+  .ps-label {
+    font-size: 11px;
+    color: var(--gray-400);
+    margin-top: 4px;
+  }
+
+  /* Payment box */
+  .payment-box {
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+  }
+  .payment-box-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .payment-box-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-800);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .payment-box-title svg { color: var(--primary); }
+  .payment-logos {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+  .card-logo {
+    height: 22px;
+    width: 34px;
+    border: 1px solid var(--gray-200);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: .02em;
+  }
+  .card-logo.visa { color: #1a1f71; }
+  .card-logo.mc { color: #eb001b; }
+  .card-logo.amex { color: #007bc1; }
+
+  .stripe-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--gray-400);
+    margin-top: 10px;
+    justify-content: center;
+  }
+  .stripe-badge svg { color: #6772e5; }
+
+  /* Checkboxes */
+  .checkbox-group {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+  .checkbox-group input[type="checkbox"] {
+    margin-top: 2px;
+    flex-shrink: 0;
+    accent-color: var(--primary);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+  }
+  .checkbox-group label {
+    font-size: 12.5px;
+    color: var(--gray-500);
+    line-height: 1.5;
+    cursor: pointer;
+  }
+  .checkbox-group label a {
+    color: var(--primary-dk);
+    text-decoration: underline;
+  }
+
+  /* Submit */
+  .submit-btn {
+    width: 100%;
+    padding: 17px;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    letter-spacing: .01em;
+    margin-top: 8px;
+  }
+  .submit-btn:hover { background: var(--primary-dk); }
+
+  .form-footer-note {
+    text-align: center;
+    font-size: 11.5px;
+    color: var(--gray-400);
+    margin-top: 12px;
+    line-height: 1.6;
+  }
+  .form-footer-note a { color: var(--gray-500); text-decoration: underline; }
+
+  /* SVG helpers */
+  .check-icon { width: 16px; height: 16px; }
+
+  /* Annotations */
+  .annotation {
+    position: absolute;
+    background: #1C1917;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 9px;
+    border-radius: 100px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .annotation::before {
+    content: '★ ';
+    color: var(--primary);
+  }
+
+  /* Removed badge for diff view */
+  .removed-badge {
+    display: inline-block;
+    background: #fef2f2;
+    color: #dc2626;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  .section-label {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--gray-300);
+    margin: 48px 0 24px;
+  }
+
+  @media (max-width: 900px) {
+    .pricing-grid { grid-template-columns: 1fr; max-width: 420px; }
+    .checkout-layout { grid-template-columns: 1fr; }
+    .order-summary { position: static; }
+    .pricing-hero h1 { font-size: 30px; }
+    .site-header { padding: 18px 20px; }
+    .site-nav { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Page Switcher -->
+<div class="page-switcher">
+  <button class="active" onclick="showPage('pricing', this)">Cjenik</button>
+  <button onclick="showPage('checkout', this)">Checkout</button>
+</div>
+
+
+<!-- ═══════════════════════════════
+     PAGE 1: CJENIK
+═══════════════════════════════ -->
+<div class="page active" id="page-pricing">
+  <div class="pricing-page">
+
+    <!-- Header -->
+    <header class="site-header">
+      <a class="site-logo" href="#"><strong>zaher</strong>pilates</a>
+      <nav class="site-nav">
+        <a href="#">Naslovna</a>
+        <a href="#">LOOP</a>
+        <a href="#">Katalog</a>
+        <a href="#">Postpartum</a>
+        <a href="#">Kontakt</a>
+        <a href="#" class="btn btn-primary" style="font-size:13px; padding:10px 18px;">Prijavi se</a>
+      </nav>
+    </header>
+
+    <!-- Hero -->
+    <div class="pricing-hero">
+      <h1>Članstvo po tvojoj mjeri</h1>
+      <p>S LOOPom nema ograničenja u količini treniranja, nema radnog vremena — tvoj trening je na jedan klik dalje.</p>
+      <div class="billing-note">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Otkaži ili pauziraj u bilo trenutku
+      </div>
+    </div>
+
+    <!-- Cards -->
+    <div class="pricing-grid">
+
+      <!-- Card 1: Mjesečna -->
+      <div class="plan-card">
+        <div class="plan-body">
+          <div class="plan-name">Mjesečna pretplata</div>
+          <div class="plan-tagline">Istraži LOOP bez dugoročne obveze</div>
+          <div class="plan-price">
+            <span class="plan-price-amount">€29,99</span>
+            <span class="plan-price-period">/ mjesec</span>
+          </div>
+          <div class="plan-savings">&nbsp;</div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span><strong>200+ treninga</strong> u galeriji</span>
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Treninzi za <strong>početnice</strong> (Totalna početnica)</span>
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span><strong>BusyBee</strong> – treninzi do 15 minuta</span>
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Treninzi <strong>po fazama ciklusa</strong> (pilates, HIIT, yoga)</span>
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Gostovanja na LOOPu (prehrana, aroma, coaching)</span>
+            </li>
+            <li class="muted">
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              <span>Live događanja</span>
+            </li>
+            <li class="muted">
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              <span>Sve kategorije platforme</span>
+            </li>
+          </ul>
+          <a href="#" class="plan-cta-btn outline-btn">Pretplati se</a>
+          <p class="plan-fine">Naplata svaki mjesec · Otkaži u bilo trenutku</p>
+        </div>
+      </div>
+
+      <!-- Card 2: Tromjesečna -->
+      <div class="plan-card">
+        <div class="plan-body">
+          <div class="plan-name">Tromjesečna pretplata</div>
+          <div class="plan-tagline">Idealno za uspostavljanje rutine</div>
+          <div class="plan-price">
+            <span class="plan-price-amount">€79,99</span>
+            <span class="plan-price-period">/ 3 mjeseca</span>
+          </div>
+          <div class="plan-savings">≈ €26,66/mj · Uštediš 11% vs. mjesečne</div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Sve iz Mjesečne pretplate</span>
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span><strong>Sve kategorije</strong> platforme</span>
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span><strong>Live događanja</strong> na platformi</span>
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Ekskluzivne sezone sadržaja</span>
+            </li>
+            <li class="muted">
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              <span>Besplatni bonus mjesec</span>
+            </li>
+          </ul>
+          <a href="#" class="plan-cta-btn outline-btn">Pretplati se</a>
+          <p class="plan-fine">Naplata svaka 3 mjeseca · Otkaži u bilo trenutku</p>
+        </div>
+      </div>
+
+      <!-- Card 3: Polugodišnja (Featured) -->
+      <div class="plan-card featured">
+        <div class="plan-badge">Najpovoljnije</div>
+        <div class="plan-body">
+          <div class="plan-name">Polugodišnja pretplata</div>
+          <div class="plan-tagline">Maksimalna transformacija, minimalna cijena</div>
+          <div class="plan-price">
+            <span class="plan-price-amount">€149,99</span>
+            <span class="plan-price-period">/ 6 mjeseci</span>
+          </div>
+          <div class="plan-savings">≈ €25/mj · 1 mjesec besplatno!</div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Sve iz Tromjesečne pretplate</span>
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span><strong>Sve kategorije</strong> + live događanja</span>
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span><strong>1 mjesec besplatno</strong> (vrijednost €29,99)</span>
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Prioritetna podrška</span>
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Ekskluzivni sezonski sadržaj</span>
+            </li>
+          </ul>
+          <a href="#" class="plan-cta-btn primary-btn">Pretplati se →</a>
+          <p class="plan-fine">Naplata svakih 6 mjeseci · Otkaži u bilo trenutku</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer strip -->
+    <div class="pricing-footer-strip">
+      <div class="guarantee-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Sigurno plaćanje putem Stripe
+      </div>
+      <div class="guarantee-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Otkaži ili pauziraj u bilo trenutku
+      </div>
+      <div class="guarantee-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        Unaprijedi pretplatu bilo kada
+      </div>
+    </div>
+
+  </div>
+</div><!-- /page-pricing -->
+
+
+<!-- ═══════════════════════════════
+     PAGE 2: CHECKOUT
+═══════════════════════════════ -->
+<div class="page" id="page-checkout">
+  <div class="checkout-page">
+
+    <!-- Checkout Header (minimal — bez navigacije) -->
+    <div class="checkout-header">
+      <a class="checkout-header-back" href="#">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Natrag na cjenik
+      </a>
+      <a class="site-logo" href="#"><strong>zaher</strong>pilates</a>
+      <div class="checkout-steps">
+        <span class="step active">1. Podaci</span>
+        <span class="sep">›</span>
+        <span class="step">2. Plaćanje</span>
+        <span class="sep">›</span>
+        <span class="step">3. Potvrda</span>
+      </div>
+    </div>
+
+    <!-- Layout -->
+    <div class="checkout-layout">
+
+      <!-- LEFT: Order Summary -->
+      <aside class="order-summary">
+
+        <div class="order-plan-header">
+          <div class="order-plan-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <div>
+            <div class="order-plan-name">Polugodišnja pretplata</div>
+            <div class="order-plan-sub">LOOP – ZaherPilates · 1 mj. besplatno</div>
+          </div>
+        </div>
+
+        <div class="order-price-row">
+          <span class="order-price-label">Ukupno danas</span>
+          <div>
+            <span class="order-price-value">€149,99</span>
+            <span class="order-price-period">/ 6 mj.</span>
+          </div>
+        </div>
+
+        <ul class="order-features">
+          <li>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            200+ treninga po fazama ciklusa
+          </li>
+          <li>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Sve kategorije + live događanja
+          </li>
+          <li>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            1 mjesec besplatno uključen
+          </li>
+          <li>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Otkaži ili pauziraj u bilo trenutku
+          </li>
+        </ul>
+
+        <!-- Coupon -->
+        <div class="coupon-row">
+          <button class="coupon-toggle" onclick="toggleCoupon(this)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            Imam kupon
+          </button>
+          <div class="coupon-input-row" id="coupon-input" style="display:none">
+            <input type="text" placeholder="Unesi kôd">
+            <button>Primijeni</button>
+          </div>
+        </div>
+
+        <!-- Trust -->
+        <div class="order-trust">
+          <div class="trust-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Sigurno plaćanje · SSL enkripcija
+          </div>
+          <div class="trust-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            Visa, Mastercard, Amex prihvaćeno
+          </div>
+          <div class="trust-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Pretplata se automatski obnavlja svakih 6 mj.
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- RIGHT: Form -->
+      <div class="checkout-form-wrap">
+
+        <!-- Account -->
+        <div class="form-section-title">Tvoj račun</div>
+
+        <div class="form-row">
+          <div class="form-group no-mb">
+            <label>Ime</label>
+            <input type="text" placeholder="Ana">
+          </div>
+          <div class="form-group no-mb">
+            <label>Prezime</label>
+            <input type="text" placeholder="Horvat">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>E-mail adresa</label>
+          <input type="email" placeholder="ana@primjer.hr">
+        </div>
+
+        <div class="form-group">
+          <label>Lozinka</label>
+          <input type="password" placeholder="Minimalno 8 znakova" oninput="updateStrength(this)">
+          <div class="password-strength">
+            <div class="ps-bar" id="ps1"></div>
+            <div class="ps-bar" id="ps2"></div>
+            <div class="ps-bar" id="ps3"></div>
+            <div class="ps-bar" id="ps4"></div>
+          </div>
+          <span class="ps-label" id="ps-label">Unesi lozinku</span>
+        </div>
+
+        <div class="form-group">
+          <label>Potvrda lozinke</label>
+          <input type="password" placeholder="Ponovi lozinku">
+        </div>
+
+        <div class="form-section-gap"></div>
+
+        <!-- Payment -->
+        <div class="form-section-title">Plaćanje</div>
+
+        <div class="payment-box">
+          <div class="payment-box-header">
+            <div class="payment-box-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+              Kreditna kartica
+            </div>
+            <div class="payment-logos">
+              <div class="card-logo visa">VISA</div>
+              <div class="card-logo mc">MC</div>
+              <div class="card-logo amex">AMEX</div>
+            </div>
+          </div>
+          <!-- Stripe iframe placeholder -->
+          <div style="background:var(--gray-50); border:1px solid var(--gray-200); border-radius:6px; padding:14px 16px; font-size:13px; color:var(--gray-400); display:flex; align-items:center; gap:8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            Stripe Checkout forma se učitava ovdje
+          </div>
+          <div class="stripe-badge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Plaćanje zaštićeno Stripe-om
+          </div>
+        </div>
+
+        <!-- Terms -->
+        <div class="checkbox-group">
+          <input type="checkbox" id="terms">
+          <label for="terms">Prihvaćam <a href="#">Uvjete korištenja</a> i <a href="#">Pravila privatnosti</a></label>
+        </div>
+
+        <!-- Submit -->
+        <button class="submit-btn">
+          Pretplati se · €149,99
+        </button>
+
+        <p class="form-footer-note">
+          Klikom potvrđuješ narudžbu. Pretplata se automatski obnavlja svakih 6 mjeseci.<br>
+          Možeš otkazati u svom korisničkom računu u bilo trenutku.
+        </p>
+
+      </div>
+    </div>
+  </div>
+</div><!-- /page-checkout -->
+
+
+<script>
+  function showPage(id, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.page-switcher button').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    btn.classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function toggleCoupon(btn) {
+    const el = document.getElementById('coupon-input');
+    const open = el.style.display !== 'none';
+    el.style.display = open ? 'none' : 'flex';
+    btn.querySelector('svg').style.transform = open ? '' : 'rotate(90deg)';
+  }
+
+  function updateStrength(input) {
+    const val = input.value;
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+
+    const bars = ['ps1','ps2','ps3','ps4'];
+    const colors = ['weak','weak','medium','medium'];
+    const labels = ['Slaba','Slaba','Dobra','Jaka'];
+
+    bars.forEach((id, i) => {
+      const el = document.getElementById(id);
+      el.className = 'ps-bar';
+      if (i < score) el.classList.add(colors[score - 1] || 'medium');
+    });
+
+    document.getElementById('ps-label').textContent = score > 0 ? labels[score - 1] : 'Unesi lozinku';
+  }
+</script>
+</body>
+</html>

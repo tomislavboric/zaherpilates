@@ -51,7 +51,6 @@
   &__title {
     margin: 0 0 20px;
     font-size: 26px;
-    text-wrap: balance;
     @include breakpoint(large) {
       font-size: 38px;
     }
@@ -85,7 +84,6 @@
   }
   &__desc {
     font-size: 16px;
-    text-wrap: balance;
     @include breakpoint(large) {
       font-size: 18px;
     }
