@@ -79,9 +79,27 @@ add_filter(
     3
 );
 
+function zaher_format_price_box_benefit_text( $benefit ) {
+    $benefit = trim( wp_strip_all_tags( (string) $benefit ) );
+    $parts   = preg_split( '/(\*\*.*?\*\*)/u', $benefit, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY );
+    $html    = '';
+
+    foreach ( $parts as $part ) {
+        if ( preg_match( '/^\*\*(.*?)\*\*$/u', $part, $matches ) ) {
+            $html .= '<strong>' . esc_html( $matches[1] ) . '</strong>';
+        } else {
+            $html .= esc_html( $part );
+        }
+    }
+
+    return $html;
+}
+
 add_filter(
     'mepr-group-page-item-output',
     function( $output ) {
+        $price_note = '';
+
         $output = preg_replace(
             '/class="mepr-price-box([^"]*)"/',
             'class="mepr-price-box pricing-plans__card$1"',
@@ -118,9 +136,18 @@ add_filter(
 
         $output = preg_replace_callback(
             '#<div class="mepr-price-box-benefits-item">(.*?)</div>#s',
-            function( $matches ) {
+            function( $matches ) use ( &$price_note ) {
                 $benefit  = trim( $matches[1] );
-                $is_muted = preg_match( '/^\s*(?:\[x\]|\[no\]|x\s|×|✕|-|–)\s*/i', wp_strip_all_tags( $benefit ) );
+                $plain    = wp_strip_all_tags( $benefit );
+                $is_note  = preg_match( '/^\s*(?:\[note\]|\[price-note\]|\[cijena\])\s*/iu', $plain );
+                $is_muted = preg_match( '/^\s*(?:\[x\]|\[no\]|x\s|×|✕|-|–)\s*/i', $plain );
+
+                if ( $is_note ) {
+                    $benefit    = preg_replace( '/^\s*(?:\[note\]|\[price-note\]|\[cijena\])\s*/iu', '', $benefit );
+                    $price_note = zaher_format_price_box_benefit_text( $benefit );
+
+                    return '';
+                }
 
                 if ( $is_muted ) {
                     $benefit = preg_replace( '/^\s*(?:\[x\]|\[no\]|x\s|×|✕|-|–)\s*/iu', '', $benefit );
@@ -128,10 +155,19 @@ add_filter(
 
                 $class = 'mepr-price-box-benefits-item' . ( $is_muted ? ' is-muted' : '' );
 
-                return '<div class="' . esc_attr( $class ) . '">' . $benefit . '</div>';
+                return '<div class="' . esc_attr( $class ) . '">' . zaher_format_price_box_benefit_text( $benefit ) . '</div>';
             },
             $output
         );
+
+        if ( '' !== $price_note ) {
+            $output = preg_replace(
+                '#(<div class="mepr-price-box-price">.*?</div>)#s',
+                '$1<div class="mepr-price-box-note">' . $price_note . '</div>',
+                $output,
+                1
+            );
+        }
 
         return $output;
     }
