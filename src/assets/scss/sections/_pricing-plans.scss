@@ -266,6 +266,8 @@
       &::before {
         content: "\00d7";
         color: $gray-300;
+        font-size: 20px;
+        line-height: 1;
       }
 
       strong {
