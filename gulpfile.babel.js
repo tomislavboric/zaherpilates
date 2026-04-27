@@ -104,6 +104,8 @@ function sass() {
 // In production, the file is minified
 const webpack = {
   config: {
+    mode: PRODUCTION ? 'production' : 'development',
+    devtool: PRODUCTION ? false : 'inline-source-map',
     module: {
       rules: [
         {
@@ -140,7 +142,7 @@ const webpack = {
   },
 
   watch() {
-    const watchConfig = Object.assign(webpack.config, {
+    const watchConfig = Object.assign({}, webpack.config, {
       watch: true,
       devtool: 'inline-source-map',
     });
@@ -165,7 +167,7 @@ gulp.task('webpack:watch', webpack.watch);
 // In production, the images are compressed
 function images() {
   return gulp.src('src/assets/images/**/*')
-    .pipe(imagemin([
+    .pipe($.if(PRODUCTION, imagemin([
       imagemin.gifsicle({interlaced: true}),
       imagemin.mozjpeg({quality: 100, progressive: true}),
       imagemin.optipng({optimizationLevel: 0}),
@@ -175,7 +177,7 @@ function images() {
           {cleanupIDs: true}
         ]
       })
-    ]))
+    ])))
     .pipe(gulp.dest(PATHS.dist + '/assets/images'));
 }
 
