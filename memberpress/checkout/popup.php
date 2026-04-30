@@ -21,14 +21,14 @@
         </div>
 
         <div class="zaher-popup__prices">
-            <p class="zaher-popup__price-kicker js-popup-price-kicker" hidden>Ponuda</p>
+            <p class="zaher-popup__price-kicker js-popup-price-kicker" hidden></p>
             <div class="zaher-popup__price-row">
-                <div class="zaher-popup__price-old js-popup-old-price">79,99 € / 3 mj.</div>
-                <span class="zaher-popup__price-arrow js-popup-price-arrow" aria-hidden="true">→</span>
-                <div class="zaher-popup__price-new js-popup-new-price">55,99 € <span>/ 3 mj.</span></div>
+                <div class="zaher-popup__price-old js-popup-old-price" hidden></div>
+                <span class="zaher-popup__price-arrow js-popup-price-arrow" aria-hidden="true" hidden>→</span>
+                <div class="zaher-popup__price-new js-popup-new-price"></div>
             </div>
-            <p class="zaher-popup__price-renewal js-popup-price-renewal" hidden>Popust vrijedi za prvi obračun. Nakon toga 79,99 € / 3 mj.</p>
-            <p class="zaher-popup__price-benefit is-primary js-popup-price-benefit-primary" hidden>Štediš 33,98 € kroz isti period.</p>
+            <p class="zaher-popup__price-renewal js-popup-price-renewal" hidden></p>
+            <p class="zaher-popup__price-benefit is-primary js-popup-price-benefit-primary" hidden></p>
         </div>
 
         <div class="zaher-popup__urgency">

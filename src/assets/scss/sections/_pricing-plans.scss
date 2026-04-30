@@ -6,10 +6,6 @@
     padding: 48px 0 72px;
   }
 
-  &__container {
-    max-width: 1080px;
-  }
-
   &__header {
     margin-bottom: 52px;
 
@@ -60,6 +56,123 @@
 
   &__table {
     width: 100%;
+  }
+}
+
+.pricing-plans--subscriber {
+  padding-top: 32px;
+
+  @include breakpoint(medium down) {
+    padding-top: 20px;
+  }
+}
+
+.pricing-status-bar {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  width: 100%;
+  margin: 0 0 8px;
+  padding: 14px 18px;
+  background: $white;
+  border: 1px solid $gray-200;
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+
+  @include breakpoint(medium down) {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px 16px;
+  }
+
+  &__icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    color: $primary-color;
+    background: rgba($primary-color, 0.1);
+    border-radius: 50%;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  &__copy {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  &__label {
+    margin: 0;
+    color: $gray-500;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    line-height: 1.3;
+    text-transform: uppercase;
+  }
+
+  &__plan {
+    margin: 2px 0 0;
+    color: $gray-900;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.4;
+
+    strong {
+      font-weight: 700;
+    }
+  }
+
+  &__extra {
+    margin-left: 6px;
+    color: $gray-500;
+    font-size: 0.8125rem;
+    font-weight: 400;
+  }
+
+  &__meta {
+    margin: 4px 0 0;
+    color: $gray-500;
+    font-size: 0.8125rem;
+    font-weight: 400;
+    line-height: 1.4;
+
+    strong {
+      color: $gray-700;
+      font-weight: 600;
+    }
+  }
+
+  &__cta {
+    flex: 0 0 auto;
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    padding: 9px 16px;
+    color: $gray-800;
+    background: transparent;
+    border: 1.5px solid $gray-300;
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.3;
+    text-decoration: none;
+    transition: border-color 0.15s ease, color 0.15s ease;
+
+    &:hover,
+    &:focus {
+      color: $primary-color;
+      border-color: $primary-color;
+      background: transparent;
+      text-decoration: none;
+    }
   }
 }
 
@@ -127,8 +240,86 @@
       }
     }
 
+    &.is-current-plan {
+      border-color: $gray-300;
+      background: $gray-50;
+
+      &::before {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        z-index: 2;
+        display: inline-flex;
+        gap: 4px;
+        align-items: center;
+        padding: 4px 9px;
+        background: $gray-900;
+        border-radius: 999px;
+        color: $white;
+        content: "\2713  Tvoj plan";
+        font-size: 0.625rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        line-height: 1.2;
+        text-transform: uppercase;
+      }
+    }
+
     @include breakpoint(medium down) {
       min-height: 0;
+    }
+  }
+
+  .mepr-price-box-button--current {
+    width: 100%;
+    margin: 0 !important;
+  }
+
+  .mepr-price-box-savings {
+    display: inline-flex;
+    gap: 5px;
+    align-items: center;
+    align-self: flex-start;
+    margin: 0 24px 14px;
+    padding: 5px 10px;
+    color: darken($success-color, 15%);
+    background: rgba($success-color, 0.1);
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .mepr-price-box-savings-icon {
+    font-size: 0.75rem;
+    line-height: 1;
+  }
+
+  .mepr-price-box-current-manage {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    min-height: 44px;
+    padding: 11px 14px;
+    color: $gray-800;
+    background: transparent;
+    border: 1.5px solid $gray-300;
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.3;
+    text-align: center;
+    text-decoration: none;
+    transition: border-color 150ms ease, color 150ms ease;
+
+    &:hover,
+    &:focus {
+      color: $primary-color;
+      border-color: $primary-color;
+      background: transparent;
+      text-decoration: none;
     }
   }
 
@@ -151,7 +342,6 @@
   .mepr-price-box-head {
     display: flex;
     flex-direction: column;
-    min-height: 198px;
     padding: 30px 24px 26px;
 
     @include breakpoint(medium down) {

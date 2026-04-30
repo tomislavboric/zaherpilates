@@ -36,6 +36,192 @@ function subscription_content_shortcode($atts, $content = null) {
 
 add_shortcode('subscription_content', 'subscription_content_shortcode');
 
+function zaher_apply_minimal_memberpress_checkout_options() {
+    if ( ! class_exists( 'MeprOptions' ) || ! zaher_is_memberpress_checkout_context() ) {
+        return;
+    }
+
+    $mepr_options = MeprOptions::fetch();
+
+    if ( ! is_object( $mepr_options ) ) {
+        return;
+    }
+
+    $mepr_options->username_is_email                = true;
+    $mepr_options->disable_checkout_password_fields = false;
+    $mepr_options->show_fname_lname                 = true;
+    $mepr_options->require_fname_lname              = false;
+    $mepr_options->show_address_fields              = false;
+    $mepr_options->require_address_fields           = false;
+    $mepr_options->show_fields_logged_in_purchases  = false;
+
+    if ( isset( $mepr_options->custom_fields ) && is_array( $mepr_options->custom_fields ) ) {
+        $mepr_options->custom_fields = array();
+    }
+}
+
+add_action( 'init', 'zaher_apply_minimal_memberpress_checkout_options', 1 );
+add_action( 'wp', 'zaher_apply_minimal_memberpress_checkout_options', 1 );
+
+add_filter( 'mepr-checkout-no-billing-address', '__return_true' );
+
+function zaher_get_billing_period_text( $product ) {
+    if ( ! $product instanceof MeprProduct || $product->is_one_time_payment() ) {
+        return '';
+    }
+
+    $period      = (int) $product->period;
+    $period_type = (string) $product->period_type;
+
+    switch ( $period_type ) {
+        case 'months':
+            if ( 1 === $period ) {
+                return __( 'Naplaćuje se mjesečno', 'zaherpilates' );
+            }
+
+            if ( 12 === $period ) {
+                return __( 'Naplaćuje se godišnje', 'zaherpilates' );
+            }
+
+            if ( $period >= 2 && $period <= 4 ) {
+                /* translators: %d: number of months between charges */
+                return sprintf( __( 'Naplaćuje se svaka %d mjeseca', 'zaherpilates' ), $period );
+            }
+
+            /* translators: %d: number of months between charges */
+            return sprintf( __( 'Naplaćuje se svakih %d mjeseci', 'zaherpilates' ), $period );
+
+        case 'years':
+            if ( 1 === $period ) {
+                return __( 'Naplaćuje se godišnje', 'zaherpilates' );
+            }
+
+            /* translators: %d: number of years between charges */
+            return sprintf( __( 'Naplaćuje se svake %d godine', 'zaherpilates' ), $period );
+
+        case 'weeks':
+            if ( 1 === $period ) {
+                return __( 'Naplaćuje se tjedno', 'zaherpilates' );
+            }
+
+            /* translators: %d: number of weeks between charges */
+            return sprintf( __( 'Naplaćuje se svakih %d tjedana', 'zaherpilates' ), $period );
+
+        case 'days':
+            if ( 1 === $period ) {
+                return __( 'Naplaćuje se dnevno', 'zaherpilates' );
+            }
+
+            /* translators: %d: number of days between charges */
+            return sprintf( __( 'Naplaćuje se svakih %d dana', 'zaherpilates' ), $period );
+    }
+
+    return '';
+}
+
+function zaher_get_checkout_benefits( $product ) {
+    $benefits = array();
+
+    if ( $product instanceof MeprProduct && is_array( $product->pricing_benefits ) ) {
+        foreach ( $product->pricing_benefits as $raw_benefit ) {
+            $raw_benefit = trim( (string) $raw_benefit );
+
+            if ( '' === $raw_benefit ) {
+                continue;
+            }
+
+            $plain = wp_strip_all_tags( $raw_benefit );
+
+            if ( preg_match( '/^\s*(?:\[note\]|\[price-note\]|\[cijena\])\s*/iu', $plain ) ) {
+                continue;
+            }
+
+            if ( preg_match( '/^\s*(?:\[x\]|\[no\]|x\s|×|✕|-|–)\s*/iu', $plain ) ) {
+                continue;
+            }
+
+            $benefits[] = zaher_format_price_box_benefit_text( $raw_benefit );
+        }
+    }
+
+    if ( empty( $benefits ) ) {
+        $is_recurring = $product instanceof MeprProduct && method_exists( $product, 'is_one_time_payment' )
+            ? ! $product->is_one_time_payment()
+            : false;
+        $has_trial = $product instanceof MeprProduct && ! empty( $product->trial ) && (int) $product->trial_days > 0;
+
+        $benefits[] = esc_html__( '200+ treninga po fazama ciklusa', 'zaherpilates' );
+        $benefits[] = esc_html__( 'Sve kategorije + live događanja', 'zaherpilates' );
+
+        if ( $has_trial ) {
+            $trial_days = (int) $product->trial_days;
+            $benefits[] = esc_html(
+                sprintf(
+                    /* translators: %d: number of trial days */
+                    _n( '%d dan probnog razdoblja uključen', '%d dana probnog razdoblja uključeno', $trial_days, 'zaherpilates' ),
+                    $trial_days
+                )
+            );
+        }
+
+        if ( $is_recurring ) {
+            $benefits[] = esc_html__( 'Otkaži u bilo kojem trenutku', 'zaherpilates' );
+        }
+    }
+
+    $custom = $product instanceof MeprProduct ? get_post_meta( $product->ID, '_zaher_checkout_benefits', true ) : '';
+
+    if ( is_string( $custom ) && '' !== trim( $custom ) ) {
+        $lines     = preg_split( "/\r\n|\r|\n/", $custom );
+        $lines     = array_values( array_filter( array_map( 'trim', (array) $lines ) ) );
+        $overrides = array();
+
+        foreach ( $lines as $line ) {
+            $overrides[] = zaher_format_price_box_benefit_text( $line );
+        }
+
+        if ( ! empty( $overrides ) ) {
+            $benefits = $overrides;
+        }
+    }
+
+    return apply_filters( 'zaher_checkout_benefits', $benefits, $product );
+}
+
+function zaher_validate_memberpress_checkout_password_length( $errors ) {
+    if ( ! isset( $_POST['mepr_process_signup_form'], $_POST['mepr_product_id'] ) ) {
+        return $errors;
+    }
+
+    if ( class_exists( 'MeprUtils' ) && MeprUtils::is_user_logged_in() ) {
+        return $errors;
+    }
+
+    if ( class_exists( 'MeprOptions' ) ) {
+        $mepr_options = MeprOptions::fetch();
+
+        if ( is_object( $mepr_options ) && true === $mepr_options->disable_checkout_password_fields ) {
+            return $errors;
+        }
+    }
+
+    $password = isset( $_POST['mepr_user_password'] ) ? (string) wp_unslash( $_POST['mepr_user_password'] ) : '';
+
+    if ( '' === $password ) {
+        return $errors;
+    }
+
+    $password_length = function_exists( 'mb_strlen' ) ? mb_strlen( $password ) : strlen( $password );
+
+    if ( $password_length < 8 ) {
+        $errors['mepr_user_password'] = __( 'Lozinka mora imati najmanje 8 znakova.', 'zaherpilates' );
+    }
+
+    return $errors;
+}
+
+add_filter( 'mepr-validate-signup', 'zaher_validate_memberpress_checkout_password_length', 20 );
+
 add_action(
     'wp_enqueue_scripts',
     function() {
@@ -51,11 +237,12 @@ add_action(
             wp_enqueue_style(
                 'my-mepr-checkout-style',
                 get_stylesheet_directory_uri() . '/dist/assets/css/' . foundationpress_asset_path( 'app.css' ),
-                [],
+                array( 'mp-pro-checkout' ),
                 wp_get_theme()->get( 'Version' )
             );
         }
-    }
+    },
+    1000001
 );
 
 add_filter(
@@ -69,14 +256,46 @@ add_filter(
 add_filter(
     'gettext',
     function( $translation, $text, $domain ) {
-        if ( 'memberpress' === $domain && 'Most Popular' === $text ) {
-            return 'Najpovoljnije';
+        if ( 'memberpress' !== $domain ) {
+            return $translation;
+        }
+
+        $map = array(
+            'Most Popular'   => 'Najpovoljnije',
+            'Free forever'   => 'Besplatno zauvijek',
+            'with coupon'    => 'uz kupon',
+            ' with coupon '  => ' uz kupon ',
+        );
+
+        if ( isset( $map[ $text ] ) ) {
+            return $map[ $text ];
         }
 
         return $translation;
     },
     20,
     3
+);
+
+add_filter(
+    'gettext_with_context',
+    function( $translation, $text, $context, $domain ) {
+        if ( 'memberpress' !== $domain ) {
+            return $translation;
+        }
+
+        if ( 'Free forever' === $text ) {
+            return 'Besplatno zauvijek';
+        }
+
+        if ( 'with coupon' === $text ) {
+            return 'uz kupon';
+        }
+
+        return $translation;
+    },
+    20,
+    4
 );
 
 function zaher_format_price_box_benefit_text( $benefit ) {
@@ -95,10 +314,321 @@ function zaher_format_price_box_benefit_text( $benefit ) {
     return $html;
 }
 
+function zaher_get_plan_months_count( $product ) {
+    if ( ! $product instanceof MeprProduct || $product->is_one_time_payment() ) {
+        return 0;
+    }
+
+    $period = (int) $product->period;
+
+    if ( $period <= 0 ) {
+        return 0;
+    }
+
+    switch ( (string) $product->period_type ) {
+        case 'months':
+            return $period;
+        case 'years':
+            return $period * 12;
+        case 'weeks':
+            return (int) round( $period / 4.345 );
+        case 'days':
+            return (int) round( $period / 30.4 );
+    }
+
+    return 0;
+}
+
+function zaher_user_has_upgrade_available() {
+    if ( ! is_user_logged_in() || ! class_exists( 'MeprProduct' ) ) {
+        return false;
+    }
+
+    $sub_data = zaher_get_user_active_subscription_data();
+
+    if ( empty( $sub_data['active_ids'] ) || ! $sub_data['primary_product'] instanceof MeprProduct ) {
+        return false;
+    }
+
+    $current = $sub_data['primary_product'];
+    $group   = method_exists( $current, 'group' ) ? $current->group() : null;
+
+    if ( ! $group instanceof MeprGroup ) {
+        return false;
+    }
+
+    $products = $group->products();
+
+    if ( empty( $products ) ) {
+        return false;
+    }
+
+    $current_months = zaher_get_plan_months_count( $current );
+
+    foreach ( $products as $product ) {
+        if ( ! $product instanceof MeprProduct || (int) $product->ID === (int) $current->ID ) {
+            continue;
+        }
+
+        if ( 'publish' !== get_post_status( $product->ID ) ) {
+            continue;
+        }
+
+        if ( zaher_get_plan_months_count( $product ) > $current_months ) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function zaher_get_plan_monthly_price( $product ) {
+    if ( ! $product instanceof MeprProduct || $product->is_one_time_payment() ) {
+        return 0.0;
+    }
+
+    $period = (int) $product->period;
+
+    if ( $period <= 0 ) {
+        return 0.0;
+    }
+
+    $months = 0.0;
+
+    switch ( (string) $product->period_type ) {
+        case 'months':
+            $months = (float) $period;
+            break;
+        case 'years':
+            $months = (float) $period * 12.0;
+            break;
+        case 'weeks':
+            $months = (float) $period / 4.345;
+            break;
+        case 'days':
+            $months = (float) $period / 30.4;
+            break;
+    }
+
+    if ( $months <= 0 ) {
+        return 0.0;
+    }
+
+    return (float) $product->price / $months;
+}
+
+function zaher_format_eur_amount( $amount ) {
+    return '€' . number_format( (float) $amount, 2, ',', '.' );
+}
+
+function zaher_get_plan_savings_text( $current_product, $other_product ) {
+    $current_monthly = zaher_get_plan_monthly_price( $current_product );
+    $other_monthly   = zaher_get_plan_monthly_price( $other_product );
+
+    if ( $current_monthly <= 0 || $other_monthly <= 0 ) {
+        return '';
+    }
+
+    $monthly_savings = $current_monthly - $other_monthly;
+
+    if ( $monthly_savings <= 0.005 ) {
+        return '';
+    }
+
+    $annual_savings = $monthly_savings * 12.0;
+
+    /* translators: %s: amount saved per year */
+    return sprintf( __( 'Štediš %s godišnje', 'zaherpilates' ), zaher_format_eur_amount( $annual_savings ) );
+}
+
+function zaher_get_user_active_subscription_data() {
+    $data = array(
+        'is_logged_in'    => false,
+        'active_ids'      => array(),
+        'primary_product' => null,
+        'next_billing'    => '',
+        'account_url'     => '',
+    );
+
+    if ( ! is_user_logged_in() || ! class_exists( 'MeprUtils' ) ) {
+        return $data;
+    }
+
+    $user = MeprUtils::get_currentuserinfo();
+
+    if ( ! $user || empty( $user->ID ) ) {
+        return $data;
+    }
+
+    $data['is_logged_in'] = true;
+    $active_ids           = $user->active_product_subscriptions( 'ids' );
+    $data['active_ids']   = array_values( array_unique( array_map( 'intval', (array) $active_ids ) ) );
+
+    if ( ! empty( $data['active_ids'] ) ) {
+        $first_id = $data['active_ids'][0];
+        $product  = new MeprProduct( $first_id );
+
+        if ( ! empty( $product->ID ) ) {
+            $data['primary_product'] = $product;
+        }
+
+        $txns = $user->active_product_subscriptions( 'transactions' );
+
+        if ( is_array( $txns ) && ! empty( $txns ) ) {
+            foreach ( $txns as $txn ) {
+                if ( (int) $txn->product_id !== $first_id ) {
+                    continue;
+                }
+
+                if ( empty( $txn->expires_at ) || '0000-00-00 00:00:00' === $txn->expires_at ) {
+                    break;
+                }
+
+                $timestamp = strtotime( $txn->expires_at );
+
+                if ( $timestamp ) {
+                    $data['next_billing'] = date_i18n( 'd.m.Y', $timestamp );
+                }
+
+                break;
+            }
+        }
+    }
+
+    if ( class_exists( 'MeprOptions' ) ) {
+        $mepr_options = MeprOptions::fetch();
+
+        if ( is_object( $mepr_options ) && ! empty( $mepr_options->account_page_id ) ) {
+            $data['account_url'] = add_query_arg( 'action', 'subscriptions', get_permalink( (int) $mepr_options->account_page_id ) );
+        }
+    }
+
+    return $data;
+}
+
+function zaher_render_pricing_status_bar() {
+    $data = zaher_get_user_active_subscription_data();
+
+    if ( ! $data['is_logged_in'] || empty( $data['active_ids'] ) || ! $data['primary_product'] instanceof MeprProduct ) {
+        return '';
+    }
+
+    $plan_title  = get_the_title( $data['primary_product']->ID );
+    $count       = count( $data['active_ids'] );
+    $extra_count = $count - 1;
+    $manage_url  = $data['account_url'] ? $data['account_url'] : home_url( '/' );
+
+    ob_start();
+    ?>
+    <div class="pricing-status-bar" role="status">
+        <div class="pricing-status-bar__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M9 12l2 2 4-4"></path>
+                <circle cx="12" cy="12" r="10"></circle>
+            </svg>
+        </div>
+        <div class="pricing-status-bar__copy">
+            <p class="pricing-status-bar__label"><?php esc_html_e( 'Tvoja aktivna pretplata', 'zaherpilates' ); ?></p>
+            <p class="pricing-status-bar__plan">
+                <strong><?php echo esc_html( $plan_title ); ?></strong>
+                <?php if ( $extra_count > 0 ) : ?>
+                    <span class="pricing-status-bar__extra">
+                        <?php
+                        printf(
+                            /* translators: %d: number of additional active plans */
+                            esc_html( _n( '+ još %d aktivan plan', '+ još %d aktivnih planova', $extra_count, 'zaherpilates' ) ),
+                            $extra_count
+                        );
+                        ?>
+                    </span>
+                <?php endif; ?>
+            </p>
+            <?php if ( ! empty( $data['next_billing'] ) ) : ?>
+                <p class="pricing-status-bar__meta">
+                    <?php
+                    printf(
+                        /* translators: %s: next billing date in d.m.Y format */
+                        esc_html__( 'Sljedeći obračun: %s', 'zaherpilates' ),
+                        '<strong>' . esc_html( $data['next_billing'] ) . '</strong>'
+                    );
+                    ?>
+                </p>
+            <?php endif; ?>
+        </div>
+        <a class="pricing-status-bar__cta" href="<?php echo esc_url( $manage_url ); ?>">
+            <?php esc_html_e( 'Upravljaj pretplatom', 'zaherpilates' ); ?>
+            <span aria-hidden="true">→</span>
+        </a>
+    </div>
+    <?php
+
+    return (string) ob_get_clean();
+}
+
 add_filter(
     'mepr-group-page-item-output',
-    function( $output ) {
+    function( $output, $product = null, $group = null, $preview = false ) {
+        static $is_first = true;
+
         $price_note = '';
+        $prefix     = '';
+
+        if ( $is_first ) {
+            $prefix   = zaher_render_pricing_status_bar();
+            $is_first = false;
+        }
+
+        $subscription_data = zaher_get_user_active_subscription_data();
+        $is_current_plan   = $product instanceof MeprProduct
+            && in_array( (int) $product->ID, $subscription_data['active_ids'], true );
+
+        if ( $is_current_plan ) {
+            $output = preg_replace(
+                '/class="mepr-price-box([^"]*)"/',
+                'class="mepr-price-box is-current-plan$1"',
+                $output,
+                1
+            );
+
+            $manage_url      = $subscription_data['account_url']
+                ? $subscription_data['account_url']
+                : home_url( '/' );
+            $current_button  = '<div class="mepr-price-box-button mepr-price-box-button--current">';
+            $current_button .= '<a class="mepr-price-box-current-manage" href="' . esc_url( $manage_url ) . '">';
+            $current_button .= esc_html__( 'Upravljaj pretplatom', 'zaherpilates' );
+            $current_button .= ' <span aria-hidden="true">→</span>';
+            $current_button .= '</a>';
+            $current_button .= '</div>';
+
+            $output = preg_replace(
+                '#<div class="mepr-price-box-button">.*?</div>#s',
+                $current_button,
+                $output,
+                1
+            );
+        } elseif ( $product instanceof MeprProduct && $subscription_data['primary_product'] instanceof MeprProduct ) {
+            $output = preg_replace_callback(
+                '#(<div class="mepr-price-box-button">\s*<a\b[^>]*>)(.*?)(</a>\s*</div>)#s',
+                function( $matches ) {
+                    return $matches[1] . esc_html__( 'Prijeđi na ovaj plan', 'zaherpilates' ) . $matches[3];
+                },
+                $output,
+                1
+            );
+
+            $savings_text = zaher_get_plan_savings_text( $subscription_data['primary_product'], $product );
+
+            if ( '' !== $savings_text ) {
+                $savings_html = '<div class="mepr-price-box-savings"><span class="mepr-price-box-savings-icon" aria-hidden="true">↓</span>' . esc_html( $savings_text ) . '</div>';
+
+                $output = preg_replace(
+                    '#(</div>)(\s*<div class="mepr-price-box-button"\b)#s',
+                    '$1' . $savings_html . '$2',
+                    $output,
+                    1
+                );
+            }
+        }
 
         $output = preg_replace(
             '/class="mepr-price-box([^"]*)"/',
@@ -169,8 +699,10 @@ add_filter(
             );
         }
 
-        return $output;
-    }
+        return $prefix . $output;
+    },
+    10,
+    4
 );
 
 function zaher_get_checkout_popup_default_template_key() {
@@ -935,6 +1467,26 @@ function zaher_get_checkout_popup_runtime_configs() {
 }
 
 function zaher_is_memberpress_checkout_context() {
+    $is_checkout_post = isset( $_POST['mepr_process_signup_form'] );
+    $ajax_action      = isset( $_POST['action'] ) ? sanitize_key( wp_unslash( $_POST['action'] ) ) : '';
+    $is_checkout_ajax = wp_doing_ajax() && in_array(
+        $ajax_action,
+        array(
+            'mepr_get_checkout_state',
+            'mepr_stripe_confirm_payment',
+            'mepr_stripe_create_checkout_session',
+        ),
+        true
+    );
+
+    if ( $is_checkout_post || $is_checkout_ajax ) {
+        return true;
+    }
+
+    if ( ! did_action( 'wp' ) ) {
+        return false;
+    }
+
     if ( class_exists( 'MeprReadyLaunchCtrl' ) && MeprReadyLaunchCtrl::template_enabled( 'checkout' ) ) {
         return true;
     }

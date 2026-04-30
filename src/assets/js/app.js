@@ -17,6 +17,8 @@ import './lib/vimeo-progress.js';
 import './lib/favorites-list.js';
 // import './lib/lazy-loading.js';
 import './lib/checkout-popup.js';
+import './lib/checkout-account.js';
+import './lib/checkout-coupon.js';
 
 $(document).foundation();
 

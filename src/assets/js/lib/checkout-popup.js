@@ -12,6 +12,7 @@
 
 	const POPUP_ID       = 'zaher-checkout-popup';
 	const DISMISSED_KEY_BASE = 'zaher_popup_dismissed';
+	const SESSION_SHOWN_KEY_BASE = 'zaher_popup_shown';
 	const OPEN_DELAY_MS = 6000;
 	const FOCUSABLE_SELECTOR = [
 		'a[href]',
@@ -84,6 +85,22 @@
 	const TEMPLATE    = popupConfig.template || {};
 	const OFFER_VERSION = popupConfig.offerVersion || String(currentProductId || currentPath || 'popup');
 	const DISMISSED_KEY = DISMISSED_KEY_BASE + '_' + String(OFFER_VERSION);
+	const SESSION_SHOWN_KEY = SESSION_SHOWN_KEY_BASE + '_' + String(OFFER_VERSION);
+
+	const readSessionValue = function (key) {
+		try {
+			return window.sessionStorage.getItem(key);
+		} catch (error) {
+			return null;
+		}
+	};
+	const writeSessionValue = function (key, value) {
+		try {
+			window.sessionStorage.setItem(key, value);
+		} catch (error) {
+			/* noop */
+		}
+	};
 
 	const closeBtn  = popup.querySelector('.zaher-popup__close');
 	const skipBtn   = popup.querySelector('.js-popup-skip');
@@ -174,6 +191,9 @@
 	// If user already dismissed this exact offer version, bail out entirely.
 	if (readPersistentValue(DISMISSED_KEY)) return;
 
+	// Don't re-open within the same browsing session if it already opened once.
+	if (readSessionValue(SESSION_SHOWN_KEY)) return;
+
 	let previouslyFocusedElement = null;
 
 	function getFocusableElements() {
@@ -210,6 +230,7 @@
 		popup.setAttribute('aria-hidden', 'false');
 		popup.classList.add('is-open');
 		document.body.classList.add('zaher-popup-open');
+		writeSessionValue(SESSION_SHOWN_KEY, '1');
 		focusPopup();
 	}
 

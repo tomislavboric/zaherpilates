@@ -50,16 +50,21 @@ $current_user = wp_get_current_user();
 					$logout_url = MeprUtils::logout_url();
 				}
 				?>
-				<a class="header__help-link" href="<?php echo esc_url( home_url( '/kontakt/' ) ); ?>">
-					<?php echo zaher_lineicon_svg( 'info' ); ?>
-					<span class="show-for-sr">Kontakt</span>
+				<?php if ( function_exists( 'zaher_user_has_upgrade_available' ) && zaher_user_has_upgrade_available() ) : ?>
+					<a class="header__account-upgrade" href="<?php echo esc_url( home_url( '/cjenik/' ) ); ?>">
+						<?php echo zaher_lineicon_svg( 'bolt' ); ?>
+						<?php esc_html_e( 'Upgrade', 'zaherpilates' ); ?>
+					</a>
+				<?php endif; ?>
+				<a class="header__help-link" href="<?php echo esc_url( home_url( '/kontakt/' ) ); ?>" aria-label="<?php esc_attr_e( 'Pomoć i podrška', 'zaherpilates' ); ?>" data-tip="<?php esc_attr_e( 'Pomoć i podrška', 'zaherpilates' ); ?>">
+					<?php echo zaher_lineicon_svg( 'help' ); ?>
 				</a>
 				<div class="header__account-user" data-account-menu>
 					<button class="header__account-trigger" type="button" aria-expanded="false" aria-haspopup="true">
-						<span class="header__account-trigger-name"><?php echo esc_html( $display_name ); ?></span>
 						<span class="header__account-avatar">
-							<?php echo get_avatar( $current_user->user_email, 36 ); ?>
+							<?php echo get_avatar( $current_user->user_email, 56 ); ?>
 						</span>
+						<span class="header__account-trigger-name"><?php echo esc_html( $display_name ); ?></span>
 					</button>
 					<div class="header__account-dropdown" role="menu" aria-label="<?php esc_attr_e( 'Account menu', 'foundationpress' ); ?>">
 						<div class="header__account-header">
