@@ -63,8 +63,12 @@ $checkout-border: $gray-200;
 
     svg {
       flex: 0 0 14px;
-      width: 14px;
-      height: 14px;
+      display: block;
+      width: 14px !important;
+      height: 14px !important;
+      color: currentColor !important;
+      fill: none !important;
+      stroke: currentColor !important;
     }
 
     &:hover,
@@ -83,8 +87,13 @@ $checkout-border: $gray-200;
     font-weight: 400;
 
     svg {
-      flex: 0 0 auto;
-      color: $primary-color;
+      display: block;
+      flex: 0 0 14px;
+      width: 14px !important;
+      height: 14px !important;
+      color: $primary-color !important;
+      fill: none !important;
+      stroke: currentColor !important;
     }
   }
 
@@ -216,12 +225,18 @@ $checkout-border: $gray-200;
   flex: 0 0 52px;
   width: 52px;
   height: 52px;
-  color: $white;
+  color: $white !important;
   background: $primary-color;
   border-radius: 10px;
+
   svg {
+    display: block;
     width: 24px !important;
     height: 24px !important;
+    color: $white !important;
+    fill: none !important;
+    stroke: currentColor !important;
+    stroke-width: 1.8 !important;
   }
 }
 
@@ -331,8 +346,14 @@ $checkout-border: $gray-200;
   transition: color 0.15s ease;
 
   svg {
-    flex: 0 0 auto;
-    color: $gray-500;
+    display: block;
+    flex: 0 0 13px;
+    width: 13px !important;
+    height: 13px !important;
+    color: $gray-500 !important;
+    fill: none !important;
+    stroke: currentColor !important;
+    stroke-width: 2 !important;
     transition: transform 0.15s ease;
   }
 
@@ -543,12 +564,15 @@ $checkout-border: $gray-200;
   span,
   svg {
     flex: 0 0 auto;
-    color: $primary-color;
+    color: $primary-color !important;
   }
 
   svg {
-    width: 14px;
-    height: 14px;
+    display: block;
+    width: 14px !important;
+    height: 14px !important;
+    fill: none !important;
+    stroke: currentColor !important;
   }
 }
 
