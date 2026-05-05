@@ -391,15 +391,6 @@ $checkout_form_action .= '#mepr_jump';
                                 </svg>
                                 <?php esc_html_e( 'Kartica', 'zaherpilates' ); ?>
                             </h3>
-                            <p class="mepr-payment-methods-subtitle">
-                                <?php esc_html_e( 'Plaćanje se završava sigurno na Stripe-u.', 'zaherpilates' ); ?>
-                            </p>
-                        </div>
-                        <div class="mepr-payment-methods-icons" aria-hidden="true">
-                            <span class="mepr-card-logo mepr-card-logo--visa">VISA</span>
-                            <span class="mepr-card-logo mepr-card-logo--mc">MC</span>
-                            <span class="mepr-card-logo mepr-card-logo--maestro">MAESTRO</span>
-                            <span class="mepr-card-logo mepr-card-logo--amex">AMEX</span>
                         </div>
                     </div>
                     <div class="mepr-payment-methods-radios<?php echo 1 === $payment_methods_count ? ' mepr-hidden' : ''; ?>">

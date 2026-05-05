@@ -898,7 +898,7 @@ body.mepr-checkout-surface {
 .mepr-checkout-container.mp_wrapper .mepr-payment-methods-heading {
   display: flex;
   gap: 16px;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
 }
 
@@ -907,59 +907,6 @@ body.mepr-checkout-surface {
   flex-direction: column;
   gap: 4px;
   min-width: 0;
-}
-
-.mepr-checkout-container.mp_wrapper .mepr-payment-methods-subtitle {
-  margin: 0;
-  color: $gray-500;
-  font-size: 0.75rem;
-  font-weight: 400;
-  line-height: 1.4;
-}
-
-.mepr-checkout-container.mp_wrapper .mepr-payment-methods-icons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  align-items: center;
-
-  &:empty {
-    display: none;
-  }
-
-  img {
-    display: block;
-    width: auto;
-    max-width: 42px;
-    height: 22px !important;
-    padding: 3px 5px;
-    object-fit: contain;
-    background: $white;
-    border: 1px solid $checkout-border;
-    border-radius: 4px;
-  }
-}
-
-.mepr-checkout-container.mp_wrapper .mepr-card-logo {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 34px;
-  height: 22px;
-  padding: 0 6px;
-  background: $white;
-  border: 1px solid $checkout-border;
-  border-radius: 4px;
-  font-size: 7px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  line-height: 1;
-  white-space: nowrap;
-
-  &--visa    { color: #1a1f71; }
-  &--mc      { color: #eb001b; }
-  &--maestro { color: #0099df; }
-  &--amex    { color: #007bc1; }
 }
 
 .mepr-checkout-container.mp_wrapper .mepr-payment-methods-radios {
