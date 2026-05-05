@@ -1019,38 +1019,33 @@ body.mepr-checkout-surface {
 .mepr-checkout-container.mp_wrapper .mepr-stripe-elements {
   width: 100%;
   display: grid;
-  gap: 10px;
+  gap: 8px;
   margin: 0;
 }
 
 .mepr-checkout-container.mp_wrapper .mepr-stripe-card-element {
-  display: flex !important;
-  align-items: center;
+  display: block !important;
   width: 100% !important;
-  min-height: 46px;
+  min-height: 0 !important;
   margin: 0 !important;
-  padding: 11px 14px !important;
-  background: $white !important;
-  border: 1px solid $checkout-border !important;
-  border-radius: 8px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
   box-shadow: none !important;
-}
 
-.mepr-checkout-container.mp_wrapper .mepr-stripe-card-element.StripeElement--focus {
-  border-color: $primary-color !important;
-  box-shadow: 0 0 0 3px rgba($primary-color, 0.12) !important;
-}
+  &.StripeElement--focus,
+  &.StripeElement--invalid {
+    border: 0 !important;
+    box-shadow: none !important;
+  }
 
-.mepr-checkout-container.mp_wrapper .mepr-stripe-card-element.StripeElement--invalid {
-  border-color: rgba($alert-color, 0.55) !important;
-  box-shadow: 0 0 0 3px rgba($alert-color, 0.07) !important;
-}
-
-.mepr-checkout-container.mp_wrapper .mepr-stripe-card-element .__PrivateStripeElement,
-.mepr-checkout-container.mp_wrapper .mepr-stripe-card-element iframe {
-  width: 100% !important;
-  min-height: 20px;
-  margin: 0 !important;
+  .__PrivateStripeElement,
+  iframe {
+    width: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+  }
 }
 
 .mepr-checkout-container.mp_wrapper .mepr-stripe-card-errors,
