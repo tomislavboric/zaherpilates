@@ -6,13 +6,17 @@
  * @package memberpress-pro-template
  */
 
-$is_checkout_page = function_exists( 'zaher_is_memberpress_checkout_context' ) && zaher_is_memberpress_checkout_context();
-$header_classes   = isset( $is_account_page ) ? 'account-header' : '';
+$is_checkout_page  = function_exists( 'zaher_is_memberpress_checkout_context' ) && zaher_is_memberpress_checkout_context();
+$is_thankyou_page  = class_exists( 'MeprReadyLaunchCtrl' ) && MeprReadyLaunchCtrl::template_enabled( 'thankyou' );
+$is_checkout_shell = $is_checkout_page || $is_thankyou_page;
+$header_classes    = isset( $is_account_page ) ? 'account-header' : '';
+$body_classes      = 'mepr-pro-template mepr-app-layout';
 $pricing_page     = get_page_by_path( 'cjenik' );
 $pricing_url      = $pricing_page instanceof WP_Post ? get_permalink( $pricing_page ) : home_url( '/cjenik/' );
 
-if ( $is_checkout_page ) {
+if ( $is_checkout_shell ) {
   $header_classes = trim( $header_classes . ' mepr-checkout-header' );
+  $body_classes   = trim( $body_classes . ' mepr-checkout-surface' );
 }
 
 ?>
@@ -27,7 +31,7 @@ if ( $is_checkout_page ) {
   <?php wp_head(); ?>
 </head>
 
-<body <?php body_class('mepr-pro-template mepr-app-layout'); ?>>
+<body <?php body_class( $body_classes ); ?>>
   <?php wp_body_open(); ?>
   <div id="page" class="site app-layout">
     <header id="masthead" class="site-header <?php echo esc_attr( $header_classes ); ?>">
@@ -45,7 +49,7 @@ if ( $is_checkout_page ) {
             src="<?php echo esc_url_raw($logo); ?>" alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>" /></a>
       </div><!-- .site-branding -->
 
-      <?php if ( $is_checkout_page ) : ?>
+      <?php if ( $is_checkout_shell ) : ?>
         <div class="mepr-checkout-header__secure">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
             <rect x="5" y="11" width="14" height="10" rx="2"></rect>
@@ -55,7 +59,7 @@ if ( $is_checkout_page ) {
         </div>
       <?php endif; ?>
 
-      <?php if ($user && ! $is_checkout_page) : ?>
+      <?php if ($user && ! $is_checkout_shell) : ?>
       <div x-data="{open: false}" class="ml-3 profile-menu">
         <div class="profile-menu__button-group">
           <button @click="open = !open" type="button" class="profile-menu__button --is-tablet" id="user-menu-button"

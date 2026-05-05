@@ -1,17 +1,66 @@
 import $ from 'jquery';
 
 (function($) {
-  const formatCheckoutPrice = function(value) {
+  const normalizeCheckoutPriceText = function(value) {
     if (!value) {
-      return value;
+      return '';
     }
 
-    return String(value)
+    return $('<div />').html(String(value)).text()
       .replace(/(\d)\.(?=\d{2}\b)/g, '$1,')
       .replace(/\s*with\s+coupon\s+/giu, ' uz kupon ')
       .replace(/\bFree\s+forever\b/giu, 'Besplatno zauvijek')
-      .replace(/\s*\/\s*\d+\s+(?:Mjesec[a-zčćžšđ]*|Mjeseci|Godin[a-zčćžšđ]*|Tjed[a-zčćžšđ]*|Dan[a-zčćžšđ]*|Year[s]?|Month[s]?|Week[s]?|Day[s]?)\b/giu, '')
+      .replace(/\bFree\b/giu, 'Besplatno')
+      .replace(/\bthen\b/giu, 'poslije')
+      .replace(/\s+/g, ' ')
       .trim();
+  };
+
+  const stripCheckoutPeriodSuffix = function(value) {
+    return String(value || '')
+      .replace(/\s*\/\s*(?:\d+\s+)?(?:Mjesec[a-zčćžšđ]*|Mjeseci|Godin[a-zčćžšđ]*|Tjed[a-zčćžšđ]*|Dan[a-zčćžšđ]*|Year[s]?|Month[s]?|Week[s]?|Day[s]?)\b/giu, '')
+      .trim();
+  };
+
+  const shortenCheckoutPeriodUnits = function(value) {
+    return String(value || '')
+      .replace(/\b(?:Mjeseci|Mjeseca|Months?)\b/giu, 'mj.')
+      .replace(/\b(?:Godina|Godine|Years?)\b/giu, 'god.')
+      .replace(/\b(?:Tjedana|Tjedna|Weeks?)\b/giu, 'tj.')
+      .replace(/\b(?:Dana|Days?)\b/giu, 'dana')
+      .trim();
+  };
+
+  const getCheckoutPriceParts = function(value, fallbackPeriodText) {
+    const text = normalizeCheckoutPriceText(value);
+    const renewalMatch = text.match(/^(.*?)\s*,?\s*(?:poslije|then)\s+(.+)$/iu);
+    let main = renewalMatch ? $.trim(renewalMatch[1]) : text;
+    let renewal = renewalMatch ? $.trim(renewalMatch[2]) : '';
+    let period = fallbackPeriodText || '';
+    let displayValue = stripCheckoutPeriodSuffix(main);
+
+    main = $.trim(main.replace(/\s*\((?:proration|prorated)\)\s*/giu, ' '));
+
+    const prorationMatch = main.match(/^(\d+)\s+(?:Dan[a-zčćžšđ]*|Days?)\s+(?:za|for)\s+(.+)$/iu);
+
+    if (prorationMatch) {
+      const dayCount = Number(prorationMatch[1] || 0);
+      displayValue = stripCheckoutPeriodSuffix(prorationMatch[2]);
+      period = `Prorata za ${dayCount} ${dayCount === 1 ? 'dan' : 'dana'}`;
+    } else {
+      displayValue = stripCheckoutPeriodSuffix(main);
+    }
+
+    if (renewal) {
+      renewal = shortenCheckoutPeriodUnits(renewal.replace(/\s*\((?:proration|prorated)\)\s*/giu, ' '));
+      renewal = renewal ? `Zatim ${renewal}` : '';
+    }
+
+    return {
+      value: displayValue,
+      period,
+      renewal,
+    };
   };
 
   const keepCouponToggleVisible = function($toggle) {
@@ -236,13 +285,18 @@ import $ from 'jquery';
       .replace(/'/g, '&#039;');
   };
 
-  const wrapInvoiceAmountHtml = function($form, formattedPriceHtml) {
+  const wrapInvoiceAmountHtml = function($form, priceHtml) {
     const $cell = $form.find('div.mepr_price_cell.invoice-amount').first();
     const periodText = $cell.length ? String($cell.attr('data-billing-period') || '') : '';
-    let html = '<span class="invoice-amount-value">' + formattedPriceHtml + '</span>';
+    const price = getCheckoutPriceParts(priceHtml, periodText);
+    let html = '<span class="invoice-amount-value">' + escapeHtml(price.value) + '</span>';
 
-    if (periodText) {
-      html += '<span class="invoice-amount-period">' + escapeHtml(periodText) + '</span>';
+    if (price.period) {
+      html += '<span class="invoice-amount-period">' + escapeHtml(price.period) + '</span>';
+    }
+
+    if (price.renewal) {
+      html += '<span class="invoice-amount-renewal">' + escapeHtml(price.renewal) + '</span>';
     }
 
     return html;
@@ -254,8 +308,7 @@ import $ from 'jquery';
     }
 
     if (data && data.price_string) {
-      const formatted = formatCheckoutPrice(data.price_string);
-      data.price_string = wrapInvoiceAmountHtml($(this), formatted);
+      data.price_string = wrapInvoiceAmountHtml($(this), data.price_string);
     }
   });
 

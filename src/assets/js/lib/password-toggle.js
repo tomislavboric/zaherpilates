@@ -4,7 +4,7 @@ document.addEventListener('click', (event) => {
     return;
   }
 
-  const group = toggle.closest('.account-page__input-group');
+  const group = toggle.closest('.account-page__input-group, .mepr-auth__input-group');
   const input = group ? group.querySelector('input') : null;
   if (!input) {
     return;

@@ -65,6 +65,58 @@ add_action( 'wp', 'zaher_apply_minimal_memberpress_checkout_options', 1 );
 
 add_filter( 'mepr-checkout-no-billing-address', '__return_true' );
 
+function zaher_memberpress_stripe_elements_appearance( $appearance ) {
+    $appearance = is_array( $appearance ) ? $appearance : array();
+
+    $zaher_appearance = array(
+        'theme'     => 'stripe',
+        'variables' => array(
+            'fontFamily'           => 'Poppins, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+            'fontSizeBase'         => '14px',
+            'fontLineHeight'       => '1.5',
+            'colorPrimary'         => '#b47f75',
+            'colorBackground'      => '#ffffff',
+            'colorText'            => '#1c1917',
+            'colorTextSecondary'   => '#8f8782',
+            'colorTextPlaceholder' => '#c8c2bf',
+            'colorDanger'          => '#d94a3a',
+            'borderRadius'         => '8px',
+            'spacingUnit'          => '4px',
+            'gridRowSpacing'       => '12px',
+            'gridColumnSpacing'    => '12px',
+        ),
+        'rules'     => array(
+            '.Input'        => array(
+                'border'    => '1px solid #e7e1de',
+                'boxShadow' => 'none',
+                'padding'   => '11px 14px',
+            ),
+            '.Input:focus'  => array(
+                'border'    => '1px solid #b47f75',
+                'boxShadow' => '0 0 0 3px rgba(180, 127, 117, 0.12)',
+            ),
+            '.Input--invalid' => array(
+                'border'    => '1px solid rgba(217, 74, 58, 0.55)',
+                'boxShadow' => '0 0 0 3px rgba(217, 74, 58, 0.07)',
+            ),
+            '.Label'        => array(
+                'color'      => '#1c1917',
+                'fontSize'   => '12px',
+                'fontWeight' => '600',
+            ),
+            '.Error'        => array(
+                'color'      => '#d94a3a',
+                'fontSize'   => '12px',
+                'fontWeight' => '600',
+            ),
+        ),
+    );
+
+    return array_replace_recursive( $zaher_appearance, $appearance );
+}
+
+add_filter( 'mepr-stripe-elements-appearance', 'zaher_memberpress_stripe_elements_appearance' );
+
 function zaher_get_billing_period_text( $product ) {
     if ( ! $product instanceof MeprProduct || $product->is_one_time_payment() ) {
         return '';
@@ -114,6 +166,60 @@ function zaher_get_billing_period_text( $product ) {
 
             /* translators: %d: number of days between charges */
             return sprintf( __( 'Naplaćuje se svakih %d dana', 'zaherpilates' ), $period );
+    }
+
+    return '';
+}
+
+function zaher_get_pricing_price_term( $product ) {
+    if ( ! $product instanceof MeprProduct || $product->is_one_time_payment() ) {
+        return '';
+    }
+
+    $period = max( 1, (int) $product->period );
+
+    switch ( (string) $product->period_type ) {
+        case 'months':
+            if ( 1 === $period ) {
+                return __( 'mjesec', 'zaherpilates' );
+            }
+
+            if ( $period >= 2 && $period <= 4 ) {
+                /* translators: %d: number of months in plan period */
+                return sprintf( __( '%d mjeseca', 'zaherpilates' ), $period );
+            }
+
+            /* translators: %d: number of months in plan period */
+            return sprintf( __( '%d mjeseci', 'zaherpilates' ), $period );
+
+        case 'years':
+            if ( 1 === $period ) {
+                return __( 'godina', 'zaherpilates' );
+            }
+
+            if ( $period >= 2 && $period <= 4 ) {
+                /* translators: %d: number of years in plan period */
+                return sprintf( __( '%d godine', 'zaherpilates' ), $period );
+            }
+
+            /* translators: %d: number of years in plan period */
+            return sprintf( __( '%d godina', 'zaherpilates' ), $period );
+
+        case 'weeks':
+            if ( 1 === $period ) {
+                return __( 'tjedan', 'zaherpilates' );
+            }
+
+            /* translators: %d: number of weeks in plan period */
+            return sprintf( __( '%d tjedana', 'zaherpilates' ), $period );
+
+        case 'days':
+            if ( 1 === $period ) {
+                return __( 'dan', 'zaherpilates' );
+            }
+
+            /* translators: %d: number of days in plan period */
+            return sprintf( __( '%d dana', 'zaherpilates' ), $period );
     }
 
     return '';
@@ -495,13 +601,9 @@ function zaher_get_user_active_subscription_data() {
         }
     }
 
-    if ( class_exists( 'MeprOptions' ) ) {
-        $mepr_options = MeprOptions::fetch();
-
-        if ( is_object( $mepr_options ) && ! empty( $mepr_options->account_page_id ) ) {
-            $data['account_url'] = add_query_arg( 'action', 'subscriptions', get_permalink( (int) $mepr_options->account_page_id ) );
-        }
-    }
+    $data['account_url'] = function_exists( 'zaher_account_tab_url' )
+        ? zaher_account_tab_url( 'subscription' )
+        : home_url( '/moj-racun/?tab=subscription' );
 
     return $data;
 }
@@ -639,7 +741,7 @@ add_filter(
 
         $output = preg_replace_callback(
             '#<div class="mepr-price-box-price">\s*(.*?)\s*</div>#s',
-            function( $matches ) {
+            function( $matches ) use ( $product ) {
                 $price = trim( wp_strip_all_tags( $matches[1] ) );
 
                 if ( '' === $price ) {
@@ -648,7 +750,7 @@ add_filter(
 
                 $parts  = preg_split( '#\s*/\s*#', $price, 2 );
                 $amount = preg_replace( '/(?<=\d)\.(?=\d{2}\b)/', ',', trim( $parts[0] ) );
-                $term   = isset( $parts[1] ) ? trim( $parts[1] ) : '';
+                $term   = isset( $parts[1] ) ? trim( $parts[1] ) : zaher_get_pricing_price_term( $product );
 
                 $html  = '<div class="mepr-price-box-price">';
                 $html .= '<span class="mepr-price-box-price-amount">' . esc_html( $amount ) . '</span>';

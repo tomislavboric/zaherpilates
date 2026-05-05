@@ -32,6 +32,8 @@
     &--center {
       @include breakpoint(large) {
         text-align: center;
+        max-width: 1170px;
+        margin: 0 auto;
       }
       &-all {
         text-align: center;

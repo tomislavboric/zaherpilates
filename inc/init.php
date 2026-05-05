@@ -79,6 +79,7 @@ require_once( 'custom/query-tweaks.php' );
 require_once( 'custom/memberships.php' );
 require_once( 'custom/admin-ui.php' );
 require_once( 'custom/account-actions.php' );
+require_once( 'custom/auth-pages.php' );
 require_once( 'custom/gtm.php' );
 
 // require_once( 'custom/wp-blocks.php' );

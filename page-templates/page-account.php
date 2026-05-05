@@ -6,7 +6,16 @@
 
 // Redirect non-logged-in users to login
 if ( ! is_user_logged_in() ) {
-	wp_redirect( home_url( '/prijava/' ) );
+	$login_url = home_url( '/prijava/' );
+	if ( ! empty( $_SERVER['REQUEST_URI'] ) ) {
+		$login_url = add_query_arg(
+			'redirect_to',
+			rawurlencode( esc_url_raw( home_url( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) ),
+			$login_url
+		);
+	}
+
+	wp_safe_redirect( $login_url );
 	exit;
 }
 
@@ -70,6 +79,13 @@ $current_tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'profile';
 $allowed_tabs = array( 'profile', 'subscription', 'payments', 'password' );
 if ( ! in_array( $current_tab, $allowed_tabs, true ) ) {
 	$current_tab = 'profile';
+}
+
+$account_action        = isset( $_GET['action'] ) ? sanitize_key( $_GET['action'] ) : '';
+$account_action_sub_id = isset( $_GET['sub'] ) ? absint( $_GET['sub'] ) : 0;
+$account_actions       = array( 'update', 'upgrade', 'cancel', 'suspend', 'resume' );
+if ( in_array( $account_action, $account_actions, true ) ) {
+	$current_tab = 'subscription';
 }
 ?>
 
@@ -254,22 +270,40 @@ if ( ! in_array( $current_tab, $allowed_tabs, true ) ) {
 					data-account-panel="subscription"
 					aria-labelledby="account-tab-subscription"
 					<?php echo $is_subscription ? '' : 'hidden'; ?>
-				>
-					<h1 class="account-page__title">Pretplata</h1>
+					>
+						<h1 class="account-page__title">Pretplata</h1>
 
-					<?php if ( ! empty( $subscriptions ) ) : ?>
-						<?php foreach ( $subscriptions as $subscription_row ) : ?>
+						<?php if ( isset( $_GET['account_message'] ) ) : ?>
+							<?php $account_message = function_exists( 'zaher_account_notice_text' ) ? zaher_account_notice_text( 'success', sanitize_key( $_GET['account_message'] ) ) : ''; ?>
+							<?php if ( $account_message ) : ?>
+								<div class="account-page__message account-page__message--success account-page__message--inline">
+									<?php echo esc_html( $account_message ); ?>
+								</div>
+							<?php endif; ?>
+						<?php endif; ?>
+
+						<?php if ( isset( $_GET['account_error'] ) ) : ?>
+							<?php $account_error = function_exists( 'zaher_account_notice_text' ) ? zaher_account_notice_text( 'error', sanitize_key( $_GET['account_error'] ) ) : 'Došlo je do greške.'; ?>
+							<div class="account-page__message account-page__message--error account-page__message--inline">
+								<?php echo esc_html( $account_error ); ?>
+							</div>
+						<?php endif; ?>
+
+						<?php if ( $account_action && function_exists( 'zaher_render_account_subscription_action' ) ) : ?>
+							<?php zaher_render_account_subscription_action( $account_action, $account_action_sub_id ); ?>
+						<?php elseif ( ! empty( $subscriptions ) ) : ?>
+							<?php foreach ( $subscriptions as $subscription_row ) : ?>
 							<?php
 							$subscription_type = isset( $subscription_row->sub_type ) ? trim( $subscription_row->sub_type ) : 'subscription';
 							$is_subscription   = 'subscription' === $subscription_type;
-							$status_label    = 'Aktivna';
-							$status_class    = 'active';
-							$product_title   = 'Pretplata';
-							$price_value     = '';
-							$date_label      = '';
-							$date_value      = '';
-							$manage_url      = '';
-							$can_manage      = false;
+							$status_label      = 'Aktivna';
+							$status_class      = 'active';
+							$product_title     = 'Pretplata';
+							$price_value       = '';
+							$date_label        = '';
+							$date_value        = '';
+							$can_manage        = false;
+							$subscription_action_links = array();
 
 							if ( $is_subscription ) {
 								$sub = new MeprSubscription( $subscription_row->id );
@@ -278,7 +312,7 @@ if ( ! in_array( $current_tab, $allowed_tabs, true ) ) {
 										$status_label = 'Otkazana';
 										$status_class = 'cancelled';
 									} elseif ( MeprSubscription::$suspended_str === $sub->status ) {
-										$status_label = 'Pauzirana';
+										$status_label = 'Zaustavljena';
 										$status_class = 'pending';
 									} elseif ( MeprSubscription::$pending_str === $sub->status ) {
 										$status_label = 'Na čekanju';
@@ -324,13 +358,40 @@ if ( ! in_array( $current_tab, $allowed_tabs, true ) ) {
 									true
 								);
 
-								if ( $can_manage && $sub->can( 'update-subscriptions' ) && method_exists( $sub, 'update_url' ) ) {
-									$manage_url = $sub->update_url();
-								} elseif ( $can_manage && class_exists( 'MeprOptions' ) ) {
-									$mepr_options = MeprOptions::fetch();
-									$manage_url   = $mepr_options->account_page_url( 'action=subscriptions' );
-								} elseif ( $can_manage && class_exists( 'MeprUtils' ) ) {
-									$manage_url = MeprUtils::get_account_url() . '?action=subscriptions';
+								if ( $can_manage && function_exists( 'zaher_account_subscription_action_available' ) && function_exists( 'zaher_account_subscription_action_url' ) ) {
+									$payment_method = method_exists( $sub, 'payment_method' ) ? $sub->payment_method() : null;
+
+									if ( zaher_account_subscription_action_available( 'update', $sub, $payment_method ) ) {
+										$subscription_action_links[] = array(
+											'url'   => zaher_account_subscription_action_url( 'update', $sub->id ),
+											'label' => 'Ažuriraj karticu',
+											'class' => '',
+										);
+									}
+
+									if ( zaher_account_subscription_action_available( 'upgrade', $sub, $payment_method ) ) {
+										$subscription_action_links[] = array(
+											'url'   => zaher_account_subscription_action_url( 'upgrade', $sub->id ),
+											'label' => 'Promijeni plan',
+											'class' => 'button--outline',
+										);
+									}
+
+									if ( zaher_account_subscription_action_available( 'resume', $sub, $payment_method ) ) {
+										$subscription_action_links[] = array(
+											'url'   => zaher_account_subscription_action_url( 'resume', $sub->id ),
+											'label' => 'Nastavi pretplatu',
+											'class' => 'button--outline',
+										);
+									}
+
+									if ( zaher_account_subscription_action_available( 'cancel', $sub, $payment_method ) ) {
+										$subscription_action_links[] = array(
+											'url'   => zaher_account_subscription_action_url( 'cancel', $sub->id ),
+											'label' => 'Otkaži pretplatu',
+											'class' => 'button--outline account-page__danger-link',
+										);
+									}
 								}
 							} else {
 								$txn = new MeprTransaction( $subscription_row->id );
@@ -371,27 +432,31 @@ if ( ! in_array( $current_tab, $allowed_tabs, true ) ) {
 									</span>
 								</div>
 								<h3 class="account-page__subscription-name"><?php echo esc_html( $product_title ); ?></h3>
-								<div class="account-page__subscription-details">
-									<?php if ( ! empty( $date_value ) ) : ?>
-										<div class="account-page__subscription-detail">
-											<span class="account-page__detail-label"><?php echo esc_html( $date_label ); ?>:</span>
-											<span class="account-page__detail-value"><?php echo esc_html( $date_value ); ?></span>
+									<div class="account-page__subscription-details">
+										<?php if ( ! empty( $date_value ) ) : ?>
+											<div class="account-page__subscription-detail">
+												<span class="account-page__detail-label"><?php echo esc_html( $date_label ); ?>:</span>
+												<span class="account-page__detail-value"><?php echo esc_html( $date_value ); ?></span>
 										</div>
 									<?php endif; ?>
 									<?php if ( ! empty( $price_value ) ) : ?>
 										<div class="account-page__subscription-detail">
 											<span class="account-page__detail-label">Cijena:</span>
-											<span class="account-page__detail-value"><?php echo esc_html( $price_value ); ?></span>
+												<span class="account-page__detail-value"><?php echo esc_html( $price_value ); ?></span>
+											</div>
+										<?php endif; ?>
+									</div>
+									<?php if ( $is_subscription && $can_manage && ! empty( $subscription_action_links ) ) : ?>
+										<div class="account-page__subscription-actions">
+											<?php foreach ( $subscription_action_links as $action_link ) : ?>
+												<a href="<?php echo esc_url( $action_link['url'] ); ?>" class="button button--small <?php echo esc_attr( $action_link['class'] ); ?>">
+													<?php echo esc_html( $action_link['label'] ); ?>
+												</a>
+											<?php endforeach; ?>
 										</div>
 									<?php endif; ?>
 								</div>
-								<?php if ( $is_subscription && $can_manage && ! empty( $manage_url ) ) : ?>
-									<a href="<?php echo esc_url( $manage_url ); ?>"class="button button--small">
-										Upravljaj pretplatom
-									</a>
-								<?php endif; ?>
-							</div>
-						<?php endforeach; ?>
+							<?php endforeach; ?>
 					<?php else : ?>
 						<div class="empty-state empty-state--card">
 							<div class="empty-state__icon">

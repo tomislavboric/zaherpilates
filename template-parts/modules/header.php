@@ -40,10 +40,11 @@ $current_user = wp_get_current_user();
 				}
 
 				// Use custom account page (separate from MemberPress)
-				$account_url = home_url( '/moj-racun/' );
+				$account_url      = home_url( '/moj-racun/' );
 				$subscription_url = add_query_arg( 'tab', 'subscription', $account_url );
 				$payments_url     = add_query_arg( 'tab', 'payments', $account_url );
-				$logout_url  = wp_logout_url( home_url() );
+				$password_url     = add_query_arg( 'tab', 'password', $account_url );
+				$logout_url       = wp_logout_url( home_url() );
 
 				// Only use MeprUtils for logout URL (account page is custom)
 				if ( class_exists( 'MeprUtils' ) ) {
@@ -84,7 +85,11 @@ $current_user = wp_get_current_user();
 								<?php echo zaher_lineicon_svg( 'file' ); ?>
 								Plaćanja
 							</a>
-							<a class="header__account-link" href="<?php echo esc_url( $logout_url ); ?>" role="menuitem">
+							<a class="header__account-link" href="<?php echo esc_url( $password_url ); ?>" role="menuitem">
+								<?php echo zaher_lineicon_svg( 'lock' ); ?>
+								Lozinka
+							</a>
+							<a class="header__account-link header__account-link--logout" href="<?php echo esc_url( $logout_url ); ?>" role="menuitem">
 								<?php echo zaher_lineicon_svg( 'exit' ); ?>
 								Odjava
 							</a>

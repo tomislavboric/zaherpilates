@@ -1,0 +1,522 @@
+// MemberPress auth screens
+$auth-primary-dark: #b47f75;
+$auth-primary-light: #f0e4e1;
+$auth-border: $gray-200;
+
+body.mepr-auth-surface {
+  background: $gray-50;
+
+  &.guest-layout,
+  .guest-layout {
+    background: $gray-50;
+  }
+
+  #masthead.site-header.mepr-auth-header {
+    position: relative;
+    top: auto;
+    left: auto;
+    z-index: 10;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    width: 100%;
+    min-height: 88px;
+    padding: 20px 40px !important;
+    background: $white !important;
+    border-bottom: 1px solid $auth-border;
+
+    .site-branding {
+      grid-column: 2;
+      justify-self: center;
+      line-height: 0;
+    }
+
+    .site-branding a {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .site-branding__logo,
+    .site-logo {
+      width: 132px !important;
+      height: auto !important;
+      max-height: none !important;
+    }
+  }
+
+  .mepr-auth-header__back,
+  .mepr-auth-header__secure {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    color: $gray-400;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.2;
+    text-decoration: none;
+    white-space: nowrap;
+
+    svg {
+      flex: 0 0 14px;
+      display: block;
+      width: 14px !important;
+      height: 14px !important;
+      color: currentColor !important;
+      fill: none !important;
+      stroke: currentColor !important;
+    }
+
+    &:hover,
+    &:focus {
+      color: $gray-700;
+      text-decoration: none;
+    }
+  }
+
+  .mepr-auth-header__back {
+    grid-column: 1;
+    justify-self: start;
+  }
+
+  .mepr-auth-header__secure {
+    grid-column: 3;
+    justify-self: end;
+    gap: 5px;
+    font-size: 0.75rem;
+    font-weight: 400;
+
+    svg {
+      color: $primary-color !important;
+    }
+  }
+
+  .mepr-auth-main,
+  .site-main {
+    width: 100% !important;
+    max-width: none !important;
+    min-height: calc(100dvh - 88px);
+    padding: 0 !important;
+    background: $gray-50;
+  }
+
+  .site-main > p,
+  .site-main > ul,
+  .site-main > ol {
+    display: none;
+  }
+}
+
+.mepr-auth-surface .mepr-auth {
+  display: grid;
+  grid-template-columns: minmax(0, 540px) minmax(280px, 360px);
+  gap: 32px;
+  align-items: stretch;
+  width: 100%;
+  max-width: 940px;
+  margin: 0 auto;
+  padding: 64px 20px 80px;
+  color: $gray-600;
+  font-size: 15px;
+
+  &--compact {
+    grid-template-columns: minmax(0, 540px) minmax(240px, 320px);
+    max-width: 900px;
+  }
+}
+
+.mepr-auth-surface .mepr-auth__card,
+.mepr-auth-surface .mepr-auth__side {
+  min-width: 0;
+  background: $white;
+  border: 1px solid $auth-border;
+  border-radius: 12px;
+}
+
+.mepr-auth-surface .mepr-auth__card {
+  padding: 32px;
+}
+
+.mepr-auth-surface .mepr-auth__side {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 28px;
+  background: $auth-primary-light;
+  border-color: rgba($auth-primary-dark, 0.18);
+}
+
+.mepr-auth-surface .mepr-auth__eyebrow {
+  margin: 0 0 12px;
+  color: rgba($gray-800, 0.48);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.mepr-auth-surface .mepr-auth h1 {
+  margin: 0;
+  color: $gray-900;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.mepr-auth-surface .mepr-auth__intro {
+  max-width: 420px;
+  margin: 12px 0 0;
+  color: rgba($gray-700, 0.76);
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.mepr-auth-surface .mepr-auth__form {
+  display: grid;
+  gap: 18px;
+  margin: 28px 0 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.mepr-auth-surface .mepr-auth__field,
+.mepr-auth-surface .mepr-auth__form .mp-form-row {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.mepr-auth-surface .mepr-auth__field label {
+  display: block;
+  margin: 0 0 8px;
+  color: $gray-700;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.mepr-auth-surface .mepr-auth input[type="text"],
+.mepr-auth-surface .mepr-auth input[type="password"],
+.mepr-auth-surface .mepr-auth input[type="email"] {
+  width: 100% !important;
+  height: 48px !important;
+  margin: 0 !important;
+  padding: 0 16px !important;
+  color: $gray-800 !important;
+  font-size: 0.9375rem !important;
+  font-weight: 400 !important;
+  line-height: 48px !important;
+  background: $white !important;
+  border: 1px solid $auth-border !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+
+  &::placeholder {
+    color: rgba($gray-400, 0.62) !important;
+    opacity: 1;
+  }
+
+  &:focus {
+    border-color: rgba($auth-primary-dark, 0.62) !important;
+    box-shadow: 0 0 0 3px rgba($auth-primary-dark, 0.12) !important;
+    outline: 0 !important;
+  }
+}
+
+.mepr-auth-surface .mepr-auth__input-group {
+  position: relative;
+
+  input[type="password"],
+  input[type="text"] {
+    padding-right: 52px !important;
+  }
+}
+
+.mepr-auth-surface .mepr-auth__password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin: 0;
+  padding: 0;
+  color: $auth-primary-dark;
+  background: rgba($auth-primary-dark, 0.1);
+  border: 0;
+  border-radius: 7px;
+  transform: translateY(-50%);
+  cursor: pointer;
+
+  svg {
+    width: 18px !important;
+    height: 18px !important;
+    color: currentColor !important;
+    fill: none !important;
+    stroke: currentColor !important;
+  }
+
+  &:hover,
+  &:focus {
+    color: $gray-900;
+    background: rgba($auth-primary-dark, 0.16);
+    outline: 0;
+  }
+}
+
+.mepr-auth-surface .mepr-auth__checkbox {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: $gray-600;
+  font-size: 0.875rem;
+  user-select: none;
+
+  input[type="checkbox"] {
+    flex: 0 0 18px;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: $auth-primary-dark;
+  }
+
+  label {
+    margin: 0;
+    color: $gray-600;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.35;
+    cursor: pointer;
+    user-select: none;
+  }
+}
+
+.mepr-auth-surface .mepr-auth__submit {
+  margin: 4px 0 0 !important;
+}
+
+.mepr-auth-surface .mepr-auth__button,
+.mepr-auth-surface .mepr-auth input[type="submit"].mepr-auth__button {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 52px;
+  margin: 0 !important;
+  padding: 0 22px !important;
+  color: $white !important;
+  font-size: 0.9375rem !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  text-align: center;
+  text-decoration: none !important;
+  background: $auth-primary-dark !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  cursor: pointer;
+
+  &:hover,
+  &:focus {
+    color: $white !important;
+    background: scale-color($auth-primary-dark, $lightness: -10%) !important;
+    text-decoration: none !important;
+    outline: 0;
+  }
+}
+
+.mepr-auth-surface .mepr-auth__footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+  color: $gray-500;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+
+  a {
+    color: $auth-primary-dark;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+
+    &:hover,
+    &:focus {
+      color: $gray-800;
+    }
+  }
+}
+
+.mepr-auth-surface .mepr-auth__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 28px;
+
+  .mepr-auth__button {
+    width: auto;
+    min-width: 180px;
+  }
+}
+
+.mepr-auth-surface .mepr-auth__link {
+  color: $auth-primary-dark;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.mepr-auth-surface .mepr-auth__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 18px;
+  color: $white;
+  background: $auth-primary-dark;
+  border-radius: 10px;
+
+  svg {
+    width: 24px !important;
+    height: 24px !important;
+    color: currentColor !important;
+    fill: none !important;
+    stroke: currentColor !important;
+  }
+
+  &--error {
+    color: #d03b31;
+    background: #fff1ef;
+  }
+}
+
+.mepr-auth-surface .mepr-auth__message,
+.mepr-auth-surface .mepr-auth__notice {
+  margin: 18px 0 0;
+  padding: 12px 14px;
+  color: #bf3028;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.45;
+  background: #fff4f2;
+  border: 1px solid #f1c7c1;
+  border-radius: 8px;
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li + li {
+    margin-top: 4px;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.mepr-auth-surface .mepr-auth__message--success {
+  color: #336b3b;
+  background: #f0f8f1;
+  border-color: #cde7d0;
+}
+
+.mepr-auth-surface .mepr-auth__quote {
+  color: rgba($gray-800, 0.78);
+  font-size: 0.9375rem;
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1.7;
+}
+
+.mepr-auth-surface .mepr-auth__benefits {
+  display: grid;
+  gap: 12px;
+  margin: 28px 0 0;
+  padding: 0;
+  color: rgba($gray-700, 0.82);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.45;
+  list-style: none;
+
+  li {
+    position: relative;
+    padding-left: 24px;
+  }
+
+  li::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: $auth-primary-dark;
+    content: "✓";
+  }
+}
+
+@media screen and (max-width: 767px) {
+  body.mepr-auth-surface {
+    #masthead.site-header.mepr-auth-header {
+      min-height: 72px;
+      padding: 16px 20px !important;
+
+      .site-branding__logo,
+      .site-logo {
+        width: 118px !important;
+      }
+    }
+
+    .mepr-auth-header__secure span {
+      display: none;
+    }
+  }
+
+  .mepr-auth-surface .mepr-auth {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    max-width: 560px;
+    padding: 32px 16px 56px;
+  }
+
+  .mepr-auth-surface .mepr-auth__card,
+  .mepr-auth-surface .mepr-auth__side {
+    padding: 24px;
+  }
+
+  .mepr-auth-surface .mepr-auth__side {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 575px) {
+  body.mepr-auth-surface {
+    #masthead.site-header.mepr-auth-header {
+      grid-template-columns: 1fr auto 1fr;
+      padding: 14px 16px !important;
+    }
+
+    .mepr-auth-header__back span,
+    .mepr-auth-header__secure {
+      display: none;
+    }
+  }
+
+  .mepr-auth-surface .mepr-auth__card {
+    padding: 22px;
+  }
+
+  .mepr-auth-surface .mepr-auth h1 {
+    font-size: 1.5rem;
+  }
+}

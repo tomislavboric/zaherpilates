@@ -12,30 +12,84 @@ $payment_methods        = isset( $payment_methods ) && is_array( $payment_method
 $payment_methods_count  = count( $payment_methods );
 $checkout_is_recurring  = method_exists( $product, 'is_one_time_payment' ) ? ! $product->is_one_time_payment() : true;
 $checkout_product_title = get_the_title( $product->ID );
-$format_checkout_price  = static function( $html ) {
-    $html = preg_replace( '/(?<=\d)\.(?=\d{2}\b)/', ',', (string) $html );
-    $html = preg_replace( '/\s*with\s+coupon\s+/iu', ' uz kupon ', $html );
-    $html = preg_replace( '/\bFree\s+forever\b/iu', 'Besplatno zauvijek', $html );
+$normalize_checkout_price_text = static function( $html ) {
+    $text = trim( preg_replace( '/\s+/', ' ', wp_strip_all_tags( (string) $html ) ) );
+    $text = preg_replace( '/(?<=\d)\.(?=\d{2}\b)/', ',', $text );
+    $text = preg_replace( '/\s*with\s+coupon\s+/iu', ' uz kupon ', $text );
+    $text = preg_replace( '/\bFree\s+forever\b/iu', 'Besplatno zauvijek', $text );
+    $text = preg_replace( '/\bFree\b/iu', 'Besplatno', $text );
+    $text = preg_replace( '/\bthen\b/iu', 'poslije', $text );
 
-    // Strip the recurring period suffix ("/ 3 Mjeseca", "/ 1 Year", "/ 6 Months", etc.)
-    // — we render the period as a separate, smaller subtitle below the amount.
-    $html = preg_replace(
-        '#\s*/\s*\d+\s+(?:Mjesec[a-zčćžšđ]*|Mjeseci|Godin[a-zčćžšđ]*|Tjed[a-zčćžšđ]*|Dan[a-zčćžšđ]*|Year[s]?|Month[s]?|Week[s]?|Day[s]?)\b#iu',
+    return trim( $text );
+};
+$strip_checkout_period_suffix = static function( $text ) {
+    return trim( preg_replace(
+        '#\s*/\s*(?:\d+\s+)?(?:Mjesec[a-zčćžšđ]*|Mjeseci|Godin[a-zčćžšđ]*|Tjed[a-zčćžšđ]*|Dan[a-zčćžšđ]*|Year[s]?|Month[s]?|Week[s]?|Day[s]?)\b#iu',
         '',
-        $html
-    );
+        (string) $text
+    ) );
+};
+$shorten_checkout_period_units = static function( $text ) {
+    $text = preg_replace( '/\b(?:Mjeseci|Mjeseca|Months?)\b/iu', 'mj.', (string) $text );
+    $text = preg_replace( '/\b(?:Godina|Godine|Years?)\b/iu', 'god.', $text );
+    $text = preg_replace( '/\b(?:Tjedana|Tjedna|Weeks?)\b/iu', 'tj.', $text );
+    $text = preg_replace( '/\b(?:Dana|Days?)\b/iu', 'dana', $text );
 
-    return trim( $html );
+    return trim( $text );
+};
+$parse_checkout_price = static function( $html, $fallback_period_text = '' ) use ( $normalize_checkout_price_text, $strip_checkout_period_suffix, $shorten_checkout_period_units ) {
+    $text    = $normalize_checkout_price_text( $html );
+    $main    = $text;
+    $renewal = '';
+
+    if ( preg_match( '/^(.*?)\s*,?\s*(?:poslije|then)\s+(.+)$/iu', $text, $matches ) ) {
+        $main    = trim( $matches[1] );
+        $renewal = trim( $matches[2] );
+    }
+
+    $is_proration = (bool) preg_match( '/\((?:proration|prorated)\)/iu', $main );
+    $main         = trim( preg_replace( '/\s*\((?:proration|prorated)\)\s*/iu', ' ', $main ) );
+    $value        = $strip_checkout_period_suffix( $main );
+    $period       = $fallback_period_text;
+
+    if ( preg_match( '/^(\d+)\s+(?:Dan[a-zčćžšđ]*|Days?)\s+(?:za|for)\s+(.+)$/iu', $main, $matches ) ) {
+        $value        = $strip_checkout_period_suffix( $matches[2] );
+        $period       = sprintf(
+            /* translators: %d: number of prorated days */
+            _n( 'Prorata za %d dan', 'Prorata za %d dana', (int) $matches[1], 'zaherpilates' ),
+            (int) $matches[1]
+        );
+        $is_proration = true;
+    }
+
+    if ( '' !== $renewal ) {
+        $renewal = trim( preg_replace( '/\s*\((?:proration|prorated)\)\s*/iu', ' ', $renewal ) );
+        $renewal = $shorten_checkout_period_units( $renewal );
+        $renewal = sprintf(
+            /* translators: %s: renewal price */
+            __( 'Zatim %s', 'zaherpilates' ),
+            $renewal
+        );
+    }
+
+    return array(
+        'value'        => $value,
+        'period'       => $period,
+        'renewal'      => $renewal,
+        'is_proration' => $is_proration,
+    );
 };
 
 if ( '' === $checkout_product_title ) {
     $checkout_product_title = $product->post_title;
 }
 
+$checkout_period_text = function_exists( 'zaher_get_billing_period_text' ) ? zaher_get_billing_period_text( $product ) : '';
+
 ob_start();
 MeprProductsHelper::display_invoice( $product, $mepr_coupon_code_value );
-$checkout_price_html  = trim( $format_checkout_price( ob_get_clean() ) );
-$checkout_price_label = trim( preg_replace( '/\s+/', ' ', wp_strip_all_tags( $checkout_price_html ) ) );
+$checkout_price_parts = $parse_checkout_price( ob_get_clean(), $checkout_period_text );
+$checkout_price_label = $checkout_price_parts['value'];
 $signup_button_text   = trim( wp_strip_all_tags( stripslashes( $product->signup_button_text ) ) );
 
 if ( '' === $signup_button_text ) {
@@ -93,13 +147,15 @@ $checkout_form_action .= '#mepr_jump';
             <?php MeprHooks::do_action( 'mepr-checkout-before-price', $product->ID ); ?>
 
             <?php if ( ( $product->register_price_action !== 'hidden' ) && MeprHooks::apply_filters( 'mepr_checkout_show_terms', true, $product ) ) : ?>
-                <?php $checkout_period_text = function_exists( 'zaher_get_billing_period_text' ) ? zaher_get_billing_period_text( $product ) : ''; ?>
                 <div class="mp-form-row mepr_bold mepr_price">
                     <div class="mepr_price_cell_label"><?php esc_html_e( 'Ukupno danas', 'zaherpilates' ); ?></div>
                     <div class="mepr_price_cell invoice-amount" data-billing-period="<?php echo esc_attr( $checkout_period_text ); ?>">
-                        <span class="invoice-amount-value"><?php echo wp_kses_post( $checkout_price_html ); ?></span>
-                        <?php if ( '' !== $checkout_period_text ) : ?>
-                            <span class="invoice-amount-period"><?php echo esc_html( $checkout_period_text ); ?></span>
+                        <span class="invoice-amount-value"><?php echo esc_html( $checkout_price_parts['value'] ); ?></span>
+                        <?php if ( '' !== $checkout_price_parts['period'] ) : ?>
+                            <span class="invoice-amount-period"><?php echo esc_html( $checkout_price_parts['period'] ); ?></span>
+                        <?php endif; ?>
+                        <?php if ( '' !== $checkout_price_parts['renewal'] ) : ?>
+                            <span class="invoice-amount-renewal"><?php echo esc_html( $checkout_price_parts['renewal'] ); ?></span>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -327,9 +383,23 @@ $checkout_form_action .= '#mepr_jump';
 
                 <div class="mepr-payment-methods-wrapper">
                     <div class="mepr-payment-methods-heading">
-                        <h3><?php esc_html_e( 'Kreditna / debitna kartica', 'zaherpilates' ); ?></h3>
-                        <div class="mepr-payment-methods-icons">
-                            <?php echo MeprOptionsHelper::payment_methods_icons( $payment_methods ); ?>
+                        <div class="mepr-payment-methods-heading-text">
+                            <h3>
+                                <svg class="mepr-payment-methods-title-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                    <rect x="1" y="4" width="22" height="16" rx="2"/>
+                                    <line x1="1" y1="10" x2="23" y2="10"/>
+                                </svg>
+                                <?php esc_html_e( 'Kartica', 'zaherpilates' ); ?>
+                            </h3>
+                            <p class="mepr-payment-methods-subtitle">
+                                <?php esc_html_e( 'Plaćanje se završava sigurno na Stripe-u.', 'zaherpilates' ); ?>
+                            </p>
+                        </div>
+                        <div class="mepr-payment-methods-icons" aria-hidden="true">
+                            <span class="mepr-card-logo mepr-card-logo--visa">VISA</span>
+                            <span class="mepr-card-logo mepr-card-logo--mc">MC</span>
+                            <span class="mepr-card-logo mepr-card-logo--maestro">MAESTRO</span>
+                            <span class="mepr-card-logo mepr-card-logo--amex">AMEX</span>
                         </div>
                     </div>
                     <div class="mepr-payment-methods-radios<?php echo 1 === $payment_methods_count ? ' mepr-hidden' : ''; ?>">
@@ -337,7 +407,9 @@ $checkout_form_action .= '#mepr_jump';
                     </div>
                     <?php echo MeprOptionsHelper::payment_methods_descriptions( $payment_methods, $product ); ?>
                     <div class="mepr-stripe-badge">
-                        <span aria-hidden="true">◇</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
                         <?php esc_html_e( 'Plaćanje zaštićeno Stripe-om', 'zaherpilates' ); ?>
                     </div>
                 </div>

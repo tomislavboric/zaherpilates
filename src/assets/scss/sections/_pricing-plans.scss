@@ -433,11 +433,14 @@
     line-height: 1.45;
 
     &::before {
-      content: "\2713";
+      content: "";
       flex: 0 0 16px;
-      color: $primary-color;
-      font-size: 14px;
-      line-height: 1.45;
+      width: 16px;
+      height: 16px;
+      margin-top: 2px;
+      background-color: $primary-color;
+      mask: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center / 16px 16px no-repeat;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center / 16px 16px no-repeat;
     }
 
     .mepr-price-box-benefit-text {
@@ -454,10 +457,9 @@
       color: $gray-400;
 
       &::before {
-        content: "\00d7";
-        color: $gray-300;
-        font-size: 20px;
-        line-height: 1;
+        background-color: $gray-300;
+        mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='18' y1='6' x2='6' y2='18'/%3E%3Cline x1='6' y1='6' x2='18' y2='18'/%3E%3C/svg%3E");
+        -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='18' y1='6' x2='6' y2='18'/%3E%3Cline x1='6' y1='6' x2='18' y2='18'/%3E%3C/svg%3E");
       }
 
       strong {

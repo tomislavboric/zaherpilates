@@ -1,53 +1,66 @@
 <?php if ( ! defined( 'ABSPATH' ) ) {
     die( 'You are not allowed to call this page directly.' );
-} ?>
+}
+
+$katalog_page = get_page_by_path( 'katalog' );
+$katalog_url  = $katalog_page instanceof WP_Post ? get_permalink( $katalog_page ) : home_url( '/katalog/' );
+?>
 
 <div class="mepr-signup-form mepr-form">
-    <div class="mepr-checkout-container thankyou mp_wrapper alignwide">
+    <div class="mepr-checkout-container mepr-checkout-thankyou<?php echo $has_welcome_image && ! empty( $welcome_image ) ? ' has-welcome-image' : ''; ?> mp_wrapper alignwide">
 
         <?php if ( $has_welcome_image && ! empty( $welcome_image ) ) : ?>
-            <div class="form-wrapper">
+            <aside class="mepr-checkout-thankyou__media" aria-hidden="true">
                 <figure>
                     <img class="thankyou-image" src="<?php echo esc_url( $welcome_image ); ?>" alt="">
                 </figure>
-            </div>
+            </aside>
         <?php endif; ?>
 
-        <div class="invoice-wrapper thankyou">
-            <h2><?php esc_html_e( 'Hvala na kupnji', 'zaherpilates' ); ?></h2>
+        <section class="mepr-checkout-thankyou__card" aria-labelledby="mepr-checkout-thankyou-title">
+            <div class="mepr-checkout-thankyou__hero">
+                <span class="mepr-checkout-thankyou__icon" aria-hidden="true">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M20 6L9 17l-5-5"></path>
+                    </svg>
+                </span>
+                <p class="mepr-checkout-thankyou__eyebrow"><?php esc_html_e( 'Plaćanje uspješno', 'zaherpilates' ); ?></p>
+                <h1 id="mepr-checkout-thankyou-title"><?php esc_html_e( 'Čestitam na kupnji!', 'zaherpilates' ); ?></h1>
+                <p class="mepr-checkout-thankyou__intro">
+                    <?php esc_html_e( 'Tvoj pristup LOOP katalogu je aktivan. Možeš odmah odabrati prvi trening.', 'zaherpilates' ); ?>
+                </p>
+            </div>
 
             <?php if ( $hide_invoice ) : ?>
-                <?php echo wp_kses_post( $invoice_message ); ?>
-            <?php else : ?>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                    class="w-6 h-6 thankyou">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-
-                <div class="mepr-order-no">
-                    <p><?php esc_html_e( 'Plaćanje uspješno', 'zaherpilates' ); ?></p>
-                    <p>
-                        <?php
-                        printf(
-                            /* translators: %s: order/transaction number */
-                            esc_html__( 'Narudžba: %s', 'zaherpilates' ),
-                            esc_html( $trans_num )
-                        );
-                        ?>
-                    </p>
+                <div class="mepr-checkout-thankyou__message">
+                    <?php echo wp_kses_post( $invoice_message ); ?>
                 </div>
-
-                <div class="mp-form-row mepr_bold mepr_price">
-                    <div class="mepr_price_cell invoice-amount">
-                        <?php echo wp_kses_post( $amount ); ?>
+            <?php else : ?>
+                <div class="mepr-checkout-thankyou__summary">
+                    <div>
+                        <span><?php esc_html_e( 'Narudžba', 'zaherpilates' ); ?></span>
+                        <strong><?php echo esc_html( $trans_num ); ?></strong>
+                    </div>
+                    <div>
+                        <span><?php esc_html_e( 'Plaćeno danas', 'zaherpilates' ); ?></span>
+                        <strong><?php echo wp_kses_post( $amount ); ?></strong>
                     </div>
                 </div>
 
-                <?php echo wp_kses_post( $invoice_html ); ?>
+                <div class="mepr-checkout-thankyou__invoice">
+                    <div class="mepr-checkout-section-title"><?php esc_html_e( 'Sažetak narudžbe', 'zaherpilates' ); ?></div>
+                    <?php echo wp_kses_post( $invoice_html ); ?>
+                </div>
+            <?php endif; ?>
 
+            <?php do_action( 'mepr_readylaunch_thank_you_page_after_content' ); ?>
+
+            <div class="mepr-checkout-thankyou__actions">
+                <a class="mepr-checkout-thankyou__catalog" href="<?php echo esc_url( $katalog_url ); ?>">
+                    <?php esc_html_e( 'Idi na katalog treninga', 'zaherpilates' ); ?>
+                </a>
                 <?php if ( class_exists( 'MePdfInvoicesCtrl' ) ) : ?>
-                    <a class="mepr-invoice-print mepr-button" href="<?php echo esc_url( MeprUtils::admin_url(
+                    <a class="mepr-invoice-print mepr-checkout-thankyou__print" href="<?php echo esc_url( MeprUtils::admin_url(
                         'admin-ajax.php',
                         array( 'download_invoice', 'mepr_invoices_nonce' ),
                         array(
@@ -62,13 +75,11 @@
                         <?php esc_html_e( 'Ispiši', 'zaherpilates' ); ?>
                     </a>
                 <?php endif; ?>
-            <?php endif; ?>
+            </div>
 
-            <?php do_action( 'mepr_readylaunch_thank_you_page_after_content' ); ?>
-
-            <p>
-                <a href="<?php echo esc_url( home_url() ); ?>"><?php esc_html_e( 'Natrag na početnu', 'zaherpilates' ); ?></a>
+            <p class="mepr-checkout-thankyou__note">
+                <?php esc_html_e( 'Potvrda kupnje i račun stižu na tvoju e-mail adresu.', 'zaherpilates' ); ?>
             </p>
-        </div>
+        </section>
     </div>
 </div>
