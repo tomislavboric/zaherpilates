@@ -553,6 +553,9 @@ function zaher_get_user_active_subscription_data() {
         'active_ids'      => array(),
         'primary_product' => null,
         'next_billing'    => '',
+        'period_end'      => '',
+        'sub_status'      => '',
+        'is_cancelled'    => false,
         'account_url'     => '',
     );
 
@@ -586,6 +589,18 @@ function zaher_get_user_active_subscription_data() {
                     continue;
                 }
 
+                if ( ! empty( $txn->subscription_id ) && class_exists( 'MeprSubscription' ) ) {
+                    $sub = new MeprSubscription( (int) $txn->subscription_id );
+
+                    if ( $sub && ! empty( $sub->id ) ) {
+                        $data['sub_status'] = isset( $sub->status ) ? (string) $sub->status : '';
+
+                        if ( MeprSubscription::$cancelled_str === $data['sub_status'] ) {
+                            $data['is_cancelled'] = true;
+                        }
+                    }
+                }
+
                 if ( empty( $txn->expires_at ) || '0000-00-00 00:00:00' === $txn->expires_at ) {
                     break;
                 }
@@ -593,7 +608,12 @@ function zaher_get_user_active_subscription_data() {
                 $timestamp = strtotime( $txn->expires_at );
 
                 if ( $timestamp ) {
-                    $data['next_billing'] = date_i18n( 'd.m.Y', $timestamp );
+                    $formatted          = date_i18n( 'd.m.Y', $timestamp );
+                    $data['period_end'] = $formatted;
+
+                    if ( ! $data['is_cancelled'] ) {
+                        $data['next_billing'] = $formatted;
+                    }
                 }
 
                 break;
@@ -615,22 +635,44 @@ function zaher_render_pricing_status_bar() {
         return '';
     }
 
-    $plan_title  = get_the_title( $data['primary_product']->ID );
-    $count       = count( $data['active_ids'] );
-    $extra_count = $count - 1;
-    $manage_url  = $data['account_url'] ? $data['account_url'] : home_url( '/' );
+    $plan_title   = get_the_title( $data['primary_product']->ID );
+    $count        = count( $data['active_ids'] );
+    $extra_count  = $count - 1;
+    $manage_url   = $data['account_url'] ? $data['account_url'] : home_url( '/' );
+    $is_cancelled = ! empty( $data['is_cancelled'] );
+    $bar_classes  = 'pricing-status-bar';
+
+    if ( $is_cancelled ) {
+        $bar_classes .= ' pricing-status-bar--cancelled';
+    }
 
     ob_start();
     ?>
-    <div class="pricing-status-bar" role="status">
+    <div class="<?php echo esc_attr( $bar_classes ); ?>" role="status">
         <div class="pricing-status-bar__icon" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <path d="M9 12l2 2 4-4"></path>
-                <circle cx="12" cy="12" r="10"></circle>
-            </svg>
+            <?php if ( $is_cancelled ) : ?>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+            <?php else : ?>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M9 12l2 2 4-4"></path>
+                    <circle cx="12" cy="12" r="10"></circle>
+                </svg>
+            <?php endif; ?>
         </div>
         <div class="pricing-status-bar__copy">
-            <p class="pricing-status-bar__label"><?php esc_html_e( 'Tvoja aktivna pretplata', 'zaherpilates' ); ?></p>
+            <p class="pricing-status-bar__label">
+                <?php
+                if ( $is_cancelled ) {
+                    esc_html_e( 'Pretplata otkazana', 'zaherpilates' );
+                } else {
+                    esc_html_e( 'Tvoja aktivna pretplata', 'zaherpilates' );
+                }
+                ?>
+            </p>
             <p class="pricing-status-bar__plan">
                 <strong><?php echo esc_html( $plan_title ); ?></strong>
                 <?php if ( $extra_count > 0 ) : ?>
@@ -645,20 +687,37 @@ function zaher_render_pricing_status_bar() {
                     </span>
                 <?php endif; ?>
             </p>
-            <?php if ( ! empty( $data['next_billing'] ) ) : ?>
+            <?php
+            $meta_date = $is_cancelled ? $data['period_end'] : $data['next_billing'];
+            if ( ! empty( $meta_date ) ) :
+                ?>
                 <p class="pricing-status-bar__meta">
                     <?php
-                    printf(
-                        /* translators: %s: next billing date in d.m.Y format */
-                        esc_html__( 'Sljedeći obračun: %s', 'zaherpilates' ),
-                        '<strong>' . esc_html( $data['next_billing'] ) . '</strong>'
-                    );
+                    if ( $is_cancelled ) {
+                        printf(
+                            /* translators: %s: date until access remains, in d.m.Y format */
+                            esc_html__( 'Vrijedi do: %s', 'zaherpilates' ),
+                            '<strong>' . esc_html( $meta_date ) . '</strong>'
+                        );
+                    } else {
+                        printf(
+                            /* translators: %s: next billing date in d.m.Y format */
+                            esc_html__( 'Sljedeći obračun: %s', 'zaherpilates' ),
+                            '<strong>' . esc_html( $meta_date ) . '</strong>'
+                        );
+                    }
                     ?>
                 </p>
             <?php endif; ?>
         </div>
         <a class="pricing-status-bar__cta" href="<?php echo esc_url( $manage_url ); ?>">
-            <?php esc_html_e( 'Upravljaj pretplatom', 'zaherpilates' ); ?>
+            <?php
+            if ( $is_cancelled ) {
+                esc_html_e( 'Pregledaj pretplatu', 'zaherpilates' );
+            } else {
+                esc_html_e( 'Upravljaj pretplatom', 'zaherpilates' );
+            }
+            ?>
             <span aria-hidden="true">→</span>
         </a>
     </div>
@@ -685,9 +744,16 @@ add_filter(
             && in_array( (int) $product->ID, $subscription_data['active_ids'], true );
 
         if ( $is_current_plan ) {
+            $is_cancelled    = ! empty( $subscription_data['is_cancelled'] );
+            $current_classes = 'mepr-price-box is-current-plan';
+
+            if ( $is_cancelled ) {
+                $current_classes .= ' is-cancelled';
+            }
+
             $output = preg_replace(
                 '/class="mepr-price-box([^"]*)"/',
-                'class="mepr-price-box is-current-plan$1"',
+                'class="' . $current_classes . '$1"',
                 $output,
                 1
             );
@@ -695,9 +761,12 @@ add_filter(
             $manage_url      = $subscription_data['account_url']
                 ? $subscription_data['account_url']
                 : home_url( '/' );
+            $button_label    = $is_cancelled
+                ? __( 'Pregledaj pretplatu', 'zaherpilates' )
+                : __( 'Upravljaj pretplatom', 'zaherpilates' );
             $current_button  = '<div class="mepr-price-box-button mepr-price-box-button--current">';
             $current_button .= '<a class="mepr-price-box-current-manage" href="' . esc_url( $manage_url ) . '">';
-            $current_button .= esc_html__( 'Upravljaj pretplatom', 'zaherpilates' );
+            $current_button .= esc_html( $button_label );
             $current_button .= ' <span aria-hidden="true">→</span>';
             $current_button .= '</a>';
             $current_button .= '</div>';

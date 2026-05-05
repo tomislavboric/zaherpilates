@@ -46,14 +46,14 @@ import $ from 'jquery';
     if (prorationMatch) {
       const dayCount = Number(prorationMatch[1] || 0);
       displayValue = stripCheckoutPeriodSuffix(prorationMatch[2]);
-      period = `Prorata za ${dayCount} ${dayCount === 1 ? 'dan' : 'dana'}`;
+      period = `Za preostali dio trenutnog razdoblja (${dayCount} ${dayCount === 1 ? 'dan' : 'dana'})`;
     } else {
       displayValue = stripCheckoutPeriodSuffix(main);
     }
 
     if (renewal) {
       renewal = shortenCheckoutPeriodUnits(renewal.replace(/\s*\((?:proration|prorated)\)\s*/giu, ' '));
-      renewal = renewal ? `Zatim ${renewal}` : '';
+      renewal = renewal ? `Nakon toga ${renewal}` : '';
     }
 
     return {

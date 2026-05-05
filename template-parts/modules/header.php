@@ -45,13 +45,14 @@ $current_user = wp_get_current_user();
 				$payments_url     = add_query_arg( 'tab', 'payments', $account_url );
 				$password_url     = add_query_arg( 'tab', 'password', $account_url );
 				$logout_url       = wp_logout_url( home_url() );
+				$show_upgrade_cta = ! is_page( 'cjenik' );
 
 				// Only use MeprUtils for logout URL (account page is custom)
 				if ( class_exists( 'MeprUtils' ) ) {
 					$logout_url = MeprUtils::logout_url();
 				}
 				?>
-				<?php if ( function_exists( 'zaher_user_has_upgrade_available' ) && zaher_user_has_upgrade_available() ) : ?>
+				<?php if ( $show_upgrade_cta && function_exists( 'zaher_user_has_upgrade_available' ) && zaher_user_has_upgrade_available() ) : ?>
 					<a class="header__account-upgrade" href="<?php echo esc_url( home_url( '/cjenik/' ) ); ?>">
 						<?php echo zaher_lineicon_svg( 'bolt' ); ?>
 						<?php esc_html_e( 'Upgrade', 'zaherpilates' ); ?>

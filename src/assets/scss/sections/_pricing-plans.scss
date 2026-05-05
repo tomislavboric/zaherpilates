@@ -174,6 +174,20 @@
       text-decoration: none;
     }
   }
+
+  &--cancelled {
+    border-color: rgba($warning-color, 0.45);
+    background: rgba($warning-color, 0.06);
+
+    .pricing-status-bar__icon {
+      color: darken($warning-color, 10%);
+      background: rgba($warning-color, 0.15);
+    }
+
+    .pricing-status-bar__label {
+      color: darken($warning-color, 18%);
+    }
+  }
 }
 
 .pricing-plans,
@@ -262,6 +276,16 @@
         letter-spacing: 0.06em;
         line-height: 1.2;
         text-transform: uppercase;
+      }
+
+      &.is-cancelled {
+        border-color: rgba($warning-color, 0.5);
+        background: rgba($warning-color, 0.05);
+
+        &::before {
+          background: darken($warning-color, 10%);
+          content: "Otkazana";
+        }
       }
     }
 

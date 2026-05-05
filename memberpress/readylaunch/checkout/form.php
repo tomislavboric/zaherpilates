@@ -56,7 +56,7 @@ $parse_checkout_price = static function( $html, $fallback_period_text = '' ) use
         $value        = $strip_checkout_period_suffix( $matches[2] );
         $period       = sprintf(
             /* translators: %d: number of prorated days */
-            _n( 'Prorata za %d dan', 'Prorata za %d dana', (int) $matches[1], 'zaherpilates' ),
+            _n( 'Za preostali dio trenutnog razdoblja (%d dan)', 'Za preostali dio trenutnog razdoblja (%d dana)', (int) $matches[1], 'zaherpilates' ),
             (int) $matches[1]
         );
         $is_proration = true;
@@ -67,7 +67,7 @@ $parse_checkout_price = static function( $html, $fallback_period_text = '' ) use
         $renewal = $shorten_checkout_period_units( $renewal );
         $renewal = sprintf(
             /* translators: %s: renewal price */
-            __( 'Zatim %s', 'zaherpilates' ),
+            __( 'Nakon toga %s', 'zaherpilates' ),
             $renewal
         );
     }
