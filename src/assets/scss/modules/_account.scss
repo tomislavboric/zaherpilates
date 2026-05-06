@@ -321,6 +321,49 @@
     }
   }
 
+  &__memberpress-profile-fields {
+    .mp-form-row {
+      padding: 16px 0;
+      border-bottom: 1px solid $gray-100;
+    }
+
+    .mp-form-label label {
+      display: block;
+      margin-bottom: 4px;
+      color: $gray-500;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .cc-error {
+      display: none;
+    }
+
+    .mepr-form-input:not([type="checkbox"]):not([type="radio"]),
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid $gray-200;
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: $gray-800;
+      font-size: 15px;
+      background: $white;
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    input[type="checkbox"],
+    input[type="radio"] {
+      margin-right: 8px;
+    }
+  }
+
   &__subscription-name {
     font-size: 20px;
     font-weight: 600;

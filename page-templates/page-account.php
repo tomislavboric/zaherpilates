@@ -165,17 +165,17 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 					<h1 class="account-page__title">Profil</h1>
 
 					<div class="account-page__card">
-						<form class="account-page__form" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+						<form class="account-page__form" method="post" enctype="multipart/form-data" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 							<input type="hidden" name="action" value="zaher_update_profile">
 							<?php wp_nonce_field( 'zaher_update_profile', 'zaher_profile_nonce' ); ?>
 
 							<div class="account-page__field">
 								<label class="account-page__label" for="profile_first_name">Ime</label>
-								<input class="account-page__input" type="text" id="profile_first_name" name="first_name" value="<?php echo esc_attr( $current_user->user_firstname ); ?>">
+								<input class="account-page__input" type="text" id="profile_first_name" name="user_first_name" value="<?php echo esc_attr( $current_user->user_firstname ); ?>">
 							</div>
 							<div class="account-page__field">
 								<label class="account-page__label" for="profile_last_name">Prezime</label>
-								<input class="account-page__input" type="text" id="profile_last_name" name="last_name" value="<?php echo esc_attr( $current_user->user_lastname ); ?>">
+								<input class="account-page__input" type="text" id="profile_last_name" name="user_last_name" value="<?php echo esc_attr( $current_user->user_lastname ); ?>">
 							</div>
 							<div class="account-page__field">
 								<label class="account-page__label" for="profile_email">Email</label>
@@ -230,6 +230,19 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 										</div>
 									</div>
 								<?php endif; ?>
+
+								<?php if ( class_exists( 'MeprUsersHelper' ) ) : ?>
+									<div class="account-page__memberpress-profile-fields">
+										<?php MeprUsersHelper::render_custom_fields( null, 'account', '', false ); ?>
+										<?php
+										if ( class_exists( 'MeprHooks' ) ) {
+											MeprHooks::do_action( 'mepr-account-home-fields', isset( $mepr_user ) ? $mepr_user : null );
+										} else {
+											do_action( 'mepr-account-home-fields', isset( $mepr_user ) ? $mepr_user : null );
+										}
+										?>
+									</div>
+								<?php endif; ?>
 							<?php endif; ?>
 							<div class="account-page__field">
 								<label class="account-page__label">Član od</label>
@@ -248,21 +261,33 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 							<?php if ( isset( $_GET['profile_error'] ) ) : ?>
 								<div class="account-page__message account-page__message--error">
 									<?php
-										$error = sanitize_text_field( $_GET['profile_error'] );
-										switch ( $error ) {
-											case 'email':
-												echo 'Unesite ispravnu email adresu.';
-												break;
-											case 'exists':
-												echo 'Email adresa se već koristi.';
-												break;
-											case 'nonce':
-												echo 'Došlo je do greške. Pokušajte ponovno.';
-												break;
-											default:
-												echo 'Nije moguće spremiti profil.';
-										}
-										?>
+									$error = sanitize_text_field( $_GET['profile_error'] );
+									switch ( $error ) {
+										case 'email':
+											echo 'Unesite ispravnu email adresu.';
+											break;
+										case 'exists':
+											echo 'Email adresa se već koristi.';
+											break;
+										case 'nonce':
+											echo 'Došlo je do greške. Pokušajte ponovno.';
+											break;
+										case 'memberpress':
+											$profile_errors = function_exists( 'zaher_get_profile_errors' ) ? zaher_get_profile_errors( get_current_user_id() ) : array();
+											if ( empty( $profile_errors ) ) {
+												echo 'Provjerite označena polja.';
+											} else {
+												echo '<ul>';
+												foreach ( $profile_errors as $profile_error ) {
+													echo '<li>' . esc_html( $profile_error ) . '</li>';
+												}
+												echo '</ul>';
+											}
+											break;
+										default:
+											echo 'Nije moguće spremiti profil.';
+									}
+									?>
 								</div>
 							<?php endif; ?>
 						</form>
@@ -308,6 +333,7 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 							$price_value       = '';
 							$date_label        = '';
 							$date_value        = '';
+							$card_exp_value    = '';
 							$can_manage        = false;
 							$subscription_action_links = array();
 
@@ -360,15 +386,24 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 									}
 								}
 
-								$can_manage = in_array(
-									$sub->status,
-									array(
-										MeprSubscription::$active_str,
-										MeprSubscription::$suspended_str,
-										MeprSubscription::$pending_str,
-									),
-									true
-								);
+								if ( ! empty( $sub->cc_exp_month ) && ! empty( $sub->cc_exp_year ) ) {
+									$card_exp_value = sprintf( '%1$02d/%2$d', (int) $sub->cc_exp_month, (int) $sub->cc_exp_year );
+								}
+
+								$row_is_active = isset( $subscription_row->active ) && false !== strpos( (string) $subscription_row->active, 'mepr-active' );
+								$can_manage    = MeprSubscription::$pending_str !== $sub->status
+									&& (
+										in_array(
+											$sub->status,
+											array(
+												MeprSubscription::$active_str,
+												MeprSubscription::$suspended_str,
+											),
+											true
+										)
+										|| $row_is_active
+									)
+									&& ( ! method_exists( $sub, 'in_grace_period' ) || ! $sub->in_grace_period() );
 
 								if ( $can_manage && function_exists( 'zaher_account_subscription_action_available' ) && function_exists( 'zaher_account_subscription_action_url' ) ) {
 									$payment_method = method_exists( $sub, 'payment_method' ) ? $sub->payment_method() : null;
@@ -444,30 +479,36 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 									</span>
 								</div>
 								<h3 class="account-page__subscription-name"><?php echo esc_html( $product_title ); ?></h3>
-									<div class="account-page__subscription-details">
-										<?php if ( ! empty( $date_value ) ) : ?>
-											<div class="account-page__subscription-detail">
-												<span class="account-page__detail-label"><?php echo esc_html( $date_label ); ?>:</span>
-												<span class="account-page__detail-value"><?php echo esc_html( $date_value ); ?></span>
+								<div class="account-page__subscription-details">
+									<?php if ( ! empty( $date_value ) ) : ?>
+										<div class="account-page__subscription-detail">
+											<span class="account-page__detail-label"><?php echo esc_html( $date_label ); ?>:</span>
+											<span class="account-page__detail-value"><?php echo esc_html( $date_value ); ?></span>
 										</div>
 									<?php endif; ?>
 									<?php if ( ! empty( $price_value ) ) : ?>
 										<div class="account-page__subscription-detail">
 											<span class="account-page__detail-label">Cijena:</span>
-												<span class="account-page__detail-value"><?php echo esc_html( $price_value ); ?></span>
-											</div>
-										<?php endif; ?>
-									</div>
-									<?php if ( $is_subscription && $can_manage && ! empty( $subscription_action_links ) ) : ?>
-										<div class="account-page__subscription-actions">
-											<?php foreach ( $subscription_action_links as $action_link ) : ?>
-												<a href="<?php echo esc_url( $action_link['url'] ); ?>" class="button button--small <?php echo esc_attr( $action_link['class'] ); ?>">
-													<?php echo esc_html( $action_link['label'] ); ?>
-												</a>
-											<?php endforeach; ?>
+											<span class="account-page__detail-value"><?php echo esc_html( $price_value ); ?></span>
+										</div>
+									<?php endif; ?>
+									<?php if ( ! empty( $card_exp_value ) ) : ?>
+										<div class="account-page__subscription-detail">
+											<span class="account-page__detail-label">Kartica vrijedi do:</span>
+											<span class="account-page__detail-value"><?php echo esc_html( $card_exp_value ); ?></span>
 										</div>
 									<?php endif; ?>
 								</div>
+								<?php if ( $is_subscription && $can_manage && ! empty( $subscription_action_links ) ) : ?>
+									<div class="account-page__subscription-actions">
+										<?php foreach ( $subscription_action_links as $action_link ) : ?>
+											<a href="<?php echo esc_url( $action_link['url'] ); ?>" class="button button--small <?php echo esc_attr( $action_link['class'] ); ?>">
+												<?php echo esc_html( $action_link['label'] ); ?>
+											</a>
+										<?php endforeach; ?>
+									</div>
+								<?php endif; ?>
+							</div>
 							<?php endforeach; ?>
 					<?php else : ?>
 						<div class="empty-state empty-state--card">

@@ -25,7 +25,18 @@ function zaher_account_subscription_action_url( $action, $sub_id, $args = array(
 	$args['action'] = sanitize_key( $action );
 	$args['sub']    = absint( $sub_id );
 
-	return zaher_account_page_url( $args );
+	$url = zaher_account_page_url( $args );
+
+	if ( 'update' === $args['action'] && function_exists( 'zaher_get_account_subscription_context' ) ) {
+		$context = zaher_get_account_subscription_context( $args['sub'] );
+		$pm      = is_wp_error( $context ) ? null : $context['gateway'];
+
+		if ( is_object( $pm ) && method_exists( $pm, 'force_ssl' ) && $pm->force_ssl() ) {
+			$url = set_url_scheme( $url, 'https' );
+		}
+	}
+
+	return $url;
 }
 
 add_filter( 'mepr-account-page-permalink', 'zaher_use_custom_account_page_for_memberpress_links' );
@@ -625,16 +636,24 @@ function zaher_account_subscription_action_available( $action, $sub, $pm = null 
 		case 'update':
 			return MeprSubscription::$pending_str !== $status
 				&& MeprSubscription::$cancelled_str !== $status
-				&& method_exists( $sub, 'can' )
-				&& $sub->can( 'update-subscriptions' )
+				&& MeprSubscription::$suspended_str !== $status
+				&& ( ! method_exists( $sub, 'in_grace_period' ) || ! $sub->in_grace_period() )
 				&& is_object( $pm )
+				&& ( ! class_exists( 'MeprBaseRealGateway' ) || $pm instanceof MeprBaseRealGateway )
+				&& method_exists( $pm, 'can' )
+				&& $pm->can( 'update-subscriptions' )
 				&& method_exists( $pm, 'display_update_account_form' );
 
 		case 'upgrade':
 			$product = method_exists( $sub, 'product' ) ? $sub->product() : null;
 			$group   = $product && method_exists( $product, 'group' ) ? $product->group() : false;
 
-			return $group && method_exists( $group, 'buyable_products' ) && count( $group->buyable_products() ) >= 1;
+			return MeprSubscription::$pending_str !== $status
+				&& $group
+				&& method_exists( $group, 'products' )
+				&& method_exists( $group, 'buyable_products' )
+				&& count( $group->products( 'ids' ) ) > 1
+				&& count( $group->buyable_products() ) >= 1;
 
 		case 'cancel':
 			return is_object( $mepr_options )
@@ -666,6 +685,26 @@ function zaher_account_subscription_action_available( $action, $sub, $pm = null 
 	}
 
 	return false;
+}
+
+function zaher_store_profile_errors( $user_id, $errors ) {
+	$errors = array_values( array_filter( array_map( 'wp_strip_all_tags', (array) $errors ) ) );
+	if ( empty( $errors ) ) {
+		return;
+	}
+
+	set_transient( 'zaher_profile_errors_' . absint( $user_id ), $errors, 5 * MINUTE_IN_SECONDS );
+}
+
+function zaher_get_profile_errors( $user_id ) {
+	$key    = 'zaher_profile_errors_' . absint( $user_id );
+	$errors = get_transient( $key );
+
+	if ( false !== $errors ) {
+		delete_transient( $key );
+	}
+
+	return is_array( $errors ) ? $errors : array();
 }
 
 add_action( 'admin_post_zaher_account_subscription_action', 'zaher_handle_account_subscription_action' );
@@ -940,9 +979,22 @@ function zaher_handle_profile_update() {
 
 	$user = wp_get_current_user();
 
-	$first_name = isset( $_POST['first_name'] ) ? sanitize_text_field( wp_unslash( $_POST['first_name'] ) ) : '';
-	$last_name  = isset( $_POST['last_name'] ) ? sanitize_text_field( wp_unslash( $_POST['last_name'] ) ) : '';
-	$email      = isset( $_POST['user_email'] ) ? sanitize_email( wp_unslash( $_POST['user_email'] ) ) : '';
+	$first_name = '';
+	if ( isset( $_POST['user_first_name'] ) ) {
+		$first_name = sanitize_text_field( wp_unslash( $_POST['user_first_name'] ) );
+	} elseif ( isset( $_POST['first_name'] ) ) {
+		$first_name = sanitize_text_field( wp_unslash( $_POST['first_name'] ) );
+	}
+
+	$last_name = '';
+	if ( isset( $_POST['user_last_name'] ) ) {
+		$last_name = sanitize_text_field( wp_unslash( $_POST['user_last_name'] ) );
+	} elseif ( isset( $_POST['last_name'] ) ) {
+		$last_name = sanitize_text_field( wp_unslash( $_POST['last_name'] ) );
+	}
+
+	$email         = isset( $_POST['user_email'] ) ? sanitize_email( wp_unslash( $_POST['user_email'] ) ) : '';
+	$email_changed = $email !== $user->user_email;
 
 	if ( $email === '' || ! is_email( $email ) ) {
 		wp_redirect( home_url( '/moj-racun/?tab=profile&profile_error=email' ) );
@@ -952,6 +1004,41 @@ function zaher_handle_profile_update() {
 	$existing_id = email_exists( $email );
 	if ( $existing_id && (int) $existing_id !== (int) $user->ID ) {
 		wp_redirect( home_url( '/moj-racun/?tab=profile&profile_error=exists' ) );
+		exit;
+	}
+
+	$memberpress_errors = array();
+	$mepr_current_user  = null;
+
+	if ( class_exists( 'MeprUser' ) ) {
+		$mepr_current_user = new MeprUser( $user->ID );
+	}
+
+	if ( class_exists( 'MeprUsersCtrl' ) ) {
+		$memberpress_errors = MeprUsersCtrl::validate_extra_profile_fields( null, null, $mepr_current_user );
+	}
+
+	if ( class_exists( 'MeprUser' ) ) {
+		$account_params = $_POST;
+		$account_params['user_first_name'] = $first_name;
+		$account_params['user_last_name']  = $last_name;
+		$account_params['user_email']      = $email;
+
+		$memberpress_errors = MeprUser::validate_account( $account_params, $memberpress_errors );
+	}
+
+	if ( class_exists( 'MeprHooks' ) ) {
+		$memberpress_errors = MeprHooks::apply_filters( 'mepr-validate-account', $memberpress_errors, $mepr_current_user );
+	} else {
+		$memberpress_errors = apply_filters( 'mepr-validate-account', $memberpress_errors, $mepr_current_user );
+	}
+
+	if ( ! empty( $memberpress_errors ) ) {
+		if ( function_exists( 'zaher_store_profile_errors' ) ) {
+			zaher_store_profile_errors( $user->ID, $memberpress_errors );
+		}
+
+		wp_redirect( home_url( '/moj-racun/?tab=profile&profile_error=memberpress' ) );
 		exit;
 	}
 
@@ -976,18 +1063,30 @@ function zaher_handle_profile_update() {
 		exit;
 	}
 
+	if ( class_exists( 'MeprUsersCtrl' ) ) {
+		MeprUsersCtrl::save_extra_profile_fields( $user->ID, true );
+	}
+
 	if ( class_exists( 'MeprUser' ) ) {
-		$address_fields = array(
-			'mepr-address-one'     => isset( $_POST['mepr-address-one'] ) ? $_POST['mepr-address-one'] : '',
-			'mepr-address-two'     => isset( $_POST['mepr-address-two'] ) ? $_POST['mepr-address-two'] : '',
-			'mepr-address-city'    => isset( $_POST['mepr-address-city'] ) ? $_POST['mepr-address-city'] : '',
-			'mepr-address-state'   => isset( $_POST['mepr-address-state'] ) ? $_POST['mepr-address-state'] : '',
-			'mepr-address-zip'     => isset( $_POST['mepr-address-zip'] ) ? $_POST['mepr-address-zip'] : '',
-			'mepr-address-country' => isset( $_POST['mepr-address-country'] ) ? $_POST['mepr-address-country'] : '',
-		);
+		$address_fields    = array();
+		$address_submitted = false;
+		foreach ( array( 'mepr-address-one', 'mepr-address-two', 'mepr-address-city', 'mepr-address-state', 'mepr-address-zip', 'mepr-address-country' ) as $address_key ) {
+			$address_submitted             = $address_submitted || isset( $_POST[ $address_key ] );
+			$address_fields[ $address_key ] = isset( $_POST[ $address_key ] ) ? sanitize_text_field( wp_unslash( $_POST[ $address_key ] ) ) : '';
+		}
 
 		$mepr_user = new MeprUser( $user->ID );
-		$mepr_user->set_address( $address_fields );
+		if ( $address_submitted ) {
+			$mepr_user->set_address( $address_fields );
+		}
+
+		if ( class_exists( 'MeprHooks' ) ) {
+			if ( $email_changed ) {
+				MeprHooks::do_action( 'mepr-update-new-user-email', $mepr_user );
+			}
+
+			MeprHooks::do_action( 'mepr-save-account', $mepr_user );
+		}
 	}
 
 	wp_redirect( home_url( '/moj-racun/?tab=profile&profile_updated=1' ) );
