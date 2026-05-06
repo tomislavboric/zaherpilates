@@ -275,7 +275,7 @@ body.mepr-checkout-surface {
 
 .mepr-checkout-container.mp_wrapper .invoice-wrapper .mepr_price_cell,
 .mepr-checkout-container.mp_wrapper .invoice-wrapper .invoice-amount {
-  display: flex;
+  display: flex !important;
   flex-direction: column;
   align-items: flex-start;
   gap: 2px;
@@ -421,6 +421,17 @@ body.mepr-checkout-surface {
 
     &.is-empty {
       display: none;
+    }
+
+    &.is-applied {
+      .cc-success {
+        display: inline-block !important;
+      }
+
+      .cc-error,
+      .mepr-coupon-loader {
+        display: none !important;
+      }
     }
   }
 
@@ -852,6 +863,7 @@ body.mepr-checkout-surface {
   line-height: 1.65;
 
   p {
+    color: $gray-800;
     margin: 0;
   }
 }
@@ -859,7 +871,6 @@ body.mepr-checkout-surface {
 .mepr-checkout-container.mp_wrapper .mepr-payment-methods-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 14px;
   margin: 0 0 20px;
   padding: 16px 20px !important;
   background: $white !important;
@@ -884,29 +895,6 @@ body.mepr-checkout-surface {
     border: 0;
     background: $gray-100;
   }
-}
-
-.mepr-checkout-container.mp_wrapper .mepr-payment-methods-title-icon {
-  flex: 0 0 15px;
-  width: 15px;
-  height: 15px;
-  color: $primary-color;
-  fill: none;
-  stroke: currentColor;
-}
-
-.mepr-checkout-container.mp_wrapper .mepr-payment-methods-heading {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.mepr-checkout-container.mp_wrapper .mepr-payment-methods-heading-text {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
 }
 
 .mepr-checkout-container.mp_wrapper .mepr-payment-methods-radios {
@@ -1555,11 +1543,5 @@ body.mepr-checkout-surface {
   .mepr-checkout-container.mp_wrapper .invoice-wrapper .mepr_price_cell,
   .mepr-checkout-container.mp_wrapper .invoice-wrapper .invoice-amount {
     text-align: left;
-  }
-
-  .mepr-checkout-container.mp_wrapper .mepr-payment-methods-heading {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 10px;
   }
 }

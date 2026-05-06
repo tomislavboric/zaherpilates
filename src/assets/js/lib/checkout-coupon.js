@@ -8,7 +8,7 @@ import $ from 'jquery';
 
     return $('<div />').html(String(value)).text()
       .replace(/(\d)\.(?=\d{2}\b)/g, '$1,')
-      .replace(/\s*with\s+coupon\s+/giu, ' uz kupon ')
+      .replace(/\s*(?:with\s+coupon|uz\s+kupon|sa\s+kuponom)\s+\S+/giu, '')
       .replace(/\bFree\s+forever\b/giu, 'Besplatno zauvijek')
       .replace(/\bFree\b/giu, 'Besplatno')
       .replace(/\bthen\b/giu, 'poslije')
@@ -91,6 +91,18 @@ import $ from 'jquery';
     return hasLoader || hasMessage;
   };
 
+  const hasAppliedCoupon = function($field) {
+    if (!$field || !$field.length) {
+      return false;
+    }
+
+    const $input = $field.find('.mepr-coupon-code').first();
+    const inputValue = $.trim($input.val() || '');
+    const appliedValue = $input.data('coupon-applied-value') || '';
+
+    return Boolean(appliedValue) && appliedValue === inputValue;
+  };
+
   const BUTTON_LABELS = {
     apply: 'Primijeni',
     loading: 'Provjeravam…',
@@ -130,6 +142,10 @@ import $ from 'jquery';
 
     if (isElementVisible($loader)) {
       return 'loading';
+    }
+
+    if (appliedValue && appliedValue === inputValue) {
+      return 'success';
     }
 
     if (isElementVisible($success)) {
@@ -192,8 +208,10 @@ import $ from 'jquery';
     $labels.each(function() {
       const $label = $(this);
       const $field = $label.closest('.mepr-checkout-coupon-field');
+      const isApplied = hasAppliedCoupon($field);
 
-      $label.toggleClass('is-empty', !hasVisibleCouponFeedback($label));
+      $label.toggleClass('is-applied', isApplied);
+      $label.toggleClass('is-empty', !isApplied && !hasVisibleCouponFeedback($label));
 
       if ($field.length) {
         updateCouponButton($field);

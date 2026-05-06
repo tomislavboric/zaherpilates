@@ -59,12 +59,18 @@ if ( $has_memberpress ) {
 			array( 'id', 'user_id', 'product_id', 'subscr_id', 'status', 'created_at', 'expires_at', 'active' )
 		);
 		$subscriptions = $subscription_table['results'];
+		if ( function_exists( 'zaher_filter_account_subscription_rows' ) ) {
+			$subscriptions = zaher_filter_account_subscription_rows( $subscriptions );
+		}
 	}
 	$transactions  = MeprTransaction::get_all_by_user_id(
 		$current_user->ID,
 		'created_at DESC',
-		10 // Limit to last 10
+		50
 	);
+	if ( function_exists( 'zaher_filter_account_payment_transactions' ) ) {
+		$transactions = zaher_filter_account_payment_transactions( $transactions, 10 );
+	}
 	$profile_address = array_merge( $profile_address, $mepr_user->full_address( false ) );
 }
 
@@ -325,7 +331,9 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 									$product_title = $product->post_title;
 								}
 
-								$latest_txn = $sub->latest_txn();
+								$latest_txn = function_exists( 'zaher_account_latest_subscription_transaction' )
+									? zaher_account_latest_subscription_transaction( $sub )
+									: $sub->latest_txn();
 								if ( $latest_txn instanceof MeprTransaction ) {
 									if ( class_exists( 'MeprTransactionsHelper' ) ) {
 										$price_value = MeprTransactionsHelper::format_currency( $latest_txn );
@@ -336,7 +344,11 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 									$price_value = number_format( $sub->price, 2, ',', '.' ) . ' €';
 								}
 
-								if ( ! empty( $sub->next_billing_at ) ) {
+								if ( function_exists( 'zaher_account_subscription_date_display' ) ) {
+									$date_display = zaher_account_subscription_date_display( $sub );
+									$date_label   = $date_display['label'];
+									$date_value   = $date_display['value'];
+								} elseif ( ! empty( $sub->next_billing_at ) ) {
 									$date_label = 'Sljedeća naplata';
 									$date_value = date_i18n( 'j. F Y.', strtotime( $sub->next_billing_at ) );
 								} else {
@@ -482,6 +494,7 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 					<h1 class="account-page__title">Povijest plaćanja</h1>
 
 					<?php if ( ! empty( $transactions ) ) : ?>
+						<?php $has_payment_downloads = function_exists( 'zaher_account_payment_has_invoice_links' ) && zaher_account_payment_has_invoice_links( $transactions ); ?>
 						<div class="account-page__card">
 							<table class="account-page__table">
 								<thead>
@@ -490,8 +503,8 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 										<th>Opis</th>
 										<th>Iznos</th>
 										<th>Status</th>
-										<?php if ( class_exists( 'MeprHooks' ) ) : ?>
-											<?php MeprHooks::do_action( 'mepr_account_payments_table_header' ); ?>
+										<?php if ( $has_payment_downloads ) : ?>
+											<th>Račun</th>
 										<?php endif; ?>
 									</tr>
 								</thead>
@@ -499,16 +512,45 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 									<?php foreach ( $transactions as $txn ) : ?>
 										<?php
 										$product = get_post( $txn->product_id );
-										$status_label = 'complete' === $txn->status ? 'Plaćeno' : ucfirst( $txn->status );
-										$status_class = 'complete' === $txn->status ? 'success' : 'pending';
+										$status_label = function_exists( 'zaher_account_payment_status_label' )
+											? zaher_account_payment_status_label( $txn->status )
+											: ( 'complete' === $txn->status ? 'Plaćeno' : ucfirst( $txn->status ) );
+										$status_class = function_exists( 'zaher_account_payment_status_class' )
+											? zaher_account_payment_status_class( $txn->status )
+											: ( 'complete' === $txn->status ? 'success' : 'pending' );
+										$invoice_url = function_exists( 'zaher_account_payment_invoice_url' )
+											? zaher_account_payment_invoice_url( $txn )
+											: '';
 										?>
 										<tr>
-											<td><?php echo esc_html( date_i18n( 'j.n.Y.', strtotime( $txn->created_at ) ) ); ?></td>
+											<td>
+												<?php
+												echo esc_html(
+													function_exists( 'zaher_account_format_date' )
+														? zaher_account_format_date( $txn->created_at, 'j.n.Y.' )
+														: date_i18n( 'j.n.Y.', strtotime( $txn->created_at ) )
+												);
+												?>
+											</td>
 											<td><?php echo esc_html( $product ? $product->post_title : 'N/A' ); ?></td>
-											<td><?php echo esc_html( number_format( $txn->total, 2, ',', '.' ) ); ?> €</td>
+											<td>
+												<?php
+												echo esc_html(
+													class_exists( 'MeprAppHelper' )
+														? MeprAppHelper::format_currency( $txn->total, true, false )
+														: number_format( $txn->total, 2, ',', '.' ) . ' €'
+												);
+												?>
+											</td>
 											<td><span class="account-page__status-badge account-page__status-badge--<?php echo esc_attr( $status_class ); ?>"><?php echo esc_html( $status_label ); ?></span></td>
-											<?php if ( class_exists( 'MeprHooks' ) ) : ?>
-												<?php MeprHooks::do_action( 'mepr_account_payments_table_row', $txn ); ?>
+											<?php if ( $has_payment_downloads ) : ?>
+												<td>
+													<?php if ( $invoice_url ) : ?>
+														<a href="<?php echo esc_url( $invoice_url ); ?>" target="_blank" rel="noopener">PDF</a>
+													<?php else : ?>
+														<span aria-hidden="true">-</span>
+													<?php endif; ?>
+												</td>
 											<?php endif; ?>
 										</tr>
 									<?php endforeach; ?>
@@ -520,8 +562,8 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 							<div class="empty-state__icon">
 								<?php echo zaher_lineicon_svg( 'empty-file' ); ?>
 							</div>
-							<h3 class="empty-state__title">Nema transakcija</h3>
-							<p class="empty-state__text">Ovdje će se prikazati vaša povijest plaćanja nakon prve kupnje.</p>
+							<h3 class="empty-state__title">Nema plaćanja</h3>
+							<p class="empty-state__text">Ovdje će se prikazati uspješne naplate nakon prve kupnje.</p>
 						</div>
 					<?php endif; ?>
 				</div>

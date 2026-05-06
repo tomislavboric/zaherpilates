@@ -15,7 +15,7 @@ $checkout_product_title = get_the_title( $product->ID );
 $normalize_checkout_price_text = static function( $html ) {
     $text = trim( preg_replace( '/\s+/', ' ', wp_strip_all_tags( (string) $html ) ) );
     $text = preg_replace( '/(?<=\d)\.(?=\d{2}\b)/', ',', $text );
-    $text = preg_replace( '/\s*with\s+coupon\s+/iu', ' uz kupon ', $text );
+    $text = preg_replace( '/\s*(?:with\s+coupon|uz\s+kupon|sa\s+kuponom)\s+\S+/iu', '', $text );
     $text = preg_replace( '/\bFree\s+forever\b/iu', 'Besplatno zauvijek', $text );
     $text = preg_replace( '/\bFree\b/iu', 'Besplatno', $text );
     $text = preg_replace( '/\bthen\b/iu', 'poslije', $text );
@@ -382,17 +382,6 @@ $checkout_form_action .= '#mepr_jump';
                 <?php MeprHooks::do_action( 'mepr-checkout-before-payment-methods', $product->ID ); ?>
 
                 <div class="mepr-payment-methods-wrapper">
-                    <div class="mepr-payment-methods-heading">
-                        <div class="mepr-payment-methods-heading-text">
-                            <h3>
-                                <svg class="mepr-payment-methods-title-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                                    <rect x="1" y="4" width="22" height="16" rx="2"/>
-                                    <line x1="1" y1="10" x2="23" y2="10"/>
-                                </svg>
-                                <?php esc_html_e( 'Kartica', 'zaherpilates' ); ?>
-                            </h3>
-                        </div>
-                    </div>
                     <div class="mepr-payment-methods-radios<?php echo 1 === $payment_methods_count ? ' mepr-hidden' : ''; ?>">
                         <?php echo MeprOptionsHelper::payment_methods_radios( $payment_methods ); ?>
                     </div>
