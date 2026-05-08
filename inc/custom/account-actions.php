@@ -866,6 +866,17 @@ function zaher_account_notice_text( $type, $code ) {
 	return isset( $errors[ $code ] ) ? $errors[ $code ] : 'Došlo je do greške. Pokušaj ponovno.';
 }
 
+function zaher_account_subscription_back_link( $url ) {
+	?>
+	<a class="account-page__back-link" href="<?php echo esc_url( $url ); ?>">
+		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+			<path d="M19 12H5M11 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"></path>
+		</svg>
+		<span>Natrag</span>
+	</a>
+	<?php
+}
+
 function zaher_render_account_subscription_action( $action, $sub_id ) {
 	$action  = sanitize_key( $action );
 	$context = zaher_get_account_subscription_context( $sub_id );
@@ -874,7 +885,7 @@ function zaher_render_account_subscription_action( $action, $sub_id ) {
 	if ( is_wp_error( $context ) ) {
 		?>
 		<div class="account-page__card account-page__action-card">
-			<a class="account-page__back-link" href="<?php echo esc_url( $back_url ); ?>">Natrag na pretplatu</a>
+			<?php zaher_account_subscription_back_link( $back_url ); ?>
 			<div class="account-page__message account-page__message--error"><?php echo esc_html( $context->get_error_message() ); ?></div>
 		</div>
 		<?php
@@ -889,7 +900,7 @@ function zaher_render_account_subscription_action( $action, $sub_id ) {
 	if ( ! zaher_account_subscription_action_available( $action, $sub, $pm ) ) {
 		?>
 		<div class="account-page__card account-page__action-card">
-			<a class="account-page__back-link" href="<?php echo esc_url( $back_url ); ?>">Natrag na pretplatu</a>
+			<?php zaher_account_subscription_back_link( $back_url ); ?>
 			<h2 class="account-page__action-title">Akcija nije dostupna</h2>
 			<p class="account-page__action-text">Ova opcija trenutno nije dostupna za tvoju pretplatu.</p>
 		</div>
@@ -906,7 +917,7 @@ function zaher_render_account_subscription_action( $action, $sub_id ) {
 	);
 	?>
 	<div class="account-page__card account-page__action-card account-page__action-card--<?php echo esc_attr( $action ); ?>">
-		<a class="account-page__back-link" href="<?php echo esc_url( $back_url ); ?>">Natrag na pretplatu</a>
+		<?php zaher_account_subscription_back_link( $back_url ); ?>
 		<div class="account-page__action-header">
 			<span class="account-page__label"><?php echo esc_html( $title ); ?></span>
 			<h2 class="account-page__action-title"><?php echo esc_html( isset( $action_titles[ $action ] ) ? $action_titles[ $action ] : 'Upravljanje pretplatom' ); ?></h2>

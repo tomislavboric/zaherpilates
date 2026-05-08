@@ -424,11 +424,18 @@
   &__back-link {
     display: inline-flex;
     align-items: center;
+    gap: 7px;
     margin-bottom: 20px;
     color: $gray-500;
     font-size: 14px;
     font-weight: 500;
+    line-height: 1.3;
     text-decoration: none;
+    transition: color 150ms ease;
+
+    svg {
+      flex: 0 0 16px;
+    }
 
     &:hover {
       color: $gray-900;
