@@ -302,6 +302,114 @@ a.zp-thankyou__cta {
     background: transparent;
   }
 
+  .mp_wrapper.mp_invoice,
+  .mp-table {
+    width: 100%;
+    margin: 0;
+  }
+
+  .mp-table {
+    display: block;
+    color: $gray-700;
+  }
+
+  .mp-cart-body {
+    display: grid;
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .mp-cart-item,
+  .mp-cart-coupon {
+    margin: 0;
+    list-style: none;
+
+    &::marker {
+      content: "";
+    }
+  }
+
+  .mp-cart-item {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: start;
+  }
+
+  .mp-cart-item-image {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    background: $gray-100;
+    border-radius: 8px;
+
+    img {
+      display: block;
+      width: 24px;
+      height: 24px;
+      opacity: 0.5;
+    }
+  }
+
+  .mp-cart-item-details {
+    min-width: 0;
+
+    p {
+      margin: 0;
+      color: $gray-700;
+      font-size: 0.8125rem;
+      line-height: 1.55;
+    }
+
+    .desc {
+      margin-top: 12px;
+      color: $gray-600;
+    }
+  }
+
+  .mp-cart-coupon {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    padding-left: 56px;
+    color: $gray-500;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+  }
+
+  .mp-currency-cell {
+    color: $gray-800;
+    font-weight: 600;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .mp-cart-footer {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid $checkout-border;
+
+    > div {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: baseline;
+    }
+  }
+
+  .bt {
+    color: $gray-600;
+    font-weight: 500;
+  }
+
+  .total_cell {
+    color: $gray-900;
+    font-weight: 700;
+  }
+
   table {
     width: 100%;
     font-size: 0.8125rem;
@@ -310,6 +418,21 @@ a.zp-thankyou__cta {
   th,
   td {
     padding: 8px 0;
+  }
+
+  @media screen and (max-width: 480px) {
+    .mp-cart-item {
+      grid-template-columns: 40px minmax(0, 1fr);
+    }
+
+    .mp-cart-item > .mp-currency-cell {
+      grid-column: 2;
+      text-align: left;
+    }
+
+    .mp-cart-coupon {
+      padding-left: 52px;
+    }
   }
 }
 
