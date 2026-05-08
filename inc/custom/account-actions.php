@@ -912,7 +912,7 @@ function zaher_render_account_subscription_action( $action, $sub_id ) {
 				<button class="button button--small <?php echo 'cancel' === $action ? 'account-page__danger-button' : ''; ?>" type="submit">
 					<?php echo esc_html( $button_labels[ $action ] ); ?>
 				</button>
-				<a class="button button--small button--outline" href="<?php echo esc_url( $back_url ); ?>">Odustani</a>
+				<a class="button button--small button--hollow" href="<?php echo esc_url( $back_url ); ?>">Odustani</a>
 			</form>
 		<?php endif; ?>
 	</div>

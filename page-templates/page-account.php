@@ -420,7 +420,7 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 										$subscription_action_links[] = array(
 											'url'   => zaher_account_subscription_action_url( 'upgrade', $sub->id ),
 											'label' => 'Promijeni plan',
-											'class' => 'button--outline',
+											'class' => 'button--hollow',
 										);
 									}
 
@@ -428,7 +428,7 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 										$subscription_action_links[] = array(
 											'url'   => zaher_account_subscription_action_url( 'resume', $sub->id ),
 											'label' => 'Nastavi pretplatu',
-											'class' => 'button--outline',
+											'class' => 'button--hollow',
 										);
 									}
 
@@ -436,7 +436,7 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 										$subscription_action_links[] = array(
 											'url'   => zaher_account_subscription_action_url( 'cancel', $sub->id ),
 											'label' => 'Otkaži pretplatu',
-											'class' => 'button--outline account-page__danger-link',
+											'class' => 'button--hollow account-page__danger-link',
 										);
 									}
 								}
