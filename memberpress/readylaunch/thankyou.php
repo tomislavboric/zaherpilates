@@ -5,7 +5,7 @@
 $katalog_page = get_page_by_path( 'katalog' );
 $katalog_url  = $katalog_page instanceof WP_Post ? get_permalink( $katalog_page ) : home_url( '/katalog/' );
 
-$membership_name = '';
+$membership_name = __( 'Zaher Pilates članstvo', 'zaherpilates' );
 if ( isset( $txn ) && $txn instanceof MeprTransaction ) {
     $product = $txn->product();
     if ( $product instanceof MeprProduct ) {
@@ -15,17 +15,64 @@ if ( isset( $txn ) && $txn instanceof MeprTransaction ) {
 ?>
 
 <div class="mepr-signup-form mepr-form">
-    <div class="mepr-checkout-container mepr-checkout-thankyou<?php echo $has_welcome_image && ! empty( $welcome_image ) ? ' has-welcome-image' : ''; ?> mp_wrapper alignwide">
+    <div class="mepr-checkout-container mepr-checkout-thankyou mp_wrapper alignwide">
+        <aside class="invoice-wrapper">
+            <div class="mepr-checkout-plan">
+                <div class="mepr-checkout-plan-icon" aria-hidden="true">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M20 6L9 17l-5-5"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="invoice-heading"><?php echo esc_html( $membership_name ); ?></h3>
+                    <p class="mepr-checkout-plan-subtitle">
+                        <?php esc_html_e( 'LOOP - ZaherPilates · online pretplata', 'zaherpilates' ); ?>
+                    </p>
+                </div>
+            </div>
 
-        <?php if ( $has_welcome_image && ! empty( $welcome_image ) ) : ?>
-            <aside class="mepr-checkout-thankyou__media" aria-hidden="true">
-                <figure>
-                    <img class="thankyou-image" src="<?php echo esc_url( $welcome_image ); ?>" alt="">
-                </figure>
-            </aside>
-        <?php endif; ?>
+            <div class="mp-form-row mepr_bold mepr_price">
+                <div class="mepr_price_cell_label"><?php esc_html_e( 'Plaćeno danas', 'zaherpilates' ); ?></div>
+                <div class="mepr_price_cell invoice-amount">
+                    <span class="invoice-amount-value"><?php echo wp_kses_post( $amount ); ?></span>
+                    <span class="invoice-amount-period"><?php esc_html_e( 'Članstvo je aktivirano', 'zaherpilates' ); ?></span>
+                </div>
+            </div>
 
-        <section class="mepr-checkout-thankyou__card" aria-labelledby="mepr-checkout-thankyou-title">
+            <ul class="mepr-checkout-benefits">
+                <li>
+                    <span aria-hidden="true">✓</span>
+                    <?php esc_html_e( 'Pristup katalogu treninga je odmah otključan', 'zaherpilates' ); ?>
+                </li>
+                <li>
+                    <span aria-hidden="true">✓</span>
+                    <?php esc_html_e( 'Potvrda kupnje stiže na tvoju e-mail adresu', 'zaherpilates' ); ?>
+                </li>
+                <li>
+                    <span aria-hidden="true">✓</span>
+                    <?php esc_html_e( 'Pretplatom možeš upravljati u svom računu', 'zaherpilates' ); ?>
+                </li>
+            </ul>
+
+            <div class="mepr-checkout-trust">
+                <div>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <rect x="5" y="11" width="14" height="10" rx="2"></rect>
+                        <path d="M8 11V8a4 4 0 0 1 8 0v3"></path>
+                    </svg>
+                    <?php esc_html_e( 'Sigurno plaćanje · SSL enkripcija', 'zaherpilates' ); ?>
+                </div>
+                <div>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <?php esc_html_e( 'Račun i detalji narudžbe dostupni su niže', 'zaherpilates' ); ?>
+                </div>
+            </div>
+        </aside>
+
+        <section class="form-wrapper mepr-checkout-thankyou__content" aria-labelledby="mepr-checkout-thankyou-title">
             <div class="mepr-checkout-thankyou__hero">
                 <span class="mepr-checkout-thankyou__icon" aria-hidden="true">
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -34,19 +81,17 @@ if ( isset( $txn ) && $txn instanceof MeprTransaction ) {
                 </span>
                 <p class="mepr-checkout-thankyou__eyebrow"><?php esc_html_e( 'Članstvo aktivirano', 'zaherpilates' ); ?></p>
                 <h1 id="mepr-checkout-thankyou-title"><?php esc_html_e( 'Dobrodošla u Zaher Pilates!', 'zaherpilates' ); ?></h1>
-                <?php if ( $membership_name ) : ?>
-                    <p class="mepr-checkout-thankyou__plan">
-                        <?php
-                        printf(
-                            /* translators: %s: membership name */
-                            esc_html__( 'Tvoja pretplata %s je aktivna.', 'zaherpilates' ),
-                            '<strong>' . esc_html( $membership_name ) . '</strong>'
-                        );
-                        ?>
-                    </p>
-                <?php endif; ?>
+                <p class="mepr-checkout-thankyou__plan">
+                    <?php
+                    printf(
+                        /* translators: %s: membership name */
+                        esc_html__( 'Tvoja pretplata %s je aktivna.', 'zaherpilates' ),
+                        '<strong>' . esc_html( $membership_name ) . '</strong>'
+                    );
+                    ?>
+                </p>
                 <p class="mepr-checkout-thankyou__intro">
-                    <?php esc_html_e( 'Sretno na putu do snažnijeg, pokretnijeg i samouvjerenijeg tijela. Vrijeme je za prvi trening — odaberi onaj koji ti najviše odgovara.', 'zaherpilates' ); ?>
+                    <?php esc_html_e( 'Sretno na putu do snažnijeg, pokretnijeg i samouvjerenijeg tijela. Vrijeme je za prvi trening - odaberi onaj koji ti najviše odgovara.', 'zaherpilates' ); ?>
                 </p>
             </div>
 

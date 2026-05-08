@@ -331,15 +331,7 @@ add_filter( 'mepr-validate-signup', 'zaher_validate_memberpress_checkout_passwor
 add_action(
     'wp_enqueue_scripts',
     function() {
-        $is_memberpress_checkout = false;
-
-        if ( class_exists( 'MeprReadyLaunchCtrl' ) && MeprReadyLaunchCtrl::template_enabled( 'checkout' ) ) {
-            $is_memberpress_checkout = true;
-        } elseif ( class_exists( 'MeprProduct' ) && is_singular( MeprProduct::$cpt ) ) {
-            $is_memberpress_checkout = true;
-        }
-
-        if ( $is_memberpress_checkout ) {
+        if ( function_exists( 'zaher_is_memberpress_checkout_shell_context' ) && zaher_is_memberpress_checkout_shell_context() ) {
             wp_enqueue_style(
                 'my-mepr-checkout-style',
                 get_stylesheet_directory_uri() . '/dist/assets/css/' . foundationpress_asset_path( 'app.css' ),
@@ -1658,15 +1650,35 @@ function zaher_is_memberpress_checkout_context() {
         return false;
     }
 
-    if ( class_exists( 'MeprReadyLaunchCtrl' ) && MeprReadyLaunchCtrl::template_enabled( 'checkout' ) ) {
-        return true;
-    }
-
     if ( class_exists( 'MeprAppHelper' ) && MeprAppHelper::has_block( 'memberpress/checkout' ) ) {
         return true;
     }
 
     return class_exists( 'MeprProduct' ) && is_singular( MeprProduct::$cpt );
+}
+
+function zaher_is_memberpress_thankyou_context() {
+    if ( ! did_action( 'wp' ) ) {
+        return false;
+    }
+
+    $post = get_queried_object();
+
+    if ( class_exists( 'MeprAppHelper' ) && $post instanceof WP_Post ) {
+        return MeprAppHelper::is_thankyou_page( $post );
+    }
+
+    if ( ! class_exists( 'MeprOptions' ) ) {
+        return false;
+    }
+
+    $mepr_options = MeprOptions::fetch();
+
+    return $mepr_options && ! empty( $mepr_options->thankyou_page_id ) && is_page( (int) $mepr_options->thankyou_page_id );
+}
+
+function zaher_is_memberpress_checkout_shell_context() {
+    return zaher_is_memberpress_checkout_context() || zaher_is_memberpress_thankyou_context();
 }
 
 add_action( 'wp_ajax_zaher_memberpress_coupon_nonce', 'zaher_memberpress_coupon_nonce_ajax' );

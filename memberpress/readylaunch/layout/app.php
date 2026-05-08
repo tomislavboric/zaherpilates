@@ -7,7 +7,7 @@
  */
 
 $is_checkout_page  = function_exists( 'zaher_is_memberpress_checkout_context' ) && zaher_is_memberpress_checkout_context();
-$is_thankyou_page  = class_exists( 'MeprReadyLaunchCtrl' ) && MeprReadyLaunchCtrl::template_enabled( 'thankyou' );
+$is_thankyou_page  = function_exists( 'zaher_is_memberpress_thankyou_context' ) && zaher_is_memberpress_thankyou_context();
 $is_checkout_shell = $is_checkout_page || $is_thankyou_page;
 $header_classes    = isset( $is_account_page ) ? 'account-header' : '';
 $body_classes      = 'mepr-pro-template mepr-app-layout';

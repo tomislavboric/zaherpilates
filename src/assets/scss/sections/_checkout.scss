@@ -1205,43 +1205,13 @@ body.mepr-checkout-surface {
 }
 
 .mepr-checkout-container.mp_wrapper.mepr-checkout-thankyou {
-  grid-template-columns: 1fr;
-  max-width: 760px;
-  padding-top: 56px;
-}
-
-.mepr-checkout-container.mp_wrapper.mepr-checkout-thankyou.has-welcome-image {
   grid-template-columns: minmax(280px, 380px) minmax(0, 1fr);
   max-width: 1060px;
+  padding-top: 40px;
 }
 
-.mepr-checkout-container.mp_wrapper .mepr-checkout-thankyou__media,
-.mepr-checkout-container.mp_wrapper .mepr-checkout-thankyou__card {
-  min-width: 0;
-  background: $white;
-  border: 1px solid $checkout-border;
-  border-radius: 12px;
-}
-
-.mepr-checkout-container.mp_wrapper .mepr-checkout-thankyou__media {
-  position: sticky;
-  top: 32px;
-  overflow: hidden;
-
-  figure {
-    margin: 0;
-  }
-
-  img {
-    display: block;
-    width: 100%;
-    min-height: 520px;
-    object-fit: cover;
-  }
-}
-
-.mepr-checkout-container.mp_wrapper .mepr-checkout-thankyou__card {
-  padding: 34px;
+.mepr-checkout-container.mp_wrapper.mepr-checkout-thankyou .form-wrapper {
+  align-self: start;
 }
 
 .mepr-checkout-container.mp_wrapper .mepr-checkout-thankyou__hero {
@@ -1313,7 +1283,7 @@ body.mepr-checkout-surface {
 .mepr-checkout-container.mp_wrapper .mepr-checkout-thankyou__cta {
   display: flex;
   justify-content: center;
-  margin: 0 0 28px;
+  margin: 0 0 24px;
 }
 
 .mepr-checkout-container.mp_wrapper .mepr-checkout-thankyou__details {
@@ -1583,23 +1553,9 @@ body.mepr-checkout-surface {
     padding-right: 18px;
   }
 
-  .mepr-checkout-container.mp_wrapper.mepr-checkout-thankyou,
-  .mepr-checkout-container.mp_wrapper.mepr-checkout-thankyou.has-welcome-image {
+  .mepr-checkout-container.mp_wrapper.mepr-checkout-thankyou {
     grid-template-columns: 1fr;
     padding-top: 24px;
-  }
-
-  .mepr-checkout-container.mp_wrapper .mepr-checkout-thankyou__media {
-    position: static;
-
-    img {
-      min-height: 260px;
-      max-height: 360px;
-    }
-  }
-
-  .mepr-checkout-container.mp_wrapper .mepr-checkout-thankyou__card {
-    padding: 26px 18px;
   }
 
   .mepr-checkout-container.mp_wrapper .mepr-checkout-thankyou__summary {
