@@ -234,9 +234,63 @@ function zaher_account_payment_transaction_types() {
 	);
 }
 
-function zaher_account_is_displayable_payment_transaction( $txn ) {
+function zaher_account_payment_display_total( $txn ) {
+	if ( ! $txn instanceof MeprTransaction ) {
+		return 0.0;
+	}
+
+	$total = isset( $txn->total ) ? (float) $txn->total : 0.0;
+
+	if (
+		class_exists( 'MeprTransaction' ) &&
+		class_exists( 'MeprSubscription' ) &&
+		isset( $txn->txn_type ) &&
+		MeprTransaction::$subscription_confirmation_str === (string) $txn->txn_type
+	) {
+		$sub = method_exists( $txn, 'subscription' ) ? $txn->subscription() : false;
+
+		if ( $sub instanceof MeprSubscription ) {
+			if ( ! empty( $sub->trial ) && (int) $sub->trial_days > 0 ) {
+				return isset( $sub->trial_total ) ? (float) $sub->trial_total : 0.0;
+			}
+
+			return isset( $sub->total ) ? (float) $sub->total : $total;
+		}
+	}
+
+	return $total;
+}
+
+function zaher_account_is_subscription_confirmation_payment( $txn, $payment_subscription_ids = array() ) {
+	if ( ! class_exists( 'MeprTransaction' ) || ! $txn instanceof MeprTransaction ) {
+		return false;
+	}
+
+	$txn_type = isset( $txn->txn_type ) ? (string) $txn->txn_type : '';
+	if ( MeprTransaction::$subscription_confirmation_str !== $txn_type ) {
+		return false;
+	}
+
+	$status = isset( $txn->status ) ? (string) $txn->status : '';
+	if ( MeprTransaction::$confirmed_str !== $status && MeprTransaction::$complete_str !== $status ) {
+		return false;
+	}
+
+	$subscription_id = isset( $txn->subscription_id ) ? (int) $txn->subscription_id : 0;
+	if ( $subscription_id <= 0 || in_array( $subscription_id, array_map( 'intval', (array) $payment_subscription_ids ), true ) ) {
+		return false;
+	}
+
+	return zaher_account_payment_display_total( $txn ) > 0.00001;
+}
+
+function zaher_account_is_displayable_payment_transaction( $txn, $payment_subscription_ids = array() ) {
 	if ( ! $txn instanceof MeprTransaction ) {
 		return false;
+	}
+
+	if ( zaher_account_is_subscription_confirmation_payment( $txn, $payment_subscription_ids ) ) {
+		return true;
 	}
 
 	$status = isset( $txn->status ) ? (string) $txn->status : '';
@@ -253,18 +307,42 @@ function zaher_account_is_displayable_payment_transaction( $txn ) {
 		return true;
 	}
 
-	return isset( $txn->total ) && (float) $txn->total > 0.00001;
+	return zaher_account_payment_display_total( $txn ) > 0.00001;
 }
 
 function zaher_filter_account_payment_transactions( $transactions, $limit = 10 ) {
-	$filtered = array();
+	$normalized               = array();
+	$payment_subscription_ids = array();
 
 	foreach ( (array) $transactions as $txn ) {
 		if ( ! $txn instanceof MeprTransaction && isset( $txn->id ) ) {
 			$txn = new MeprTransaction( $txn->id );
 		}
 
-		if ( ! zaher_account_is_displayable_payment_transaction( $txn ) ) {
+		if ( ! $txn instanceof MeprTransaction ) {
+			continue;
+		}
+
+		$normalized[] = $txn;
+
+		$status   = isset( $txn->status ) ? (string) $txn->status : '';
+		$txn_type = isset( $txn->txn_type ) ? (string) $txn->txn_type : '';
+		if (
+			isset( $txn->subscription_id ) &&
+			(int) $txn->subscription_id > 0 &&
+			in_array( $status, zaher_account_success_transaction_statuses(), true ) &&
+			in_array( $txn_type, zaher_account_payment_transaction_types(), true ) &&
+			zaher_account_payment_display_total( $txn ) > 0.00001
+		) {
+			$payment_subscription_ids[] = (int) $txn->subscription_id;
+		}
+	}
+
+	$payment_subscription_ids = array_unique( $payment_subscription_ids );
+	$filtered                 = array();
+
+	foreach ( $normalized as $txn ) {
+		if ( ! zaher_account_is_displayable_payment_transaction( $txn, $payment_subscription_ids ) ) {
 			continue;
 		}
 
@@ -278,10 +356,14 @@ function zaher_filter_account_payment_transactions( $transactions, $limit = 10 )
 	return $filtered;
 }
 
-function zaher_account_payment_status_label( $status ) {
+function zaher_account_payment_status_label( $status, $txn = null ) {
 	$status = (string) $status;
 
 	if ( class_exists( 'MeprTransaction' ) ) {
+		if ( $txn instanceof MeprTransaction && zaher_account_is_subscription_confirmation_payment( $txn ) ) {
+			return 'Plaćeno';
+		}
+
 		if ( MeprTransaction::$complete_str === $status ) {
 			return 'Plaćeno';
 		}
@@ -317,7 +399,7 @@ function zaher_account_payment_invoice_url( $txn ) {
 		return '';
 	}
 
-	if ( ! zaher_account_is_displayable_payment_transaction( $txn ) || (float) $txn->total <= 0.00001 ) {
+	if ( ! zaher_account_is_displayable_payment_transaction( $txn ) || zaher_account_payment_display_total( $txn ) <= 0.00001 ) {
 		return '';
 	}
 

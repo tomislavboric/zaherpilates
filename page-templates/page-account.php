@@ -552,9 +552,12 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 								<tbody>
 									<?php foreach ( $transactions as $txn ) : ?>
 										<?php
-										$product = get_post( $txn->product_id );
+										$product       = get_post( $txn->product_id );
+										$payment_total = function_exists( 'zaher_account_payment_display_total' )
+											? zaher_account_payment_display_total( $txn )
+											: ( isset( $txn->total ) ? (float) $txn->total : 0.0 );
 										$status_label = function_exists( 'zaher_account_payment_status_label' )
-											? zaher_account_payment_status_label( $txn->status )
+											? zaher_account_payment_status_label( $txn->status, $txn )
 											: ( 'complete' === $txn->status ? 'Plaćeno' : ucfirst( $txn->status ) );
 										$status_class = function_exists( 'zaher_account_payment_status_class' )
 											? zaher_account_payment_status_class( $txn->status )
@@ -578,8 +581,8 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 												<?php
 												echo esc_html(
 													class_exists( 'MeprAppHelper' )
-														? MeprAppHelper::format_currency( $txn->total, true, false )
-														: number_format( $txn->total, 2, ',', '.' ) . ' €'
+														? MeprAppHelper::format_currency( $payment_total, true, false )
+														: number_format( $payment_total, 2, ',', '.' ) . ' €'
 												);
 												?>
 											</td>
