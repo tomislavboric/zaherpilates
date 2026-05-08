@@ -8,39 +8,25 @@
 
 get_header(); ?>
 
-<div class="main-container">
-	<div class="main-grid">
-		<main class="main-content">
-			<article>
-				<header>
-					<h1 class="entry-title"><?php _e( 'File Not Found', 'foundationpress' ); ?></h1>
-				</header>
-				<div class="entry-content">
-					<div class="error">
-						<p class="bottom"><?php _e( 'The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.', 'foundationpress' ); ?></p>
-					</div>
-					<p><?php _e( 'Please try the following:', 'foundationpress' ); ?></p>
-					<ul>
-						<li>
-							<?php _e( 'Check your spelling', 'foundationpress' ); ?>
-						</li>
-						<li>
-							<?php
-								/* translators: %s: home page url */
-								printf(
-									__( 'Return to the <a href="%s">home page</a>', 'foundationpress' ),
-									home_url()
-								);
-							?>
-						</li>
-						<li>
-							<?php _e( 'Click the <a href="javascript:history.back()">Back</a> button', 'foundationpress' ); ?>
-						</li>
-					</ul>
-				</div>
-			</article>
-		</main>
-		<?php get_sidebar(); ?>
+<section class="error-404">
+	<div class="grid-container full">
+		<div class="error-404__inner">
+			<span class="error-404__code" aria-hidden="true">404</span>
+			<h1 class="error-404__title">Stranica nije pronađena</h1>
+			<p class="error-404__text">
+				Stranica koju tražite možda je premještena, preimenovana ili privremeno nedostupna.
+			</p>
+			<div class="error-404__actions">
+				<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="button">
+					Povratak na naslovnicu
+				</a>
+				<a href="<?php echo esc_url( home_url( '/kontakt/' ) ); ?>" class="button button--hollow">
+					Kontaktiraj nas
+				</a>
+			</div>
+		</div>
 	</div>
-</div>
-<?php get_footer();
+</section>
+
+<?php
+get_footer();

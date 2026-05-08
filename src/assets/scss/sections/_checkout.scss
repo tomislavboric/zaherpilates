@@ -985,12 +985,11 @@ body.mepr-checkout-surface {
 .mepr-checkout-container.mp_wrapper .cc-error {
   color: $alert-color;
   background: rgba($alert-color, 0.07);
-  border-radius: 999px;
-  box-decoration-break: clone;
+  border-radius: 8px;
   font-size: 0.75rem;
   font-weight: 600;
-  line-height: 1.4;
-  padding: 4px 8px !important;
+  line-height: 1.5;
+  padding: 10px 14px !important;
 
   &:empty {
     display: none;
@@ -1291,12 +1290,86 @@ body.mepr-checkout-surface {
   text-transform: uppercase;
 }
 
+.mepr-checkout-container.mp_wrapper .mepr-checkout-thankyou__plan {
+  margin: 14px 0 0;
+  color: $gray-700;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+
+  strong {
+    color: $gray-900;
+    font-weight: 700;
+  }
+}
+
 .mepr-checkout-container.mp_wrapper .mepr-checkout-thankyou__intro {
-  max-width: 440px;
-  margin: 10px auto 0;
+  max-width: 460px;
+  margin: 14px auto 0;
   color: $gray-500;
-  font-size: 0.875rem;
-  line-height: 1.6;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+}
+
+.mepr-checkout-container.mp_wrapper .mepr-checkout-thankyou__cta {
+  display: flex;
+  justify-content: center;
+  margin: 0 0 28px;
+}
+
+.mepr-checkout-container.mp_wrapper .mepr-checkout-thankyou__details {
+  margin: 0 0 22px;
+  padding: 0;
+  background: $gray-50;
+  border: 1px solid $checkout-border;
+  border-radius: 10px;
+
+  &[open] summary svg {
+    transform: rotate(180deg);
+  }
+
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 18px;
+    color: $gray-700;
+    cursor: pointer;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.4;
+    list-style: none;
+    user-select: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    svg {
+      flex: 0 0 16px;
+      color: $gray-500;
+      transition: transform 0.2s ease;
+    }
+
+    &:hover {
+      color: $gray-900;
+    }
+  }
+
+  > .mepr-checkout-thankyou__summary,
+  > .mepr-checkout-thankyou__invoice,
+  > .mepr-checkout-thankyou__print {
+    margin-left: 18px;
+    margin-right: 18px;
+  }
+
+  > .mepr-checkout-thankyou__summary {
+    margin-top: 4px;
+  }
+
+  > .mepr-checkout-thankyou__print {
+    margin-bottom: 18px;
+  }
 }
 
 .mepr-checkout-container.mp_wrapper .mepr-checkout-thankyou__message {
@@ -1317,30 +1390,32 @@ body.mepr-checkout-surface {
 .mepr-checkout-container.mp_wrapper .mepr-checkout-thankyou__summary {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin: 0 0 22px;
+  gap: 10px;
+  margin: 0 0 14px;
 
   div {
     min-width: 0;
-    padding: 16px;
-    background: $gray-50;
+    padding: 12px 14px;
+    background: $white;
     border: 1px solid $checkout-border;
     border-radius: 8px;
   }
 
   span {
     display: block;
-    margin: 0 0 7px;
+    margin: 0 0 4px;
     color: $gray-500;
-    font-size: 0.75rem;
+    font-size: 0.6875rem;
     font-weight: 500;
+    letter-spacing: 0.02em;
     line-height: 1.4;
+    text-transform: uppercase;
   }
 
   strong {
     display: block;
     color: $gray-900;
-    font-size: 1.125rem;
+    font-size: 0.9375rem;
     font-weight: 700;
     line-height: 1.35;
     overflow-wrap: anywhere;
@@ -1348,8 +1423,9 @@ body.mepr-checkout-surface {
 }
 
 .mepr-checkout-container.mp_wrapper .mepr-checkout-thankyou__invoice {
-  margin: 0 0 24px;
-  padding: 18px 20px;
+  margin: 0 0 8px;
+  padding: 14px 16px;
+  background: $white;
   border: 1px solid $checkout-border;
   border-radius: 8px;
 
@@ -1376,58 +1452,70 @@ body.mepr-checkout-surface {
   }
 }
 
-.mepr-checkout-container.mp_wrapper .mepr-checkout-thankyou__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-}
-
-.mepr-checkout-container.mp_wrapper .mepr-checkout-thankyou__catalog,
-.mepr-checkout-container.mp_wrapper .mepr-checkout-thankyou__print {
+.mepr-checkout-container.mp_wrapper .mepr-checkout-thankyou__catalog {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
+  gap: 10px;
+  min-height: 56px;
+  min-width: 280px;
+  padding: 16px 28px;
   margin: 0;
-  padding: 13px 18px;
-  border-radius: 8px;
+  color: $white;
+  background: $primary-color;
+  border: 1px solid $primary-color;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba($primary-color, 0.25);
   font-family: $body-font-family;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   line-height: 1.35;
   text-align: center;
   text-decoration: none;
-  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
-}
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
 
-.mepr-checkout-container.mp_wrapper .mepr-checkout-thankyou__catalog {
-  flex: 1 1 240px;
-  color: $white;
-  background: $primary-color;
-  border: 1px solid $primary-color;
+  svg {
+    flex: 0 0 18px;
+    transition: transform 0.18s ease;
+  }
 
   &:hover,
   &:focus {
     color: $white;
     background: $checkout-primary-dark;
     border-color: $checkout-primary-dark;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 26px rgba($primary-color, 0.32);
+
+    svg {
+      transform: translateX(2px);
+    }
   }
 }
 
 .mepr-checkout-container.mp_wrapper .mepr-checkout-thankyou__print {
-  flex: 0 0 auto;
-  gap: 7px;
-  color: $gray-700;
-  background: $white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding: 10px 14px;
+  color: $gray-600;
+  background: transparent;
   border: 1px solid $checkout-border;
+  border-radius: 8px;
+  font-family: $body-font-family;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.35;
+  text-decoration: none;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
 
   svg {
     display: block;
-    flex: 0 0 16px;
-    width: 16px !important;
-    height: 16px !important;
+    flex: 0 0 14px;
+    width: 14px !important;
+    height: 14px !important;
     fill: none !important;
     stroke: currentColor !important;
   }
@@ -1435,7 +1523,7 @@ body.mepr-checkout-surface {
   &:hover,
   &:focus {
     color: $gray-900;
-    background: $gray-50;
+    background: $white;
     border-color: $gray-300;
   }
 }
