@@ -39,8 +39,8 @@ if ( isset( $txn ) && $txn instanceof MeprTransaction ) {
             <?php esc_html_e( 'Sretno na putu do snažnijeg, pokretnijeg i samouvjerenijeg tijela. Vrijeme je za prvi trening — odaberi onaj koji ti najviše odgovara.', 'zaherpilates' ); ?>
         </p>
 
-        <a class="zp-thankyou__cta" href="<?php echo esc_url( $katalog_url ); ?>">
-            <span><?php esc_html_e( 'Otvori katalog treninga', 'zaherpilates' ); ?></span>
+        <a class="button zp-thankyou__cta" href="<?php echo esc_url( $katalog_url ); ?>">
+            <span><?php esc_html_e( 'Započni trenirati', 'zaherpilates' ); ?></span>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path d="M5 12h14M13 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
             </svg>
@@ -48,16 +48,6 @@ if ( isset( $txn ) && $txn instanceof MeprTransaction ) {
     </section>
 
     <section class="zp-thankyou__next" aria-label="<?php esc_attr_e( 'Sljedeći koraci', 'zaherpilates' ); ?>">
-        <a class="zp-next-card" href="<?php echo esc_url( $katalog_url ); ?>">
-            <span class="zp-next-card__icon" aria-hidden="true">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                </svg>
-            </span>
-            <span class="zp-next-card__title"><?php esc_html_e( 'Započni trenirati', 'zaherpilates' ); ?></span>
-            <span class="zp-next-card__text"><?php esc_html_e( 'Pregledaj kompletan katalog i pokreni prvi trening.', 'zaherpilates' ); ?></span>
-        </a>
-
         <a class="zp-next-card" href="<?php echo esc_url( $account_url ); ?>">
             <span class="zp-next-card__icon" aria-hidden="true">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -75,8 +65,8 @@ if ( isset( $txn ) && $txn instanceof MeprTransaction ) {
                     <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
                 </svg>
             </span>
-            <span class="zp-next-card__title"><?php esc_html_e( 'Pitanje za nas?', 'zaherpilates' ); ?></span>
-            <span class="zp-next-card__text"><?php esc_html_e( 'Tu smo za sve što ti zatreba — javi se kad god poželiš.', 'zaherpilates' ); ?></span>
+            <span class="zp-next-card__title"><?php esc_html_e( 'Pitanje za Ivanu?', 'zaherpilates' ); ?></span>
+            <span class="zp-next-card__text"><?php esc_html_e( 'Javi se Ivani ako ti zatreba pomoć oko treninga ili pretplate.', 'zaherpilates' ); ?></span>
         </a>
     </section>
 
@@ -87,13 +77,10 @@ if ( isset( $txn ) && $txn instanceof MeprTransaction ) {
             </div>
         <?php endif; ?>
     <?php else : ?>
-        <details class="zp-thankyou__details">
-            <summary>
-                <span><?php esc_html_e( 'Detalji narudžbe', 'zaherpilates' ); ?></span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"></path>
-                </svg>
-            </summary>
+        <section class="zp-thankyou__details" aria-labelledby="zp-thankyou-details-title">
+            <h2 id="zp-thankyou-details-title" class="zp-thankyou__details-title">
+                <?php esc_html_e( 'Detalji narudžbe', 'zaherpilates' ); ?>
+            </h2>
 
             <div class="zp-thankyou__details-body">
                 <div class="zp-thankyou__summary">
@@ -127,7 +114,7 @@ if ( isset( $txn ) && $txn instanceof MeprTransaction ) {
                     </a>
                 <?php endif; ?>
             </div>
-        </details>
+        </section>
     <?php endif; ?>
 
     <?php do_action( 'mepr_readylaunch_thank_you_page_after_content' ); ?>
