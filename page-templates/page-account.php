@@ -604,10 +604,10 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 					<?php else : ?>
 						<div class="empty-state empty-state--card">
 							<div class="empty-state__icon">
-								<?php echo zaher_lineicon_svg( 'empty-file' ); ?>
+								<?php echo zaher_lineicon_svg( 'file' ); ?>
 							</div>
-							<h3 class="empty-state__title">Nema plaćanja</h3>
-							<p class="empty-state__text">Ovdje će se prikazati uspješne naplate nakon prve kupnje.</p>
+							<h3 class="empty-state__title">Uplate će se pojaviti ovdje</h3>
+							<p class="empty-state__text">Nakon prve uspješne naplate ovdje ćeš vidjeti povijest plaćanja i račune.</p>
 						</div>
 					<?php endif; ?>
 				</div>
