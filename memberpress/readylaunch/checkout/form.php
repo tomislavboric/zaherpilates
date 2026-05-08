@@ -281,7 +281,7 @@ $checkout_form_action .= '#mepr_jump';
                     <div class="mp-form-label">
                         <label><?php esc_html_e( 'E-mail adresa', 'zaherpilates' ); ?></label>
                     </div>
-                    <div class="mepr-checkout-account-email">
+                    <div class="mepr-checkout-account-email" aria-disabled="true">
                         <?php echo esc_html( stripslashes( $mepr_current_user->user_email ) ); ?>
                     </div>
                 </div>

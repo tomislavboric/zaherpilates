@@ -717,6 +717,24 @@ body.mepr-checkout-surface {
       color: $gray-300;
     }
 
+    &:disabled,
+    &[disabled],
+    &[readonly],
+    &[aria-disabled="true"] {
+      color: $gray-400;
+      -webkit-text-fill-color: $gray-400;
+      background: $gray-50;
+      border-color: $gray-200;
+      box-shadow: none;
+      cursor: not-allowed;
+      opacity: 1;
+
+      &:focus {
+        border-color: $gray-200;
+        box-shadow: none;
+      }
+    }
+
     &.invalid {
       border-color: $alert-color;
     }
@@ -791,10 +809,12 @@ body.mepr-checkout-surface {
   align-items: center;
   min-height: 46px;
   padding: 11px 14px;
-  color: $gray-700;
+  color: $gray-400;
+  -webkit-text-fill-color: $gray-400;
   background: $gray-50;
-  border: 1px solid $checkout-border;
+  border: 1px solid $gray-200;
   border-radius: 8px;
+  cursor: not-allowed;
   font-size: 0.875rem;
   line-height: 1.5;
 }
