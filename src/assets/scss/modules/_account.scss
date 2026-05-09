@@ -412,15 +412,6 @@
     }
   }
 
-  &__danger-button {
-    background: #a32323;
-
-    &:hover,
-    &:focus {
-      background: #8f1f1f;
-    }
-  }
-
   &__back-link {
     display: inline-flex;
     align-items: center;
@@ -732,16 +723,3 @@
   }
 }
 
-// Button outline variant
-.button--outline {
-  background: transparent;
-  border: 1px solid $gray-300;
-  color: $gray-700;
-  text-decoration: none;
-
-  &:hover {
-    background: $gray-100;
-    border-color: $gray-400;
-    color: $gray-900;
-  }
-}

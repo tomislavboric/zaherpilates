@@ -9,16 +9,16 @@ import './lib/mobile-menu.js';
 import './lib/account-menu.js';
 import './lib/account-tabs.js';
 import './lib/password-toggle.js';
-import './lib/tabs.js';
+import './lib/catalog-tabs.js';
 import './lib/comments.js';
 import './lib/bf-countdown.js';
 import './lib/catalog-search.js';
 import './lib/vimeo-progress.js';
 import './lib/favorites-list.js';
-// import './lib/lazy-loading.js';
 import './lib/checkout-popup.js';
 import './lib/checkout-account.js';
 import './lib/checkout-coupon.js';
+import './lib/checkout-coupon-nonce.js';
 
 $(document).foundation();
 

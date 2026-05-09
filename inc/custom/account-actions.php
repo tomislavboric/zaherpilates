@@ -1002,7 +1002,7 @@ function zaher_render_account_subscription_action( $action, $sub_id ) {
 				<input type="hidden" name="subscription_action" value="<?php echo esc_attr( $action ); ?>">
 				<input type="hidden" name="sub_id" value="<?php echo esc_attr( $sub->id ); ?>">
 				<?php wp_nonce_field( 'zaher_account_subscription_' . $action . '_' . $sub->id, 'zaher_account_subscription_nonce' ); ?>
-				<button class="button button--small <?php echo 'cancel' === $action ? 'account-page__danger-button' : ''; ?>" type="submit">
+				<button class="button button--small <?php echo 'cancel' === $action ? 'button--danger' : ''; ?>" type="submit">
 					<?php echo esc_html( $button_labels[ $action ] ); ?>
 				</button>
 				<a class="button button--small button--hollow" href="<?php echo esc_url( $back_url ); ?>">Odustani</a>

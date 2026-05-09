@@ -1,3 +1,11 @@
+// Project variables and Foundation-settings overrides.
+//
+// Loaded AFTER `_settings.scss` and `foundation` (see app.scss), so any
+// variable redefined here overrides Foundation's default — the `@include
+// foundation-*` calls below it emit CSS using these values.
+// Add new project tokens here; reserve `_settings.scss` for the original
+// Foundation defaults.
+
 // 1. Global
 // ---------
 
@@ -120,11 +128,8 @@ $form-label-font-weight: 600;
 $form-spacing: 0;
 $input-shadow: 0;
 $input-shadow-focus: 0;
-$input-border: 1px solid $medium-gray;
 $input-border-focus: 1px solid $primary-color;
 $form-label-line-height: 1.4;
-$input-font-size: rem-calc(16);
-//$input-font-size: rem-calc(15);
 $input-padding: rem-calc(15) * .7;
 $input-radius: 0;
 

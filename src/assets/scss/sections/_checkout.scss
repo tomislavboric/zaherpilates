@@ -716,28 +716,6 @@ body.mepr-checkout-surface {
     &::placeholder {
       color: $gray-300;
     }
-
-    &:disabled,
-    &[disabled],
-    &[readonly],
-    &[aria-disabled="true"] {
-      color: $gray-400;
-      -webkit-text-fill-color: $gray-400;
-      background: $gray-50;
-      border-color: $gray-200;
-      box-shadow: none;
-      cursor: not-allowed;
-      opacity: 1;
-
-      &:focus {
-        border-color: $gray-200;
-        box-shadow: none;
-      }
-    }
-
-    &.invalid {
-      border-color: $alert-color;
-    }
   }
 
   input.mepr-form-input.invalid:not([type="checkbox"]):not([type="radio"]),

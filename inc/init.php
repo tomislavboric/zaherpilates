@@ -64,6 +64,8 @@ require_once( 'library/responsive-images.php' );
 require_once( 'custom/web-settings.php' );
 require_once( 'custom/acf-json.php' );
 require_once( 'custom/memberpress.php' );
+require_once( 'custom/pricing-helpers.php' );
+require_once( 'custom/checkout-popup.php' );
 require_once( 'custom/comments-loggedin-only.php' );
 require_once( 'custom/comments-croatian.php' );
 require_once( 'custom/comments-reply-ajax.php' );
@@ -81,14 +83,3 @@ require_once( 'custom/admin-ui.php' );
 require_once( 'custom/account-actions.php' );
 require_once( 'custom/auth-pages.php' );
 require_once( 'custom/gtm.php' );
-
-// require_once( 'custom/wp-blocks.php' );
-// require_once( 'custom/scripts.php' );
-// require_once( 'custom/wp-functions.php' );
-// require_once( 'custom/acf-admin-styling.php' );
-// require_once( 'custom/menu-icons.php' );
-
-// Optional
-// require_once( 'custom/seopress.php' );
-// require_once( 'custom/wordpress-seo.php' );
-// require_once( 'custom/hide-wpadminbar.php' );
