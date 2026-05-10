@@ -4,15 +4,15 @@
  * Shows a promotional popup on configured checkout pages.
  * Popup opens after a fixed delay and stays closed only after CTA/decline.
  *
- * Config is injected by PHP via wp_localize_script as window.zaherPopupConfig.
+ * Config is injected by PHP via wp_localize_script as window.themePopupConfig.
  */
 
 (function () {
 	'use strict';
 
-	const POPUP_ID       = 'zaher-checkout-popup';
-	const DISMISSED_KEY_BASE = 'zaher_popup_dismissed';
-	const SESSION_SHOWN_KEY_BASE = 'zaher_popup_shown';
+	const POPUP_ID       = 'theme-checkout-popup';
+	const DISMISSED_KEY_BASE = 'theme_popup_dismissed';
+	const SESSION_SHOWN_KEY_BASE = 'theme_popup_shown';
 	const OPEN_DELAY_MS = 6000;
 	const FOCUSABLE_SELECTOR = [
 		'a[href]',
@@ -23,7 +23,7 @@
 		'[tabindex]:not([tabindex="-1"])',
 	].join(', ');
 
-	const config = window.zaherPopupConfig || {};
+	const config = window.themePopupConfig || {};
 	const parseInteger = function (value, fallback) {
 		const parsed = parseInt(value, 10);
 		return Number.isNaN(parsed) ? fallback : parsed;
@@ -102,12 +102,12 @@
 		}
 	};
 
-	const closeBtn  = popup.querySelector('.zaher-popup__close');
+	const closeBtn  = popup.querySelector('.theme-popup__close');
 	const skipBtn   = popup.querySelector('.js-popup-skip');
 	const ctaBtn    = popup.querySelector('.js-popup-cta-btn');
-	const card      = popup.querySelector('.zaher-popup__card');
+	const card      = popup.querySelector('.theme-popup__card');
 	const titleEl   = popup.querySelector('.js-popup-title');
-	const subtitleEl = popup.querySelector('#zaher-popup-description');
+	const subtitleEl = popup.querySelector('#theme-popup-description');
 	const priceKickerEl = popup.querySelector('.js-popup-price-kicker');
 	const oldPriceEl = popup.querySelector('.js-popup-old-price');
 	const priceArrowEl = popup.querySelector('.js-popup-price-arrow');
@@ -229,7 +229,7 @@
 		previouslyFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
 		popup.setAttribute('aria-hidden', 'false');
 		popup.classList.add('is-open');
-		document.body.classList.add('zaher-popup-open');
+		document.body.classList.add('theme-popup-open');
 		writeSessionValue(SESSION_SHOWN_KEY, '1');
 		focusPopup();
 	}
@@ -241,7 +241,7 @@
 
 		popup.classList.remove('is-open');
 		popup.setAttribute('aria-hidden', 'true');
-		document.body.classList.remove('zaher-popup-open');
+		document.body.classList.remove('theme-popup-open');
 
 		if (settings.persistDismissal) {
 			writePersistentValue(DISMISSED_KEY, '1');

@@ -10,7 +10,7 @@ get_header();
 
 // Placeholder image URL for posts without a thumbnail
 $placeholder_url = get_stylesheet_directory_uri() . '/dist/assets/images/placeholder.jpg';
-$progress_endpoint = is_user_logged_in() ? rest_url( 'zaher/v1/progress' ) : '';
+$progress_endpoint = is_user_logged_in() ? rest_url( 'theme/v1/progress' ) : '';
 $progress_nonce    = is_user_logged_in() ? wp_create_nonce( 'wp_rest' ) : '';
 
 ?>
@@ -84,7 +84,7 @@ $progress_nonce    = is_user_logged_in() ? wp_create_nonce( 'wp_rest' ) : '';
 															?>
 															<img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php the_title_attribute(); ?>">
 															<figcaption class="locked__figcaption">
-																	<a class="button button--small" href="<?php echo esc_url(home_url('/cjenik/')); ?>"><?php echo zaher_lineicon_svg( 'lock' ); ?> Pretplati se</a>
+																	<a class="button button--small" href="<?php echo esc_url(home_url('/cjenik/')); ?>"><?php echo theme_lineicon_svg( 'lock' ); ?> Pretplati se</a>
 																	<div>ili <a href="<?php echo esc_url(home_url('/prijava')); ?>">prijavi se</a>.</div>
 															</figcaption>
 													</figure>
@@ -130,7 +130,7 @@ $progress_nonce    = is_user_logged_in() ? wp_create_nonce( 'wp_rest' ) : '';
                 if ( $downloadable_files ) : ?>
                     <div class="video__downloads">
                         <h3 class="video__downloads-title">
-                            <?php echo zaher_lineicon_svg( 'download' ); ?>
+                            <?php echo theme_lineicon_svg( 'download' ); ?>
                             Dodatni materijali
                         </h3>
                         <div class="downloads-list">
@@ -146,7 +146,7 @@ $progress_nonce    = is_user_logged_in() ? wp_create_nonce( 'wp_rest' ) : '';
                                 ?>
                                     <div class="download-item">
                                         <div class="download-item__icon">
-                                            <?php echo zaher_lineicon_svg( 'file' ); ?>
+                                            <?php echo theme_lineicon_svg( 'file' ); ?>
                                         </div>
                                         <div class="download-item__content">
                                             <h4 class="download-item__title"><?php echo esc_html( $title ); ?></h4>
@@ -160,7 +160,7 @@ $progress_nonce    = is_user_logged_in() ? wp_create_nonce( 'wp_rest' ) : '';
                                         </div>
                                         <div class="download-item__action">
                                             <a href="<?php echo esc_url( $file_url ); ?>" class="button button--download" download>
-                                                <?php echo zaher_lineicon_svg( 'download' ); ?>
+                                                <?php echo theme_lineicon_svg( 'download' ); ?>
                                                 Preuzmi
                                             </a>
                                         </div>
@@ -229,7 +229,7 @@ $progress_nonce    = is_user_logged_in() ? wp_create_nonce( 'wp_rest' ) : '';
                     ?>
                     <div class="video__prev">
                         <a href="<?php echo esc_url( get_permalink($prev_post->ID) ); ?>">
-                            <div><?php echo zaher_lineicon_svg( 'arrow-left' ); ?> Prethodna vježba</div>
+                            <div><?php echo theme_lineicon_svg( 'arrow-left' ); ?> Prethodna vježba</div>
                             <strong><?php echo esc_html( $prev_title ); ?></strong>
                         </a>
                     </div>
@@ -240,7 +240,7 @@ $progress_nonce    = is_user_logged_in() ? wp_create_nonce( 'wp_rest' ) : '';
                     ?>
                     <div class="video__next">
                         <a href="<?php echo esc_url( get_permalink($next_post->ID) ); ?>">
-                            <div>Sljedeća vježba <?php echo zaher_lineicon_svg( 'arrow-right' ); ?></div>
+                            <div>Sljedeća vježba <?php echo theme_lineicon_svg( 'arrow-right' ); ?></div>
                             <strong><?php echo esc_html( $next_title ); ?></strong>
                         </a>
                     </div>

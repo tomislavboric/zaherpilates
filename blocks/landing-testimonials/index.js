@@ -63,7 +63,7 @@
 		] ]
 	];
 
-	blocks.registerBlockType( 'zaher/landing-testimonials', {
+	blocks.registerBlockType( 'theme/landing-testimonials', {
 		edit: function() {
 			return el(
 				'section',

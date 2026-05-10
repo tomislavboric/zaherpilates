@@ -6,9 +6,9 @@ if ( ! is_user_logged_in() ) {
 }
 
 $user_id         = get_current_user_id();
-$in_progress_ids = get_query_var( 'zaher_in_progress_ids', array() );
-if ( empty( $in_progress_ids ) && function_exists( 'zaher_get_in_progress_program_ids' ) ) {
-	$in_progress_ids = zaher_get_in_progress_program_ids( $user_id );
+$in_progress_ids = get_query_var( 'theme_in_progress_ids', array() );
+if ( empty( $in_progress_ids ) && function_exists( 'theme_get_in_progress_program_ids' ) ) {
+	$in_progress_ids = theme_get_in_progress_program_ids( $user_id );
 }
 if ( $in_progress_ids ) {
 	$in_progress_ids = array_values(
@@ -28,7 +28,7 @@ if ( empty( $in_progress_ids ) ) :
 	<div class="grid-container full" id="nastavi" style="margin-bottom:60px!important">
 		<div class="empty-state">
 			<div class="empty-state__icon">
-				<?php echo zaher_lineicon_svg( 'play-circle' ); ?>
+				<?php echo theme_lineicon_svg( 'play-circle' ); ?>
 			</div>
 			<h3 class="empty-state__title">Nema započetih treninga</h3>
 			<p class="empty-state__text">Kad započneš trening, moći ćeš ga nastaviti ovdje.</p>
@@ -55,7 +55,7 @@ $in_progress_query = new WP_Query(
 		<div class="cards">
 			<?php while ( $in_progress_query->have_posts() ) : $in_progress_query->the_post(); ?>
 				<?php
-				$progress_value   = function_exists( 'zaher_get_program_progress' ) ? zaher_get_program_progress( get_the_ID(), $user_id ) : 0;
+				$progress_value   = function_exists( 'theme_get_program_progress' ) ? theme_get_program_progress( get_the_ID(), $user_id ) : 0;
 				$progress_percent = round( $progress_value * 100 );
 				?>
 				<div class="cards__item">
@@ -66,7 +66,7 @@ $in_progress_query = new WP_Query(
 							?>
 							<img src="<?php echo esc_url( $thumb ); ?>" alt="<?php the_title_attribute(); ?>">
 							<div class="cards__badge cards__badge--progress" aria-label="Započeto">
-								<?php echo zaher_lineicon_svg( 'play-circle' ); ?>
+								<?php echo theme_lineicon_svg( 'play-circle' ); ?>
 								<?php echo esc_html( $progress_percent ); ?>%
 							</div>
 							<?php if ( function_exists( 'get_field' ) && ( $video_length = get_field( 'video_length' ) ) ) : ?>
@@ -88,7 +88,7 @@ $in_progress_query = new WP_Query(
 	<?php else : ?>
 		<div class="empty-state">
 			<div class="empty-state__icon">
-				<?php echo zaher_lineicon_svg( 'play-circle' ); ?>
+				<?php echo theme_lineicon_svg( 'play-circle' ); ?>
 			</div>
 			<h3 class="empty-state__title">Nema započetih treninga</h3>
 			<p class="empty-state__text">Kad započneš trening, moći ćeš ga nastaviti ovdje.</p>

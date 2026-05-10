@@ -11,8 +11,8 @@ the_post();
 
 $in_progress_ids   = array();
 $in_progress_count = 0;
-if ( is_user_logged_in() && function_exists( 'zaher_get_in_progress_program_ids' ) ) {
-	$in_progress_ids = zaher_get_in_progress_program_ids( get_current_user_id() );
+if ( is_user_logged_in() && function_exists( 'theme_get_in_progress_program_ids' ) ) {
+	$in_progress_ids = theme_get_in_progress_program_ids( get_current_user_id() );
 	if ( $in_progress_ids ) {
 		$in_progress_ids = array_values(
 			array_filter(
@@ -73,7 +73,7 @@ $search_value = trim( $search_value );
 					<?php /* <form class="member-dashboard__search catalog-tabs__search" method="get" role="search" autocomplete="off" data-search-endpoint="<?php echo esc_url( rest_url( 'wp/v2/programs' ) ); ?>" data-search-placeholder="<?php echo esc_url( $placeholder_url ); ?>">
 						<div class="catalog-tabs__search-field">
 							<label class="catalog-tabs__search-button" for="katalog-search">
-								<?php echo zaher_lineicon_svg( 'search' ); ?>
+								<?php echo theme_lineicon_svg( 'search' ); ?>
 								<span class="show-for-sr">Pretraži treninge</span>
 							</label>
 							<input id="katalog-search" class="catalog-tabs__search-input" type="search" name="katalog_search" value="<?php echo esc_attr( $search_value ); ?>" placeholder="Pretraži treninge..." autocomplete="off" autocapitalize="off" spellcheck="false" />
@@ -90,7 +90,7 @@ $search_value = trim( $search_value );
 			<?php /* <?php if ( is_user_logged_in() ) : ?>
 				<section id="catalog-panel-continue" class="content-container in-progress-videos" role="tabpanel" aria-labelledby="catalog-tab-continue">
 					<?php
-					set_query_var( 'zaher_in_progress_ids', $in_progress_ids );
+					set_query_var( 'theme_in_progress_ids', $in_progress_ids );
 					get_template_part( 'page-templates/loop-catalog/in-progress' );
 					?>
 				</section>

@@ -1,8 +1,8 @@
 <?php
 /**
  * Title: Landing Section - Final CTA (Black Week)
- * Slug: zaherpilates/landing-final-cta-black-week-loop
- * Categories: zaher-landing
+ * Slug: theme/landing-final-cta-black-week-loop
+ * Categories: theme-landing
  * Keywords: landing, cta, black week
  */
 ?>

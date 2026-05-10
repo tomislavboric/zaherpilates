@@ -105,9 +105,9 @@ if ( have_rows('catalog_builder', $term) ) {
 								<a href="<?php the_permalink(); ?>">
 									<figure class="cards__figure">
 										<img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php the_title_attribute(); ?>">
-										<?php if ( function_exists( 'zaher_user_completed_program' ) && zaher_user_completed_program( get_the_ID() ) ) : ?>
+										<?php if ( function_exists( 'theme_user_completed_program' ) && theme_user_completed_program( get_the_ID() ) ) : ?>
 											<div class="cards__badge" aria-label="Pogledano do kraja">
-												<?php echo zaher_lineicon_svg( 'check' ); ?>
+												<?php echo theme_lineicon_svg( 'check' ); ?>
 											</div>
 										<?php endif; ?>
 										<?php if ($video_length) : ?>
@@ -212,9 +212,9 @@ if ( have_rows('catalog_builder', $term) ) {
 										<a href="<?php echo esc_url( get_permalink($pid) ); ?>">
 											<figure class="cards__figure">
 												<img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php echo esc_attr( get_the_title($pid) ); ?>">
-												<?php if ( function_exists( 'zaher_user_completed_program' ) && zaher_user_completed_program( $pid ) ) : ?>
+												<?php if ( function_exists( 'theme_user_completed_program' ) && theme_user_completed_program( $pid ) ) : ?>
 													<div class="cards__badge" aria-label="Pogledano do kraja">
-														<?php echo zaher_lineicon_svg( 'check-circle' ); ?>
+														<?php echo theme_lineicon_svg( 'check-circle' ); ?>
 														Pogledano
 													</div>
 												<?php endif; ?>

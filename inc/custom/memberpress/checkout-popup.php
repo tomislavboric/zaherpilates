@@ -3,11 +3,11 @@
  * Custom checkout popup (upsell/cross-sell on MemberPress checkout).
  */
 
-function zaher_get_checkout_popup_default_template_key() {
+function theme_get_checkout_popup_default_template_key() {
     return 'template_1';
 }
 
-function zaher_get_checkout_popup_templates() {
+function theme_get_checkout_popup_templates() {
     return array(
         'template_1' => array(
             'label'                   => 'Popup copy',
@@ -25,7 +25,7 @@ function zaher_get_checkout_popup_templates() {
     );
 }
 
-function zaher_normalize_checkout_popup_title_html( $value ) {
+function theme_normalize_checkout_popup_title_html( $value ) {
     $value = (string) $value;
     $value = preg_replace( '#<\s*/p>\s*<\s*p[^>]*>\s*#i', '<br>', $value );
     $value = preg_replace( '#<\s*p[^>]*>\s*#i', '', $value );
@@ -34,7 +34,7 @@ function zaher_normalize_checkout_popup_title_html( $value ) {
     return trim( $value );
 }
 
-function zaher_normalize_checkout_popup_content_html( $value ) {
+function theme_normalize_checkout_popup_content_html( $value ) {
     $value = trim( preg_replace( "/\r\n?/", "\n", (string) $value ) );
 
     if ( '' === trim( wp_strip_all_tags( $value ) ) ) {
@@ -48,7 +48,7 @@ function zaher_normalize_checkout_popup_content_html( $value ) {
     return $value;
 }
 
-function zaher_merge_checkout_popup_content_html( $primary, $secondary ) {
+function theme_merge_checkout_popup_content_html( $primary, $secondary ) {
     $parts = array();
 
     foreach ( array( $primary, $secondary ) as $value ) {
@@ -62,17 +62,17 @@ function zaher_merge_checkout_popup_content_html( $primary, $secondary ) {
     return implode( "\n\n", $parts );
 }
 
-function zaher_get_checkout_popup_custom_copy_field_map() {
+function theme_get_checkout_popup_custom_copy_field_map() {
     return array(
         'custom_title_html'    => 'title_html',
         'custom_subtitle_html' => 'subtitle_html',
     );
 }
 
-function zaher_get_checkout_popup_row_custom_copy( $row ) {
-    $templates    = zaher_get_checkout_popup_templates();
-    $template     = $templates[ zaher_get_checkout_popup_default_template_key() ];
-    $field_map    = zaher_get_checkout_popup_custom_copy_field_map();
+function theme_get_checkout_popup_row_custom_copy( $row ) {
+    $templates    = theme_get_checkout_popup_templates();
+    $template     = $templates[ theme_get_checkout_popup_default_template_key() ];
+    $field_map    = theme_get_checkout_popup_custom_copy_field_map();
     $custom_copy  = array(
         'title_html'    => isset( $template['title_html'] ) ? (string) $template['title_html'] : '',
         'subtitle_html' => isset( $template['subtitle_html'] ) ? (string) $template['subtitle_html'] : '',
@@ -85,14 +85,14 @@ function zaher_get_checkout_popup_row_custom_copy( $row ) {
     }
 
     if ( is_array( $row ) && array_key_exists( 'custom_body_html', $row ) ) {
-        $custom_copy['subtitle_html'] = zaher_merge_checkout_popup_content_html( $custom_copy['subtitle_html'], $row['custom_body_html'] );
+        $custom_copy['subtitle_html'] = theme_merge_checkout_popup_content_html( $custom_copy['subtitle_html'], $row['custom_body_html'] );
     }
 
     return $custom_copy;
 }
 
-function zaher_get_checkout_popup_template_choices() {
-    $templates = zaher_get_checkout_popup_templates();
+function theme_get_checkout_popup_template_choices() {
+    $templates = theme_get_checkout_popup_templates();
     $choices   = array();
 
     foreach ( $templates as $key => $template ) {
@@ -113,7 +113,7 @@ function zaher_get_checkout_popup_template_choices() {
     return $choices;
 }
 
-function zaher_get_checkout_popup_product( $product_id ) {
+function theme_get_checkout_popup_product( $product_id ) {
     if ( ! class_exists( 'MeprProduct' ) ) {
         return null;
     }
@@ -133,7 +133,7 @@ function zaher_get_checkout_popup_product( $product_id ) {
     return $product;
 }
 
-function zaher_find_checkout_popup_product_id_by_url( $url ) {
+function theme_find_checkout_popup_product_id_by_url( $url ) {
     if ( ! class_exists( 'MeprProduct' ) || '' === trim( (string) $url ) ) {
         return 0;
     }
@@ -157,7 +157,7 @@ function zaher_find_checkout_popup_product_id_by_url( $url ) {
     );
 
     foreach ( $posts as $product_id ) {
-        $product = zaher_get_checkout_popup_product( $product_id );
+        $product = theme_get_checkout_popup_product( $product_id );
 
         if ( ! $product ) {
             continue;
@@ -174,10 +174,10 @@ function zaher_find_checkout_popup_product_id_by_url( $url ) {
     return 0;
 }
 
-function zaher_get_legacy_checkout_popup_rows() {
-    $source_id     = (int) get_option( 'zaher_popup_monthly_product_id', 0 );
-    $target_url    = trim( (string) get_option( 'zaher_popup_quarterly_url', '' ) );
-    $target_id     = zaher_find_checkout_popup_product_id_by_url( $target_url );
+function theme_get_legacy_checkout_popup_rows() {
+    $source_id     = (int) get_option( 'theme_popup_monthly_product_id', 0 );
+    $target_url    = trim( (string) get_option( 'theme_popup_quarterly_url', '' ) );
+    $target_id     = theme_find_checkout_popup_product_id_by_url( $target_url );
     $coupon_code   = '';
     $query         = wp_parse_url( $target_url, PHP_URL_QUERY );
     $query_params  = array();
@@ -193,7 +193,7 @@ function zaher_get_legacy_checkout_popup_rows() {
 
     return array(
         array(
-            'template_key'      => zaher_get_checkout_popup_default_template_key(),
+            'template_key'      => theme_get_checkout_popup_default_template_key(),
             'source_product_id' => $source_id,
             'target_product_id' => $target_id,
             'coupon_code'       => $coupon_code,
@@ -202,17 +202,17 @@ function zaher_get_legacy_checkout_popup_rows() {
     );
 }
 
-function zaher_get_saved_checkout_popup_rows() {
-    $saved_rows = get_option( 'zaher_checkout_popups', null );
+function theme_get_saved_checkout_popup_rows() {
+    $saved_rows = get_option( 'theme_checkout_popups', null );
 
     if ( is_array( $saved_rows ) ) {
         return $saved_rows;
     }
 
-    return zaher_get_legacy_checkout_popup_rows();
+    return theme_get_legacy_checkout_popup_rows();
 }
 
-function zaher_get_checkout_popup_period_units( $product ) {
+function theme_get_checkout_popup_period_units( $product ) {
     if ( ! $product instanceof MeprProduct || $product->is_one_time_payment() ) {
         return null;
     }
@@ -243,9 +243,9 @@ function zaher_get_checkout_popup_period_units( $product ) {
     }
 }
 
-function zaher_get_checkout_popup_period_ratio( $source_product, $target_product ) {
-    $source_units = zaher_get_checkout_popup_period_units( $source_product );
-    $target_units = zaher_get_checkout_popup_period_units( $target_product );
+function theme_get_checkout_popup_period_ratio( $source_product, $target_product ) {
+    $source_units = theme_get_checkout_popup_period_units( $source_product );
+    $target_units = theme_get_checkout_popup_period_units( $target_product );
 
     if ( ! is_array( $source_units ) || ! is_array( $target_units ) ) {
         return 0;
@@ -264,7 +264,7 @@ function zaher_get_checkout_popup_period_ratio( $source_product, $target_product
     return $ratio;
 }
 
-function zaher_get_checkout_popup_short_period_label( $product ) {
+function theme_get_checkout_popup_short_period_label( $product ) {
     if ( ! $product instanceof MeprProduct ) {
         return '';
     }
@@ -283,13 +283,13 @@ function zaher_get_checkout_popup_short_period_label( $product ) {
     }
 }
 
-function zaher_get_checkout_popup_old_price_text( $source_product, $target_product ) {
+function theme_get_checkout_popup_old_price_text( $source_product, $target_product ) {
     if ( ! $source_product instanceof MeprProduct ) {
         return '';
     }
 
     $source_price = MeprAppHelper::format_currency( $source_product->price, true, false );
-    $ratio        = zaher_get_checkout_popup_period_ratio( $source_product, $target_product );
+    $ratio        = theme_get_checkout_popup_period_ratio( $source_product, $target_product );
 
     if ( $ratio > 1 ) {
         return sprintf( '%d × %s', $ratio, $source_price );
@@ -298,13 +298,13 @@ function zaher_get_checkout_popup_old_price_text( $source_product, $target_produ
     return $source_price;
 }
 
-function zaher_get_checkout_popup_reference_price_amount( $source_product, $target_product ) {
+function theme_get_checkout_popup_reference_price_amount( $source_product, $target_product ) {
     if ( ! $target_product instanceof MeprProduct ) {
         return 0;
     }
 
     if ( $source_product instanceof MeprProduct ) {
-        $ratio = zaher_get_checkout_popup_period_ratio( $source_product, $target_product );
+        $ratio = theme_get_checkout_popup_period_ratio( $source_product, $target_product );
 
         if ( $ratio > 1 ) {
             return (float) $source_product->price * $ratio;
@@ -314,7 +314,7 @@ function zaher_get_checkout_popup_reference_price_amount( $source_product, $targ
     return (float) $target_product->price;
 }
 
-function zaher_get_checkout_popup_plan_label( $product, $case = 'nominative' ) {
+function theme_get_checkout_popup_plan_label( $product, $case = 'nominative' ) {
     if ( ! $product instanceof MeprProduct ) {
         switch ( $case ) {
             case 'accusative':
@@ -374,10 +374,10 @@ function zaher_get_checkout_popup_plan_label( $product, $case = 'nominative' ) {
         return $labels[ $key ][ $case ];
     }
 
-    return zaher_get_checkout_popup_plan_label( null, $case );
+    return theme_get_checkout_popup_plan_label( null, $case );
 }
 
-function zaher_format_checkout_popup_product_amount_text( $target_product, $amount ) {
+function theme_format_checkout_popup_product_amount_text( $target_product, $amount ) {
     if ( ! $target_product instanceof MeprProduct ) {
         return '';
     }
@@ -389,18 +389,18 @@ function zaher_format_checkout_popup_product_amount_text( $target_product, $amou
     }
 
     if ( (int) $target_product->period <= 1 ) {
-        return sprintf( '%s / %s', $amount_text, zaher_get_checkout_popup_short_period_label( $target_product ) );
+        return sprintf( '%s / %s', $amount_text, theme_get_checkout_popup_short_period_label( $target_product ) );
     }
 
     return sprintf(
         '%s / %d %s',
         $amount_text,
         (int) $target_product->period,
-        zaher_get_checkout_popup_short_period_label( $target_product )
+        theme_get_checkout_popup_short_period_label( $target_product )
     );
 }
 
-function zaher_get_checkout_popup_valid_coupon( $coupon_code, $target_product_id ) {
+function theme_get_checkout_popup_valid_coupon( $coupon_code, $target_product_id ) {
     $coupon_code = trim( (string) $coupon_code );
 
     if ( '' === $coupon_code || ! class_exists( 'MeprCoupon' ) || ! MeprCoupon::is_valid_coupon_code( $coupon_code, $target_product_id ) ) {
@@ -416,7 +416,7 @@ function zaher_get_checkout_popup_valid_coupon( $coupon_code, $target_product_id
     return $coupon;
 }
 
-function zaher_get_checkout_popup_pricing_data( $target_product, $coupon_code = '' ) {
+function theme_get_checkout_popup_pricing_data( $target_product, $coupon_code = '' ) {
     $empty = array(
         'baseAmount'       => 0,
         'baseText'         => '',
@@ -434,7 +434,7 @@ function zaher_get_checkout_popup_pricing_data( $target_product, $coupon_code = 
     }
 
     $base_amount = (float) $target_product->price;
-    $base_text   = zaher_format_checkout_popup_product_amount_text( $target_product, $base_amount );
+    $base_text   = theme_format_checkout_popup_product_amount_text( $target_product, $base_amount );
     $pricing     = array_merge(
         $empty,
         array(
@@ -448,7 +448,7 @@ function zaher_get_checkout_popup_pricing_data( $target_product, $coupon_code = 
             'renewalText'      => $base_text,
         )
     );
-    $coupon      = zaher_get_checkout_popup_valid_coupon( $coupon_code, $target_product->ID );
+    $coupon      = theme_get_checkout_popup_valid_coupon( $coupon_code, $target_product->ID );
 
     if ( ! $coupon ) {
         return $pricing;
@@ -462,7 +462,7 @@ function zaher_get_checkout_popup_pricing_data( $target_product, $coupon_code = 
 
         if ( ! empty( $coupon_product->trial ) ) {
             $display_amount = isset( $coupon_product->trial_amount ) ? (float) $coupon_product->trial_amount : 0;
-            $display_text   = zaher_format_checkout_popup_product_amount_text( $target_product, $display_amount );
+            $display_text   = theme_format_checkout_popup_product_amount_text( $target_product, $display_amount );
 
             $pricing['displayAmount']    = $display_amount;
             $pricing['displayText']      = $display_text;
@@ -476,7 +476,7 @@ function zaher_get_checkout_popup_pricing_data( $target_product, $coupon_code = 
     }
 
     $display_amount = (float) $target_product->adjusted_price( $coupon_code, false );
-    $display_text   = zaher_format_checkout_popup_product_amount_text( $target_product, $display_amount );
+    $display_text   = theme_format_checkout_popup_product_amount_text( $target_product, $display_amount );
 
     $pricing['displayAmount']    = $display_amount;
     $pricing['displayText']      = $display_text;
@@ -492,19 +492,19 @@ function zaher_get_checkout_popup_pricing_data( $target_product, $coupon_code = 
     return $pricing;
 }
 
-function zaher_get_checkout_popup_new_price_text( $target_product, $coupon_code = '' ) {
-    $pricing = zaher_get_checkout_popup_pricing_data( $target_product, $coupon_code );
+function theme_get_checkout_popup_new_price_text( $target_product, $coupon_code = '' ) {
+    $pricing = theme_get_checkout_popup_pricing_data( $target_product, $coupon_code );
 
     return isset( $pricing['displayText'] ) ? (string) $pricing['displayText'] : '';
 }
 
-function zaher_get_checkout_popup_savings_text( $source_product, $target_product, $coupon_code = '' ) {
+function theme_get_checkout_popup_savings_text( $source_product, $target_product, $coupon_code = '' ) {
     if ( ! $target_product instanceof MeprProduct ) {
         return '';
     }
 
-    $pricing          = zaher_get_checkout_popup_pricing_data( $target_product, $coupon_code );
-    $reference_amount = zaher_get_checkout_popup_reference_price_amount( $source_product, $target_product );
+    $pricing          = theme_get_checkout_popup_pricing_data( $target_product, $coupon_code );
+    $reference_amount = theme_get_checkout_popup_reference_price_amount( $source_product, $target_product );
     $savings_amount   = max( 0, $reference_amount - (float) $pricing['comparisonAmount'] );
 
     if ( $savings_amount <= 0 ) {
@@ -514,8 +514,8 @@ function zaher_get_checkout_popup_savings_text( $source_product, $target_product
     return MeprAppHelper::format_currency( $savings_amount, true, false );
 }
 
-function zaher_get_checkout_popup_price_comparison_html( $target_product, $coupon_code = '' ) {
-    $pricing = zaher_get_checkout_popup_pricing_data( $target_product, $coupon_code );
+function theme_get_checkout_popup_price_comparison_html( $target_product, $coupon_code = '' ) {
+    $pricing = theme_get_checkout_popup_pricing_data( $target_product, $coupon_code );
 
     if ( empty( $pricing['comparisonHtml'] ) ) {
         return '';
@@ -524,8 +524,8 @@ function zaher_get_checkout_popup_price_comparison_html( $target_product, $coupo
     return (string) $pricing['comparisonHtml'];
 }
 
-function zaher_get_checkout_popup_offer_summary_html( $target_product, $coupon_code = '' ) {
-    $pricing = zaher_get_checkout_popup_pricing_data( $target_product, $coupon_code );
+function theme_get_checkout_popup_offer_summary_html( $target_product, $coupon_code = '' ) {
+    $pricing = theme_get_checkout_popup_pricing_data( $target_product, $coupon_code );
 
     if ( empty( $pricing['offerSummaryHtml'] ) ) {
         return '';
@@ -534,13 +534,13 @@ function zaher_get_checkout_popup_offer_summary_html( $target_product, $coupon_c
     return (string) $pricing['offerSummaryHtml'];
 }
 
-function zaher_get_checkout_popup_value_sentence_html( $source_product, $target_product, $coupon_code = '' ) {
+function theme_get_checkout_popup_value_sentence_html( $source_product, $target_product, $coupon_code = '' ) {
     if ( ! $target_product instanceof MeprProduct ) {
         return '';
     }
 
-    $pricing      = zaher_get_checkout_popup_pricing_data( $target_product, $coupon_code );
-    $savings_text = zaher_get_checkout_popup_savings_text( $source_product, $target_product, $coupon_code );
+    $pricing      = theme_get_checkout_popup_pricing_data( $target_product, $coupon_code );
+    $savings_text = theme_get_checkout_popup_savings_text( $source_product, $target_product, $coupon_code );
     $sentence     = '';
 
     if ( 'first-payment' === $pricing['couponMode'] || 'trial-override' === $pricing['couponMode'] ) {
@@ -548,53 +548,53 @@ function zaher_get_checkout_popup_value_sentence_html( $source_product, $target_
     } elseif ( $pricing['displayText'] !== $pricing['baseText'] ) {
         $sentence = 'Na ovom checkoutu plaćaš <strong>' . esc_html( $pricing['displayText'] ) . '</strong> umjesto <strong>' . esc_html( $pricing['baseText'] ) . '</strong>';
     } else {
-        $sentence = 'Na ovom checkoutu odmah prelaziš na <strong>' . esc_html( zaher_get_checkout_popup_plan_label( $target_product, 'accusative' ) ) . '</strong>';
+        $sentence = 'Na ovom checkoutu odmah prelaziš na <strong>' . esc_html( theme_get_checkout_popup_plan_label( $target_product, 'accusative' ) ) . '</strong>';
     }
 
     if ( '' !== $savings_text ) {
-        $sentence .= ', a kroz isti period štediš <strong>' . esc_html( $savings_text ) . '</strong> u odnosu na ostanak ' . esc_html( zaher_get_checkout_popup_plan_label( $source_product, 'locative' ) );
+        $sentence .= ', a kroz isti period štediš <strong>' . esc_html( $savings_text ) . '</strong> u odnosu na ostanak ' . esc_html( theme_get_checkout_popup_plan_label( $source_product, 'locative' ) );
     }
 
     return $sentence . '.';
 }
 
-function zaher_get_checkout_popup_savings_sentence_html( $source_product, $target_product, $coupon_code = '' ) {
-    $savings_text = zaher_get_checkout_popup_savings_text( $source_product, $target_product, $coupon_code );
+function theme_get_checkout_popup_savings_sentence_html( $source_product, $target_product, $coupon_code = '' ) {
+    $savings_text = theme_get_checkout_popup_savings_text( $source_product, $target_product, $coupon_code );
 
     if ( '' === $savings_text ) {
         return '';
     }
 
-    return ' U odnosu na ostanak ' . esc_html( zaher_get_checkout_popup_plan_label( $source_product, 'locative' ) ) . ' kroz isti period štediš <strong>' . esc_html( $savings_text ) . '</strong>.';
+    return ' U odnosu na ostanak ' . esc_html( theme_get_checkout_popup_plan_label( $source_product, 'locative' ) ) . ' kroz isti period štediš <strong>' . esc_html( $savings_text ) . '</strong>.';
 }
 
-function zaher_get_checkout_popup_equivalent_source_period_price_text( $source_product, $target_product, $amount ) {
+function theme_get_checkout_popup_equivalent_source_period_price_text( $source_product, $target_product, $amount ) {
     if ( ! $source_product instanceof MeprProduct || ! $target_product instanceof MeprProduct ) {
         return '';
     }
 
-    $ratio = zaher_get_checkout_popup_period_ratio( $source_product, $target_product );
+    $ratio = theme_get_checkout_popup_period_ratio( $source_product, $target_product );
 
     if ( $ratio <= 1 ) {
         return '';
     }
 
-    return zaher_format_checkout_popup_product_amount_text( $source_product, (float) $amount / $ratio );
+    return theme_format_checkout_popup_product_amount_text( $source_product, (float) $amount / $ratio );
 }
 
-function zaher_get_checkout_popup_vs_current_plan_benefit_html( $source_product, $target_product, $coupon_code = '' ) {
-    $savings_text = zaher_get_checkout_popup_savings_text( $source_product, $target_product, $coupon_code );
+function theme_get_checkout_popup_vs_current_plan_benefit_html( $source_product, $target_product, $coupon_code = '' ) {
+    $savings_text = theme_get_checkout_popup_savings_text( $source_product, $target_product, $coupon_code );
 
     if ( '' === $savings_text ) {
-        return 'U odnosu na ostanak ' . esc_html( zaher_get_checkout_popup_plan_label( $source_product, 'locative' ) ) . ' kroz isti period, ovo je isplativiji start.';
+        return 'U odnosu na ostanak ' . esc_html( theme_get_checkout_popup_plan_label( $source_product, 'locative' ) ) . ' kroz isti period, ovo je isplativiji start.';
     }
 
-    return 'U odnosu na ostanak ' . esc_html( zaher_get_checkout_popup_plan_label( $source_product, 'locative' ) ) . ' kroz isti period štediš <strong>' . esc_html( $savings_text ) . '</strong>.';
+    return 'U odnosu na ostanak ' . esc_html( theme_get_checkout_popup_plan_label( $source_product, 'locative' ) ) . ' kroz isti period štediš <strong>' . esc_html( $savings_text ) . '</strong>.';
 }
 
-function zaher_get_checkout_popup_price_box_data( $source_product, $target_product, $coupon_code = '' ) {
-    $pricing                  = zaher_get_checkout_popup_pricing_data( $target_product, $coupon_code );
-    $savings_text             = zaher_get_checkout_popup_savings_text( $source_product, $target_product, $coupon_code );
+function theme_get_checkout_popup_price_box_data( $source_product, $target_product, $coupon_code = '' ) {
+    $pricing                  = theme_get_checkout_popup_pricing_data( $target_product, $coupon_code );
+    $savings_text             = theme_get_checkout_popup_savings_text( $source_product, $target_product, $coupon_code );
     $price_box                = array(
         'kicker'           => '',
         'oldPriceLabel'    => '',
@@ -623,9 +623,9 @@ function zaher_get_checkout_popup_price_box_data( $source_product, $target_produ
     return $price_box;
 }
 
-function zaher_get_checkout_popup_template_content( $template_key, $source_product, $target_product, $coupon_code = '', $custom_copy = array() ) {
-    $templates     = zaher_get_checkout_popup_templates();
-    $default_key   = zaher_get_checkout_popup_default_template_key();
+function theme_get_checkout_popup_template_content( $template_key, $source_product, $target_product, $coupon_code = '', $custom_copy = array() ) {
+    $templates     = theme_get_checkout_popup_templates();
+    $default_key   = theme_get_checkout_popup_default_template_key();
     $template_key  = isset( $templates[ $template_key ] ) ? $template_key : $default_key;
     $template      = $templates[ $template_key ];
     $content       = array(
@@ -635,17 +635,17 @@ function zaher_get_checkout_popup_template_content( $template_key, $source_produ
     $target_title  = $target_product instanceof MeprProduct ? get_the_title( $target_product->ID ) : '';
     $replacements  = array(
         '{{target_title}}'          => esc_html( $target_title ),
-        '{{target_plan_nominative}}' => esc_html( zaher_get_checkout_popup_plan_label( $target_product, 'nominative' ) ),
-        '{{target_plan_accusative}}' => esc_html( zaher_get_checkout_popup_plan_label( $target_product, 'accusative' ) ),
-        '{{target_plan_genitive}}'   => esc_html( zaher_get_checkout_popup_plan_label( $target_product, 'genitive' ) ),
-        '{{source_plan_locative_bare}}' => esc_html( zaher_get_checkout_popup_plan_label( $source_product, 'locative_bare' ) ),
-        '{{source_plan_locative}}'   => esc_html( zaher_get_checkout_popup_plan_label( $source_product, 'locative' ) ),
-        '{{value_sentence_html}}'    => zaher_get_checkout_popup_value_sentence_html( $source_product, $target_product, $coupon_code ),
-        '{{price_comparison_html}}' => zaher_get_checkout_popup_price_comparison_html( $target_product, $coupon_code ),
-        '{{offer_summary_html}}'    => zaher_get_checkout_popup_offer_summary_html( $target_product, $coupon_code ),
-        '{{savings_text}}'          => esc_html( zaher_get_checkout_popup_savings_text( $source_product, $target_product, $coupon_code ) ),
-        '{{savings_sentence_html}}' => zaher_get_checkout_popup_savings_sentence_html( $source_product, $target_product, $coupon_code ),
-        '{{vs_current_plan_benefit_html}}' => zaher_get_checkout_popup_vs_current_plan_benefit_html( $source_product, $target_product, $coupon_code ),
+        '{{target_plan_nominative}}' => esc_html( theme_get_checkout_popup_plan_label( $target_product, 'nominative' ) ),
+        '{{target_plan_accusative}}' => esc_html( theme_get_checkout_popup_plan_label( $target_product, 'accusative' ) ),
+        '{{target_plan_genitive}}'   => esc_html( theme_get_checkout_popup_plan_label( $target_product, 'genitive' ) ),
+        '{{source_plan_locative_bare}}' => esc_html( theme_get_checkout_popup_plan_label( $source_product, 'locative_bare' ) ),
+        '{{source_plan_locative}}'   => esc_html( theme_get_checkout_popup_plan_label( $source_product, 'locative' ) ),
+        '{{value_sentence_html}}'    => theme_get_checkout_popup_value_sentence_html( $source_product, $target_product, $coupon_code ),
+        '{{price_comparison_html}}' => theme_get_checkout_popup_price_comparison_html( $target_product, $coupon_code ),
+        '{{offer_summary_html}}'    => theme_get_checkout_popup_offer_summary_html( $target_product, $coupon_code ),
+        '{{savings_text}}'          => esc_html( theme_get_checkout_popup_savings_text( $source_product, $target_product, $coupon_code ) ),
+        '{{savings_sentence_html}}' => theme_get_checkout_popup_savings_sentence_html( $source_product, $target_product, $coupon_code ),
+        '{{vs_current_plan_benefit_html}}' => theme_get_checkout_popup_vs_current_plan_benefit_html( $source_product, $target_product, $coupon_code ),
         '{{savings_suffix}}'        => '',
     );
 
@@ -659,14 +659,14 @@ function zaher_get_checkout_popup_template_content( $template_key, $source_produ
         'key'          => $template_key,
         'label'        => isset( $template['label'] ) ? (string) $template['label'] : $template_key,
         'badgeText'    => wp_strip_all_tags( strtr( (string) $template['badge_text'], $replacements ) ),
-        'titleHtml'    => wp_kses_post( zaher_normalize_checkout_popup_title_html( strtr( $content['title_html'], $replacements ) ) ),
-        'subtitleHtml' => wp_kses_post( zaher_normalize_checkout_popup_content_html( strtr( $content['subtitle_html'], $replacements ) ) ),
+        'titleHtml'    => wp_kses_post( theme_normalize_checkout_popup_title_html( strtr( $content['title_html'], $replacements ) ) ),
+        'subtitleHtml' => wp_kses_post( theme_normalize_checkout_popup_content_html( strtr( $content['subtitle_html'], $replacements ) ) ),
         'ctaLabel'     => wp_strip_all_tags( strtr( (string) $template['cta_label'], $replacements ) ),
         'skipLabel'    => wp_strip_all_tags( strtr( (string) $template['skip_label'], $replacements ) ),
     );
 }
 
-function zaher_get_checkout_popup_target_url( $target_product, $coupon_code = '' ) {
+function theme_get_checkout_popup_target_url( $target_product, $coupon_code = '' ) {
     if ( ! $target_product instanceof MeprProduct ) {
         return '';
     }
@@ -680,12 +680,12 @@ function zaher_get_checkout_popup_target_url( $target_product, $coupon_code = ''
     return $url;
 }
 
-function zaher_build_checkout_popup_runtime_config( $row ) {
-    $template_key   = zaher_get_checkout_popup_default_template_key();
-    $source_product = zaher_get_checkout_popup_product( isset( $row['source_product_id'] ) ? $row['source_product_id'] : 0 );
-    $target_product = zaher_get_checkout_popup_product( isset( $row['target_product_id'] ) ? $row['target_product_id'] : 0 );
+function theme_build_checkout_popup_runtime_config( $row ) {
+    $template_key   = theme_get_checkout_popup_default_template_key();
+    $source_product = theme_get_checkout_popup_product( isset( $row['source_product_id'] ) ? $row['source_product_id'] : 0 );
+    $target_product = theme_get_checkout_popup_product( isset( $row['target_product_id'] ) ? $row['target_product_id'] : 0 );
     $coupon_code    = isset( $row['coupon_code'] ) ? sanitize_text_field( $row['coupon_code'] ) : '';
-    $custom_copy    = zaher_get_checkout_popup_row_custom_copy( $row );
+    $custom_copy    = theme_get_checkout_popup_row_custom_copy( $row );
     $enabled        = ! isset( $row['enabled'] ) || ! empty( $row['enabled'] );
 
     if ( ! $enabled ) {
@@ -700,10 +700,10 @@ function zaher_build_checkout_popup_runtime_config( $row ) {
         $coupon_code = '';
     }
 
-    $template_content = zaher_get_checkout_popup_template_content( $template_key, $source_product, $target_product, $coupon_code, $custom_copy );
-    $pricing_data     = zaher_get_checkout_popup_pricing_data( $target_product, $coupon_code );
-    $price_box        = zaher_get_checkout_popup_price_box_data( $source_product, $target_product, $coupon_code );
-    $target_url       = zaher_get_checkout_popup_target_url( $target_product, $coupon_code );
+    $template_content = theme_get_checkout_popup_template_content( $template_key, $source_product, $target_product, $coupon_code, $custom_copy );
+    $pricing_data     = theme_get_checkout_popup_pricing_data( $target_product, $coupon_code );
+    $price_box        = theme_get_checkout_popup_price_box_data( $source_product, $target_product, $coupon_code );
+    $target_url       = theme_get_checkout_popup_target_url( $target_product, $coupon_code );
     $old_price        = isset( $price_box['oldPrice'] ) ? (string) $price_box['oldPrice'] : '';
     $new_price        = isset( $pricing_data['displayText'] ) ? (string) $pricing_data['displayText'] : '';
     $offer_version    = sha1(
@@ -733,8 +733,8 @@ function zaher_build_checkout_popup_runtime_config( $row ) {
     );
 }
 
-function zaher_get_checkout_popup_runtime_configs() {
-    $rows          = zaher_get_saved_checkout_popup_rows();
+function theme_get_checkout_popup_runtime_configs() {
+    $rows          = theme_get_saved_checkout_popup_rows();
     $runtime       = array();
     $seen_products = array();
 
@@ -747,7 +747,7 @@ function zaher_get_checkout_popup_runtime_configs() {
             continue;
         }
 
-        $config = zaher_build_checkout_popup_runtime_config( $row );
+        $config = theme_build_checkout_popup_runtime_config( $row );
 
         if ( ! is_array( $config ) || empty( $config['sourceProductId'] ) || empty( $config['targetUrl'] ) ) {
             continue;
@@ -765,37 +765,37 @@ function zaher_get_checkout_popup_runtime_configs() {
 }
 
 
-add_action( 'wp_enqueue_scripts', 'zaher_enqueue_checkout_popup' );
-function zaher_enqueue_checkout_popup() {
-    $popup_configs = zaher_get_checkout_popup_runtime_configs();
+add_action( 'wp_enqueue_scripts', 'theme_enqueue_checkout_popup' );
+function theme_enqueue_checkout_popup() {
+    $popup_configs = theme_get_checkout_popup_runtime_configs();
 
     if ( empty( $popup_configs ) ) {
         return;
     }
 
-    if ( ! zaher_is_memberpress_checkout_context() ) {
+    if ( ! theme_is_memberpress_checkout_context() ) {
         return;
     }
 
     // Render on any MemberPress checkout surface; JS will verify the active product ID.
     wp_localize_script(
         'foundation',
-        'zaherPopupConfig',
+        'themePopupConfig',
         array(
             'popups' => $popup_configs,
         )
     );
 }
 
-add_action( 'wp_footer', 'zaher_render_checkout_popup' );
-function zaher_render_checkout_popup() {
-    $popup_configs = zaher_get_checkout_popup_runtime_configs();
+add_action( 'wp_footer', 'theme_render_checkout_popup' );
+function theme_render_checkout_popup() {
+    $popup_configs = theme_get_checkout_popup_runtime_configs();
 
     if ( empty( $popup_configs ) ) {
         return;
     }
 
-    if ( ! zaher_is_memberpress_checkout_context() ) {
+    if ( ! theme_is_memberpress_checkout_context() ) {
         return;
     }
 

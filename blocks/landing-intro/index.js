@@ -6,7 +6,7 @@
 		[ 'core/paragraph', { content: 'LOOP je online fitness platforma na kojoj treniraju žene svjesne važnosti tjelovježbe za emocionalno i fizičko zdravlje. Za fit tijelo ne trebaš trenirati puno nego pametno i u skladu s menstrualnim ciklusom.' } ]
 	];
 
-	blocks.registerBlockType( 'zaher/landing-intro', {
+	blocks.registerBlockType( 'theme/landing-intro', {
 		edit: function() {
 			return el(
 				'section',

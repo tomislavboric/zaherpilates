@@ -18,7 +18,7 @@
 		] ]
 	];
 
-	blocks.registerBlockType( 'zaher/landing-hero', {
+	blocks.registerBlockType( 'theme/landing-hero', {
 		edit: function() {
 			return el(
 				'section',

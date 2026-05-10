@@ -16,11 +16,11 @@
 		] ],
 		[ 'core/list', { className: 'bf-story__list', values: LIST_VALUES } ],
 		[ 'core/group', { className: 'bf-story__image' }, [
-			[ 'core/image', { url: '/wp-content/themes/zaherpilates/dist/assets/images/loop-training.jpg', alt: 'LOOP trening', linkDestination: 'none' } ]
+			[ 'core/image', { url: '/wp-content/themes/theme/dist/assets/images/loop-training.jpg', alt: 'LOOP trening', linkDestination: 'none' } ]
 		] ]
 	];
 
-	blocks.registerBlockType( 'zaher/landing-story', {
+	blocks.registerBlockType( 'theme/landing-story', {
 		edit: function() {
 			return el(
 				'section',

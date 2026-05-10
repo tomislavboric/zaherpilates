@@ -3,7 +3,7 @@
  * Parse the "Video length" ACF field into minutes when possible.
  * Supports formats like: "15", "15 min", "15min", "15:00", "00:15:00".
  */
-function zaher_parse_video_length_minutes( $value ) {
+function theme_parse_video_length_minutes( $value ) {
 	$value = trim( (string) $value );
 	if ( $value === '' ) {
 		return null;

@@ -33,7 +33,7 @@ if ( $search_value !== '' ) {
 		array(
 			'post_type'           => 'programs',
 			'posts_per_page'      => 12,
-			'meta_key'            => 'zaher_views',
+			'meta_key'            => 'theme_views',
 			'orderby'             => 'meta_value_num',
 			'order'               => 'DESC',
 			'ignore_sticky_posts' => 1,
@@ -56,11 +56,11 @@ if ( $search_value !== '' ) {
 		array(
 			'post_type'           => 'programs',
 			'posts_per_page'      => 12,
-			'meta_key'            => 'zaher_video_length_minutes',
+			'meta_key'            => 'theme_video_length_minutes',
 			'meta_type'           => 'NUMERIC',
 			'meta_query'          => array(
 				array(
-					'key'     => 'zaher_video_length_minutes',
+					'key'     => 'theme_video_length_minutes',
 					'value'   => 20,
 					'compare' => '<=',
 					'type'    => 'NUMERIC',
@@ -95,9 +95,9 @@ if ( ! ( $quick_query instanceof WP_Query ) ) {
 									$thumb = has_post_thumbnail() ? get_the_post_thumbnail_url( get_the_ID(), 'fp-small' ) : $placeholder_url;
 									?>
 									<img src="<?php echo esc_url( $thumb ); ?>" alt="<?php the_title_attribute(); ?>">
-									<?php if ( function_exists( 'zaher_user_completed_program' ) && zaher_user_completed_program( get_the_ID() ) ) : ?>
+									<?php if ( function_exists( 'theme_user_completed_program' ) && theme_user_completed_program( get_the_ID() ) ) : ?>
 										<div class="cards__badge" aria-label="Pogledano do kraja">
-											<?php echo zaher_lineicon_svg( 'check-circle' ); ?>
+											<?php echo theme_lineicon_svg( 'check-circle' ); ?>
 											Pogledano
 										</div>
 									<?php endif; ?>

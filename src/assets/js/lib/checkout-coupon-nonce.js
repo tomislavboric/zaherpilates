@@ -1,13 +1,13 @@
 // Refreshes the MemberPress coupon AJAX nonce when the cached one expires.
-// Activates only on checkout pages where window.zaherMemberPressCouponNonce
+// Activates only on checkout pages where window.themeMemberPressCouponNonce
 // has been set via wp_localize_script in inc/custom/memberpress.php.
 
 (function(window, $) {
-  if (!$ || !window.zaherMemberPressCouponNonce) {
+  if (!$ || !window.themeMemberPressCouponNonce) {
     return;
   }
 
-  var config = window.zaherMemberPressCouponNonce;
+  var config = window.themeMemberPressCouponNonce;
   var refreshRequest = null;
 
   function decode(value) {
@@ -184,11 +184,11 @@
 
     $input = findCouponInput(payload);
 
-    if (!$input.length || $input.data('zaherCouponNonceRetrying')) {
+    if (!$input.length || $input.data('themeCouponNonceRetrying')) {
       return;
     }
 
-    $input.data('zaherCouponNonceRetrying', true);
+    $input.data('themeCouponNonceRetrying', true);
 
     refreshCouponNonce().done(function() {
       if (payload.action === 'mepr_get_checkout_state') {
@@ -198,7 +198,7 @@
       }
     }).always(function() {
       setTimeout(function() {
-        $input.removeData('zaherCouponNonceRetrying');
+        $input.removeData('themeCouponNonceRetrying');
       }, 250);
     });
   });
@@ -212,8 +212,8 @@
       return;
     }
 
-    if (button.getAttribute('data-zaher-coupon-nonce-ready') === '1') {
-      button.removeAttribute('data-zaher-coupon-nonce-ready');
+    if (button.getAttribute('data-theme-coupon-nonce-ready') === '1') {
+      button.removeAttribute('data-theme-coupon-nonce-ready');
       return;
     }
 
@@ -221,7 +221,7 @@
     event.stopImmediatePropagation();
 
     refreshCouponNonce().always(function() {
-      button.setAttribute('data-zaher-coupon-nonce-ready', '1');
+      button.setAttribute('data-theme-coupon-nonce-ready', '1');
       button.click();
     });
   }, true);

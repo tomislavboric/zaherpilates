@@ -56,7 +56,7 @@ $parse_checkout_price = static function( $html, $fallback_period_text = '' ) use
         $value        = $strip_checkout_period_suffix( $matches[2] );
         $period       = sprintf(
             /* translators: %d: number of prorated days */
-            _n( 'Za preostali dio trenutnog razdoblja (%d dan)', 'Za preostali dio trenutnog razdoblja (%d dana)', (int) $matches[1], 'zaherpilates' ),
+            _n( 'Za preostali dio trenutnog razdoblja (%d dan)', 'Za preostali dio trenutnog razdoblja (%d dana)', (int) $matches[1], 'foundationpress' ),
             (int) $matches[1]
         );
         $is_proration = true;
@@ -67,7 +67,7 @@ $parse_checkout_price = static function( $html, $fallback_period_text = '' ) use
         $renewal = $shorten_checkout_period_units( $renewal );
         $renewal = sprintf(
             /* translators: %s: renewal price */
-            __( 'Nakon toga %s', 'zaherpilates' ),
+            __( 'Nakon toga %s', 'foundationpress' ),
             $renewal
         );
     }
@@ -84,7 +84,7 @@ if ( '' === $checkout_product_title ) {
     $checkout_product_title = $product->post_title;
 }
 
-$checkout_period_text = function_exists( 'zaher_get_billing_period_text' ) ? zaher_get_billing_period_text( $product ) : '';
+$checkout_period_text = function_exists( 'theme_get_billing_period_text' ) ? theme_get_billing_period_text( $product ) : '';
 
 ob_start();
 MeprProductsHelper::display_invoice( $product, $mepr_coupon_code_value );
@@ -93,7 +93,7 @@ $checkout_price_label = $checkout_price_parts['value'];
 $signup_button_text   = trim( wp_strip_all_tags( stripslashes( $product->signup_button_text ) ) );
 
 if ( '' === $signup_button_text ) {
-    $signup_button_text = __( 'Pretplati se', 'zaherpilates' );
+    $signup_button_text = __( 'Pretplati se', 'foundationpress' );
 }
 
 $submit_button_text = $signup_button_text;
@@ -101,7 +101,7 @@ $submit_button_text = $signup_button_text;
 if ( $payment_required && '' !== $checkout_price_label ) {
     $submit_button_text = sprintf(
         /* translators: 1: submit button label, 2: checkout price */
-        __( '%1$s · %2$s', 'zaherpilates' ),
+        __( '%1$s · %2$s', 'foundationpress' ),
         $signup_button_text,
         $checkout_price_label
     );
@@ -139,7 +139,7 @@ $checkout_form_action .= '#mepr_jump';
                 <div>
                     <h3 class="invoice-heading"><?php echo esc_html( $checkout_product_title ); ?></h3>
                     <p class="mepr-checkout-plan-subtitle">
-                        <?php echo esc_html( $checkout_is_recurring ? __( 'LOOP - ZaherPilates · online pretplata', 'zaherpilates' ) : get_bloginfo( 'name' ) ); ?>
+                        <?php echo esc_html( $checkout_is_recurring ? __( 'LOOP - ZaherPilates · online pretplata', 'foundationpress' ) : get_bloginfo( 'name' ) ); ?>
                     </p>
                 </div>
             </div>
@@ -148,7 +148,7 @@ $checkout_form_action .= '#mepr_jump';
 
             <?php if ( ( $product->register_price_action !== 'hidden' ) && MeprHooks::apply_filters( 'mepr_checkout_show_terms', true, $product ) ) : ?>
                 <div class="mp-form-row mepr_bold mepr_price">
-                    <div class="mepr_price_cell_label"><?php esc_html_e( 'Ukupno danas', 'zaherpilates' ); ?></div>
+                    <div class="mepr_price_cell_label"><?php esc_html_e( 'Ukupno danas', 'foundationpress' ); ?></div>
                     <div class="mepr_price_cell invoice-amount" data-billing-period="<?php echo esc_attr( $checkout_period_text ); ?>">
                         <span class="invoice-amount-value"><?php echo esc_html( $checkout_price_parts['value'] ); ?></span>
                         <?php if ( '' !== $checkout_price_parts['period'] ) : ?>
@@ -161,7 +161,7 @@ $checkout_form_action .= '#mepr_jump';
                 </div>
             <?php endif; ?>
 
-            <?php $checkout_benefits = function_exists( 'zaher_get_checkout_benefits' ) ? zaher_get_checkout_benefits( $product ) : array(); ?>
+            <?php $checkout_benefits = function_exists( 'theme_get_checkout_benefits' ) ? theme_get_checkout_benefits( $product ) : array(); ?>
             <?php if ( ! empty( $checkout_benefits ) ) : ?>
                 <ul class="mepr-checkout-benefits">
                     <?php foreach ( $checkout_benefits as $checkout_benefit ) : ?>
@@ -183,7 +183,7 @@ $checkout_form_action .= '#mepr_jump';
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                 <polyline points="9 18 15 12 9 6"></polyline>
                             </svg>
-                            <?php esc_html_e( 'Imam kupon', 'zaherpilates' ); ?>
+                            <?php esc_html_e( 'Imam kupon', 'foundationpress' ); ?>
                         </button>
 
                         <div id="mepr_coupon_row<?php echo esc_attr( $unique_suffix ); ?>" class="mp-form-row mepr_coupon mepr_coupon_<?php echo esc_attr( $product->ID ); ?> mepr-checkout-coupon-field<?php echo $has_coupon_code ? '' : ' mepr-hidden'; ?>">
@@ -193,16 +193,16 @@ $checkout_form_action .= '#mepr_jump';
                                         alt="<?php esc_attr_e( 'Loading...', 'memberpress' ); ?>"
                                         title="<?php echo esc_attr_x( 'Loading icon', 'ui', 'memberpress' ); ?>" width="100" height="10" />
                                 </span>
-                                <span class="cc-error"><?php esc_html_e( 'Neispravan kupon', 'zaherpilates' ); ?></span>
-                                <span class="cc-success"><?php esc_html_e( 'Kupon je primijenjen', 'zaherpilates' ); ?></span>
+                                <span class="cc-error"><?php esc_html_e( 'Neispravan kupon', 'foundationpress' ); ?></span>
+                                <span class="cc-success"><?php esc_html_e( 'Kupon je primijenjen', 'foundationpress' ); ?></span>
                             </div>
                             <input type="text" id="mepr_coupon_code<?php echo esc_attr( $unique_suffix ); ?>" class="mepr-form-input mepr-coupon-code"
-                                placeholder="<?php esc_attr_e( 'Unesi kod', 'zaherpilates' ); ?>"
+                                placeholder="<?php esc_attr_e( 'Unesi kod', 'foundationpress' ); ?>"
                                 name="mepr_coupon_code"
                                 value="<?php echo esc_attr( stripslashes( $mepr_coupon_code_value ) ); ?>"
                                 data-prdid="<?php echo esc_attr( $product->ID ); ?>" />
                             <button type="button" class="mepr-checkout-coupon-apply">
-                                <?php esc_html_e( 'Primijeni', 'zaherpilates' ); ?>
+                                <?php esc_html_e( 'Primijeni', 'foundationpress' ); ?>
                             </button>
                         </div>
                     <?php else : ?>
@@ -223,21 +223,21 @@ $checkout_form_action .= '#mepr_jump';
                         <rect x="5" y="11" width="14" height="10" rx="2"></rect>
                         <path d="M8 11V8a4 4 0 0 1 8 0v3"></path>
                     </svg>
-                    <?php esc_html_e( 'Sigurno plaćanje · SSL enkripcija', 'zaherpilates' ); ?>
+                    <?php esc_html_e( 'Sigurno plaćanje · SSL enkripcija', 'foundationpress' ); ?>
                 </div>
                 <div>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                         <rect x="1" y="4" width="22" height="16" rx="2"></rect>
                         <line x1="1" y1="10" x2="23" y2="10"></line>
                     </svg>
-                    <?php esc_html_e( 'Visa, Mastercard, Apple Pay, Google Pay', 'zaherpilates' ); ?>
+                    <?php esc_html_e( 'Visa, Mastercard, Apple Pay, Google Pay', 'foundationpress' ); ?>
                 </div>
                 <div>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                         <circle cx="12" cy="12" r="10"></circle>
                         <polyline points="12 6 12 12 16 14"></polyline>
                     </svg>
-                    <?php esc_html_e( 'Otkaži u bilo kojem trenutku', 'zaherpilates' ); ?>
+                    <?php esc_html_e( 'Otkaži u bilo kojem trenutku', 'foundationpress' ); ?>
                 </div>
             </div>
         </div>
@@ -265,12 +265,12 @@ $checkout_form_action .= '#mepr_jump';
             <?php MeprHooks::do_action( 'mepr-checkout-before-name', $product->ID ); ?>
 
             <div class="mepr-checkout-section-title-row">
-                <div class="mepr-checkout-section-title"><?php esc_html_e( 'Tvoj račun', 'zaherpilates' ); ?></div>
+                <div class="mepr-checkout-section-title"><?php esc_html_e( 'Tvoj račun', 'foundationpress' ); ?></div>
                 <?php if ( ! MeprUtils::is_user_logged_in() ) : ?>
                     <p class="mepr-checkout-login-link">
-                        <?php esc_html_e( 'Već imaš račun?', 'zaherpilates' ); ?>
+                        <?php esc_html_e( 'Već imaš račun?', 'foundationpress' ); ?>
                         <a href="<?php echo esc_url( wp_login_url( get_permalink( $product->ID ) ) ); ?>">
-                            <?php esc_html_e( 'Prijavi se', 'zaherpilates' ); ?>
+                            <?php esc_html_e( 'Prijavi se', 'foundationpress' ); ?>
                         </a>
                     </p>
                 <?php endif; ?>
@@ -279,7 +279,7 @@ $checkout_form_action .= '#mepr_jump';
             <?php if ( MeprUtils::is_user_logged_in() ) : ?>
                 <div class="mp-form-row mepr_logged_in">
                     <div class="mp-form-label">
-                        <label><?php esc_html_e( 'E-mail adresa', 'zaherpilates' ); ?></label>
+                        <label><?php esc_html_e( 'E-mail adresa', 'foundationpress' ); ?></label>
                     </div>
                     <div class="mepr-checkout-account-email" aria-disabled="true">
                         <?php echo esc_html( stripslashes( $mepr_current_user->user_email ) ); ?>
@@ -289,26 +289,26 @@ $checkout_form_action .= '#mepr_jump';
                 <div class="mepr-checkout-field-grid">
                     <div class="mp-form-row mepr_first_name<?php echo $mepr_options->require_fname_lname ? ' mepr-field-required' : ''; ?>">
                         <div class="mp-form-label">
-                            <label for="user_first_name<?php echo esc_attr( $unique_suffix ); ?>"><?php esc_html_e( 'Ime', 'zaherpilates' ); ?></label>
-                            <span class="cc-error"><?php esc_html_e( 'Unesi ime', 'zaherpilates' ); ?></span>
+                            <label for="user_first_name<?php echo esc_attr( $unique_suffix ); ?>"><?php esc_html_e( 'Ime', 'foundationpress' ); ?></label>
+                            <span class="cc-error"><?php esc_html_e( 'Unesi ime', 'foundationpress' ); ?></span>
                         </div>
                         <input type="text" name="user_first_name" id="user_first_name<?php echo esc_attr( $unique_suffix ); ?>" class="mepr-form-input"
-                            value="<?php echo esc_attr( $first_name_value ); ?>" placeholder="<?php esc_attr_e( 'Ana', 'zaherpilates' ); ?>" <?php echo $mepr_options->require_fname_lname ? 'required' : ''; ?> />
+                            value="<?php echo esc_attr( $first_name_value ); ?>" placeholder="<?php esc_attr_e( 'Ana', 'foundationpress' ); ?>" <?php echo $mepr_options->require_fname_lname ? 'required' : ''; ?> />
                     </div>
                     <div class="mp-form-row mepr_last_name<?php echo $mepr_options->require_fname_lname ? ' mepr-field-required' : ''; ?>">
                         <div class="mp-form-label">
-                            <label for="user_last_name<?php echo esc_attr( $unique_suffix ); ?>"><?php esc_html_e( 'Prezime', 'zaherpilates' ); ?></label>
-                            <span class="cc-error"><?php esc_html_e( 'Unesi prezime', 'zaherpilates' ); ?></span>
+                            <label for="user_last_name<?php echo esc_attr( $unique_suffix ); ?>"><?php esc_html_e( 'Prezime', 'foundationpress' ); ?></label>
+                            <span class="cc-error"><?php esc_html_e( 'Unesi prezime', 'foundationpress' ); ?></span>
                         </div>
                         <input type="text" name="user_last_name" id="user_last_name<?php echo esc_attr( $unique_suffix ); ?>" class="mepr-form-input"
-                            value="<?php echo esc_attr( $last_name_value ); ?>" placeholder="<?php esc_attr_e( 'Horvat', 'zaherpilates' ); ?>" <?php echo $mepr_options->require_fname_lname ? 'required' : ''; ?> />
+                            value="<?php echo esc_attr( $last_name_value ); ?>" placeholder="<?php esc_attr_e( 'Horvat', 'foundationpress' ); ?>" <?php echo $mepr_options->require_fname_lname ? 'required' : ''; ?> />
                     </div>
                 </div>
                 <?php if ( ! $mepr_options->username_is_email ) : ?>
                     <div class="mp-form-row mepr_username mepr-field-required">
                         <div class="mp-form-label">
-                            <label for="user_login<?php echo esc_attr( $unique_suffix ); ?>"><?php esc_html_e( 'Korisničko ime', 'zaherpilates' ); ?>*</label>
-                            <span class="cc-error"><?php esc_html_e( 'Unesi korisničko ime', 'zaherpilates' ); ?></span>
+                            <label for="user_login<?php echo esc_attr( $unique_suffix ); ?>"><?php esc_html_e( 'Korisničko ime', 'foundationpress' ); ?>*</label>
+                            <span class="cc-error"><?php esc_html_e( 'Unesi korisničko ime', 'foundationpress' ); ?></span>
                         </div>
                         <input type="text" name="user_login" id="user_login<?php echo esc_attr( $unique_suffix ); ?>" class="mepr-form-input"
                             value="<?php echo isset( $user_login ) ? esc_attr( stripslashes( $user_login ) ) : ''; ?>" required />
@@ -316,11 +316,11 @@ $checkout_form_action .= '#mepr_jump';
                 <?php endif; ?>
                 <div class="mp-form-row mepr_email mepr-field-required">
                     <div class="mp-form-label">
-                        <label for="user_email<?php echo esc_attr( $unique_suffix ); ?>"><?php esc_html_e( 'E-mail adresa', 'zaherpilates' ); ?></label>
-                        <span class="cc-error"><?php esc_html_e( 'Unesi ispravnu e-mail adresu', 'zaherpilates' ); ?></span>
+                        <label for="user_email<?php echo esc_attr( $unique_suffix ); ?>"><?php esc_html_e( 'E-mail adresa', 'foundationpress' ); ?></label>
+                        <span class="cc-error"><?php esc_html_e( 'Unesi ispravnu e-mail adresu', 'foundationpress' ); ?></span>
                     </div>
                     <input type="email" name="user_email" id="user_email<?php echo esc_attr( $unique_suffix ); ?>" class="mepr-form-input"
-                        value="<?php echo esc_attr( stripslashes( $user_email_value ) ); ?>" placeholder="<?php esc_attr_e( 'ana@primjer.hr', 'zaherpilates' ); ?>" required />
+                        value="<?php echo esc_attr( stripslashes( $user_email_value ) ); ?>" placeholder="<?php esc_attr_e( 'ana@primjer.hr', 'foundationpress' ); ?>" required />
                 </div>
                 <div class="mp-form-row mepr_email_stripe mepr-field-required mepr-hidden"></div>
                 <?php MeprHooks::do_action( 'mepr-after-email-field' ); ?>
@@ -328,11 +328,11 @@ $checkout_form_action .= '#mepr_jump';
                 <?php if ( false === $mepr_options->disable_checkout_password_fields ) : ?>
                     <div class="mp-form-row mepr_password mepr-field-required">
                         <div class="mp-form-label">
-                            <label for="mepr_user_password<?php echo esc_attr( $unique_suffix ); ?>"><?php esc_html_e( 'Lozinka', 'zaherpilates' ); ?></label>
-                            <span class="cc-error"><?php esc_html_e( 'Unesi lozinku', 'zaherpilates' ); ?></span>
+                            <label for="mepr_user_password<?php echo esc_attr( $unique_suffix ); ?>"><?php esc_html_e( 'Lozinka', 'foundationpress' ); ?></label>
+                            <span class="cc-error"><?php esc_html_e( 'Unesi lozinku', 'foundationpress' ); ?></span>
                         </div>
                         <input type="password" name="mepr_user_password" id="mepr_user_password<?php echo esc_attr( $unique_suffix ); ?>" class="mepr-form-input mepr-password"
-                            value="<?php echo isset( $mepr_user_password ) ? esc_attr( stripslashes( $mepr_user_password ) ) : ''; ?>" placeholder="<?php esc_attr_e( 'Minimalno 8 znakova', 'zaherpilates' ); ?>" autocomplete="new-password" minlength="8" required />
+                            value="<?php echo isset( $mepr_user_password ) ? esc_attr( stripslashes( $mepr_user_password ) ) : ''; ?>" placeholder="<?php esc_attr_e( 'Minimalno 8 znakova', 'foundationpress' ); ?>" autocomplete="new-password" minlength="8" required />
                         <div class="mepr-checkout-password-meter" data-password-meter>
                             <div class="mepr-checkout-password-bars" aria-hidden="true">
                                 <span></span>
@@ -340,16 +340,16 @@ $checkout_form_action .= '#mepr_jump';
                                 <span></span>
                                 <span></span>
                             </div>
-                            <span class="mepr-checkout-password-label"><?php esc_html_e( 'Unesi lozinku', 'zaherpilates' ); ?></span>
+                            <span class="mepr-checkout-password-label"><?php esc_html_e( 'Unesi lozinku', 'foundationpress' ); ?></span>
                         </div>
                     </div>
                     <div class="mp-form-row mepr_password_confirm mepr-field-required">
                         <div class="mp-form-label">
-                            <label for="mepr_user_password_confirm<?php echo esc_attr( $unique_suffix ); ?>"><?php esc_html_e( 'Potvrda lozinke', 'zaherpilates' ); ?></label>
-                            <span class="cc-error"><?php esc_html_e( 'Lozinke se ne podudaraju', 'zaherpilates' ); ?></span>
+                            <label for="mepr_user_password_confirm<?php echo esc_attr( $unique_suffix ); ?>"><?php esc_html_e( 'Potvrda lozinke', 'foundationpress' ); ?></label>
+                            <span class="cc-error"><?php esc_html_e( 'Lozinke se ne podudaraju', 'foundationpress' ); ?></span>
                         </div>
                         <input type="password" name="mepr_user_password_confirm" id="mepr_user_password_confirm<?php echo esc_attr( $unique_suffix ); ?>" class="mepr-form-input mepr-password-confirm"
-                            value="<?php echo isset( $mepr_user_password_confirm ) ? esc_attr( stripslashes( $mepr_user_password_confirm ) ) : ''; ?>" placeholder="<?php esc_attr_e( 'Ponovi lozinku', 'zaherpilates' ); ?>" autocomplete="new-password" required />
+                            value="<?php echo isset( $mepr_user_password_confirm ) ? esc_attr( stripslashes( $mepr_user_password_confirm ) ) : ''; ?>" placeholder="<?php esc_attr_e( 'Ponovi lozinku', 'foundationpress' ); ?>" autocomplete="new-password" required />
                     </div>
                     <?php MeprHooks::do_action( 'mepr-after-password-fields' ); ?>
                     <?php MeprHooks::do_action( 'mepr-checkout-after-password-fields', $product->ID ); ?>
@@ -364,17 +364,17 @@ $checkout_form_action .= '#mepr_jump';
 
             <blockquote class="mepr-checkout-quote">
                 <p>
-                    <?php esc_html_e( 'Žene koje napreduju ne čekaju savršen trenutak — one iskoriste trenutak koji imaju. Ti si već napravila najteži korak — ostao je samo jedan klik.', 'zaherpilates' ); ?>
+                    <?php esc_html_e( 'Žene koje napreduju ne čekaju savršen trenutak — one iskoriste trenutak koji imaju. Ti si već napravila najteži korak — ostao je samo jedan klik.', 'foundationpress' ); ?>
                 </p>
             </blockquote>
 
             <?php MeprHooks::do_action( 'mepr_render_order_bumps', $product ); ?>
 
-            <div class="mepr-checkout-section-title mepr-checkout-section-title-payment"><?php esc_html_e( 'Plaćanje', 'zaherpilates' ); ?></div>
+            <div class="mepr-checkout-section-title mepr-checkout-section-title-payment"><?php esc_html_e( 'Plaćanje', 'foundationpress' ); ?></div>
 
             <?php if ( $payment_methods_count <= 0 && $payment_required ) : ?>
                 <div class="mepr_error">
-                    <?php esc_html_e( 'Trenutno nema aktivnih načina plaćanja. Kontaktiraj podršku.', 'zaherpilates' ); ?>
+                    <?php esc_html_e( 'Trenutno nema aktivnih načina plaćanja. Kontaktiraj podršku.', 'foundationpress' ); ?>
                 </div>
             <?php endif; ?>
 
@@ -390,7 +390,7 @@ $checkout_form_action .= '#mepr_jump';
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                         </svg>
-                        <?php esc_html_e( 'Plaćanje zaštićeno Stripe-om', 'zaherpilates' ); ?>
+                        <?php esc_html_e( 'Plaćanje zaštićeno Stripe-om', 'foundationpress' ); ?>
                     </div>
                 </div>
             <?php endif; ?>
@@ -401,7 +401,7 @@ $checkout_form_action .= '#mepr_jump';
                         <input type="checkbox" name="mepr_agree_to_tos" id="mepr_agree_to_tos<?php echo esc_attr( $unique_suffix ); ?>"
                             <?php checked( isset( $mepr_agree_to_tos ) ); ?> />
                         <span>
-                            <?php esc_html_e( 'Prihvaćam', 'zaherpilates' ); ?>
+                            <?php esc_html_e( 'Prihvaćam', 'foundationpress' ); ?>
                             <a href="<?php echo esc_url( stripslashes( $mepr_options->tos_url ) ); ?>" target="_blank" rel="noopener noreferrer">
                                 <?php echo wp_kses_post( stripslashes( $mepr_options->tos_title ) ); ?>
                             </a>*
@@ -443,11 +443,11 @@ $checkout_form_action .= '#mepr_jump';
 
                 <img src="<?php echo esc_url( admin_url( 'images/loading.gif' ) ); ?>" alt="<?php esc_attr_e( 'Loading...', 'memberpress' ); ?>"
                     style="display: none;" class="mepr-loading-gif" title="<?php echo esc_attr_x( 'Loading icon', 'ui', 'memberpress' ); ?>" />
-                <span class="mepr-form-has-errors"><?php esc_html_e( 'Provjeri označena polja.', 'zaherpilates' ); ?></span>
+                <span class="mepr-form-has-errors"><?php esc_html_e( 'Provjeri označena polja.', 'foundationpress' ); ?></span>
 
                 <?php if ( $checkout_is_recurring ) : ?>
                     <p class="mepr-checkout-footer-note">
-                        <?php esc_html_e( 'Pretplata se automatski obnavlja. Možeš otkazati u korisničkom računu u bilo kojem trenutku.', 'zaherpilates' ); ?>
+                        <?php esc_html_e( 'Pretplata se automatski obnavlja. Možeš otkazati u korisničkom računu u bilo kojem trenutku.', 'foundationpress' ); ?>
                     </p>
                 <?php endif; ?>
             </div>

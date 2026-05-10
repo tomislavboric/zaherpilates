@@ -8,7 +8,7 @@
 	var TextControl = components.TextControl;
 	var SelectControl = components.SelectControl;
 
-	blocks.registerBlockType( 'zaher/landing-cta-button', {
+	blocks.registerBlockType( 'theme/landing-cta-button', {
 		edit: function( props ) {
 			var attributes = props.attributes;
 			var setAttributes = props.setAttributes;

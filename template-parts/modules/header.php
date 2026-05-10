@@ -14,7 +14,7 @@ $current_user = wp_get_current_user();
 		<div class="header__logo">
 			<a href="<?php echo home_url(); ?>">
 				<img class="header__logo-zaherpilates" src="<?php echo get_stylesheet_directory_uri(); ?>/dist/assets/images/zaherpilates-logo.png" alt="Zaher Pilates">
-				<?php if ( is_page_template('page-templates/page-loop.php') || is_archive('page-programs.php') || is_page_template('page-plans.php') || zaher_is_catalog_page() ) : ?>
+				<?php if ( is_page_template('page-templates/page-loop.php') || is_archive('page-programs.php') || is_page_template('page-plans.php') || theme_is_catalog_page() ) : ?>
 					<img class="header__logo-loop" src="<?php echo get_stylesheet_directory_uri(); ?>/dist/assets/images/loop-logo.svg" alt="LOOP by Zaher Pilates">
 				<?php endif; ?>
 			</a>
@@ -52,14 +52,14 @@ $current_user = wp_get_current_user();
 					$logout_url = MeprUtils::logout_url();
 				}
 				?>
-				<?php if ( $show_upgrade_cta && function_exists( 'zaher_user_has_upgrade_available' ) && zaher_user_has_upgrade_available() ) : ?>
+				<?php if ( $show_upgrade_cta && function_exists( 'theme_user_has_upgrade_available' ) && theme_user_has_upgrade_available() ) : ?>
 					<a class="header__account-upgrade" href="<?php echo esc_url( home_url( '/cjenik/' ) ); ?>">
-						<?php echo zaher_lineicon_svg( 'bolt' ); ?>
-						<?php esc_html_e( 'Upgrade', 'zaherpilates' ); ?>
+						<?php echo theme_lineicon_svg( 'bolt' ); ?>
+						<?php esc_html_e( 'Upgrade', 'foundationpress' ); ?>
 					</a>
 				<?php endif; ?>
-				<a class="header__help-link" href="<?php echo esc_url( home_url( '/kontakt/' ) ); ?>" aria-label="<?php esc_attr_e( 'Pomoć i podrška', 'zaherpilates' ); ?>" data-tip="<?php esc_attr_e( 'Pomoć i podrška', 'zaherpilates' ); ?>">
-					<?php echo zaher_lineicon_svg( 'help' ); ?>
+				<a class="header__help-link" href="<?php echo esc_url( home_url( '/kontakt/' ) ); ?>" aria-label="<?php esc_attr_e( 'Pomoć i podrška', 'foundationpress' ); ?>" data-tip="<?php esc_attr_e( 'Pomoć i podrška', 'foundationpress' ); ?>">
+					<?php echo theme_lineicon_svg( 'help' ); ?>
 				</a>
 				<div class="header__account-user" data-account-menu>
 					<button class="header__account-trigger" type="button" aria-expanded="false" aria-haspopup="true">
@@ -75,23 +75,23 @@ $current_user = wp_get_current_user();
 						</div>
 						<div class="header__account-links">
 							<a class="header__account-link" href="<?php echo esc_url( $account_url ); ?>" role="menuitem">
-								<?php echo zaher_lineicon_svg( 'user' ); ?>
+								<?php echo theme_lineicon_svg( 'user' ); ?>
 								Profil
 							</a>
 							<a class="header__account-link" href="<?php echo esc_url( $subscription_url ); ?>" role="menuitem">
-								<?php echo zaher_lineicon_svg( 'id-card' ); ?>
+								<?php echo theme_lineicon_svg( 'id-card' ); ?>
 								Pretplata
 							</a>
 							<a class="header__account-link" href="<?php echo esc_url( $payments_url ); ?>" role="menuitem">
-								<?php echo zaher_lineicon_svg( 'file' ); ?>
+								<?php echo theme_lineicon_svg( 'file' ); ?>
 								Plaćanja
 							</a>
 							<a class="header__account-link" href="<?php echo esc_url( $password_url ); ?>" role="menuitem">
-								<?php echo zaher_lineicon_svg( 'lock' ); ?>
+								<?php echo theme_lineicon_svg( 'lock' ); ?>
 								Lozinka
 							</a>
 							<a class="header__account-link header__account-link--logout" href="<?php echo esc_url( $logout_url ); ?>" role="menuitem">
-								<?php echo zaher_lineicon_svg( 'exit' ); ?>
+								<?php echo theme_lineicon_svg( 'exit' ); ?>
 								Odjava
 							</a>
 						</div>

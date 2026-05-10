@@ -51,15 +51,15 @@ if ( ! function_exists( 'foundationpress_scripts' ) ) :
 		$should_load_landing = is_page_template( 'page-templates/page-landing.php' );
 		if ( ! $should_load_landing && is_singular() ) {
 			$landing_blocks = array(
-				'zaher/landing-hero',
-				'zaher/landing-countdown',
-				'zaher/landing-countdown-final',
-				'zaher/landing-intro',
-				'zaher/landing-story',
-				'zaher/landing-offer',
-				'zaher/landing-testimonials',
-				'zaher/landing-faq',
-				'zaher/landing-final-cta',
+				'theme/landing-hero',
+				'theme/landing-countdown',
+				'theme/landing-countdown-final',
+				'theme/landing-intro',
+				'theme/landing-story',
+				'theme/landing-offer',
+				'theme/landing-testimonials',
+				'theme/landing-faq',
+				'theme/landing-final-cta',
 			);
 
 			foreach ( $landing_blocks as $landing_block ) {

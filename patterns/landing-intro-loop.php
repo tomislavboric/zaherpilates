@@ -1,8 +1,8 @@
 <?php
 /**
  * Title: Landing Section - Intro (LOOP)
- * Slug: zaherpilates/landing-intro-loop
- * Categories: zaher-landing
+ * Slug: theme/landing-intro-loop
+ * Categories: theme-landing
  * Keywords: landing, intro, loop
  */
 ?>

@@ -6,8 +6,8 @@
  * @package memberpress-pro-template
  */
 
-$is_checkout_page  = function_exists( 'zaher_is_memberpress_checkout_context' ) && zaher_is_memberpress_checkout_context();
-$is_thankyou_page  = function_exists( 'zaher_is_memberpress_thankyou_context' ) && zaher_is_memberpress_thankyou_context();
+$is_checkout_page  = function_exists( 'theme_is_memberpress_checkout_context' ) && theme_is_memberpress_checkout_context();
+$is_thankyou_page  = function_exists( 'theme_is_memberpress_thankyou_context' ) && theme_is_memberpress_thankyou_context();
 $is_checkout_shell = $is_checkout_page || $is_thankyou_page;
 $header_classes    = isset( $is_account_page ) ? 'account-header' : '';
 $body_classes      = 'mepr-pro-template mepr-app-layout';
@@ -92,11 +92,11 @@ if ( $is_checkout_shell ) {
 
           <div x-show="open" @click.away="open=false" x-cloak @toggle-menu.window="open=!open" class="profile-menu__dropdown dropdown">
             <a class="profile-menu__dropdown-item dropdown__item"
-              href="<?php echo esc_url($account_url); ?>"><?php esc_html_e( 'Račun', 'zaherpilates' ); ?></a>
+              href="<?php echo esc_url($account_url); ?>"><?php esc_html_e( 'Račun', 'foundationpress' ); ?></a>
             <a class="profile-menu__dropdown-item dropdown__item"
-              href="<?php echo esc_url($change_password_url); ?>"><?php esc_html_e( 'Promjena lozinke', 'zaherpilates' ); ?></a>
+              href="<?php echo esc_url($change_password_url); ?>"><?php esc_html_e( 'Promjena lozinke', 'foundationpress' ); ?></a>
             <a class="profile-menu__dropdown-item dropdown__item"
-              href="<?php echo esc_url($logout_url); ?>"><?php esc_html_e( 'Odjava', 'zaherpilates' ); ?></a>
+              href="<?php echo esc_url($logout_url); ?>"><?php esc_html_e( 'Odjava', 'foundationpress' ); ?></a>
           </div>
 
         </div>

@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die( 'You are not allowed to call this page directly.' );
 }
 
-$forgot_url = function_exists( 'zaher_auth_action_url' ) ? zaher_auth_action_url( 'forgot_password' ) : MeprOptions::fetch()->forgot_password_url();
+$forgot_url = function_exists( 'theme_auth_action_url' ) ? theme_auth_action_url( 'forgot_password' ) : MeprOptions::fetch()->forgot_password_url();
 ?>
 
 <section class="mepr-auth mepr-auth--compact" aria-labelledby="mepr-auth-title">
@@ -15,11 +15,11 @@ $forgot_url = function_exists( 'zaher_auth_action_url' ) ? zaher_auth_action_url
 				<circle cx="12" cy="12" r="9"></circle>
 			</svg>
 		</div>
-		<p class="mepr-auth__eyebrow"><?php esc_html_e( 'Reset lozinke', 'zaherpilates' ); ?></p>
-		<h1 id="mepr-auth-title"><?php esc_html_e( 'Link je istekao', 'zaherpilates' ); ?></h1>
-		<p class="mepr-auth__intro"><?php esc_html_e( 'Zatraži novi link za postavljanje lozinke i nastavi s prijavom.', 'zaherpilates' ); ?></p>
+		<p class="mepr-auth__eyebrow"><?php esc_html_e( 'Reset lozinke', 'foundationpress' ); ?></p>
+		<h1 id="mepr-auth-title"><?php esc_html_e( 'Link je istekao', 'foundationpress' ); ?></h1>
+		<p class="mepr-auth__intro"><?php esc_html_e( 'Zatraži novi link za postavljanje lozinke i nastavi s prijavom.', 'foundationpress' ); ?></p>
 		<div class="mepr-auth__actions">
-			<a class="mepr-auth__button" href="<?php echo esc_url( $forgot_url ); ?>"><?php esc_html_e( 'Zatraži novi link', 'zaherpilates' ); ?></a>
+			<a class="mepr-auth__button" href="<?php echo esc_url( $forgot_url ); ?>"><?php esc_html_e( 'Zatraži novi link', 'foundationpress' ); ?></a>
 		</div>
 	</div>
 </section>

@@ -1,9 +1,9 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 2,
-	"name": "zaher/landing-countdown",
+	"name": "theme/landing-countdown",
 	"title": "Landing Countdown",
-	"category": "zaher-landing",
+	"category": "theme-landing",
 	"icon": "clock",
 	"description": "Countdown section with deadline.",
 	"textdomain": "foundationpress",

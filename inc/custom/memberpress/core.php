@@ -36,8 +36,8 @@ function subscription_content_shortcode($atts, $content = null) {
 
 add_shortcode('subscription_content', 'subscription_content_shortcode');
 
-function zaher_apply_minimal_memberpress_checkout_options() {
-    if ( ! class_exists( 'MeprOptions' ) || ! zaher_is_memberpress_checkout_context() ) {
+function theme_apply_minimal_memberpress_checkout_options() {
+    if ( ! class_exists( 'MeprOptions' ) || ! theme_is_memberpress_checkout_context() ) {
         return;
     }
 
@@ -60,15 +60,15 @@ function zaher_apply_minimal_memberpress_checkout_options() {
     }
 }
 
-add_action( 'init', 'zaher_apply_minimal_memberpress_checkout_options', 1 );
-add_action( 'wp', 'zaher_apply_minimal_memberpress_checkout_options', 1 );
+add_action( 'init', 'theme_apply_minimal_memberpress_checkout_options', 1 );
+add_action( 'wp', 'theme_apply_minimal_memberpress_checkout_options', 1 );
 
 add_filter( 'mepr-checkout-no-billing-address', '__return_true' );
 
-function zaher_memberpress_stripe_elements_appearance( $appearance ) {
+function theme_memberpress_stripe_elements_appearance( $appearance ) {
     $appearance = is_array( $appearance ) ? $appearance : array();
 
-    $zaher_appearance = array(
+    $theme_appearance = array(
         'theme'     => 'stripe',
         'variables' => array(
             'fontFamily'           => 'Poppins, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
@@ -112,13 +112,13 @@ function zaher_memberpress_stripe_elements_appearance( $appearance ) {
         ),
     );
 
-    return array_replace_recursive( $zaher_appearance, $appearance );
+    return array_replace_recursive( $theme_appearance, $appearance );
 }
 
-add_filter( 'mepr-stripe-elements-appearance', 'zaher_memberpress_stripe_elements_appearance' );
+add_filter( 'mepr-stripe-elements-appearance', 'theme_memberpress_stripe_elements_appearance' );
 
 
-function zaher_validate_memberpress_checkout_password_length( $errors ) {
+function theme_validate_memberpress_checkout_password_length( $errors ) {
     if ( ! isset( $_POST['mepr_process_signup_form'], $_POST['mepr_product_id'] ) ) {
         return $errors;
     }
@@ -144,18 +144,18 @@ function zaher_validate_memberpress_checkout_password_length( $errors ) {
     $password_length = function_exists( 'mb_strlen' ) ? mb_strlen( $password ) : strlen( $password );
 
     if ( $password_length < 8 ) {
-        $errors['mepr_user_password'] = __( 'Lozinka mora imati najmanje 8 znakova.', 'zaherpilates' );
+        $errors['mepr_user_password'] = __( 'Lozinka mora imati najmanje 8 znakova.', 'foundationpress' );
     }
 
     return $errors;
 }
 
-add_filter( 'mepr-validate-signup', 'zaher_validate_memberpress_checkout_password_length', 20 );
+add_filter( 'mepr-validate-signup', 'theme_validate_memberpress_checkout_password_length', 20 );
 
 add_action(
     'wp_enqueue_scripts',
     function() {
-        if ( function_exists( 'zaher_is_memberpress_checkout_shell_context' ) && zaher_is_memberpress_checkout_shell_context() ) {
+        if ( function_exists( 'theme_is_memberpress_checkout_shell_context' ) && theme_is_memberpress_checkout_shell_context() ) {
             wp_enqueue_style(
                 'my-mepr-checkout-style',
                 get_stylesheet_directory_uri() . '/dist/assets/css/' . foundationpress_asset_path( 'app.css' ),
@@ -221,7 +221,7 @@ add_filter(
 );
 
 
-function zaher_is_memberpress_checkout_context() {
+function theme_is_memberpress_checkout_context() {
     $is_checkout_post = isset( $_POST['mepr_process_signup_form'] );
     $ajax_action      = isset( $_POST['action'] ) ? sanitize_key( wp_unslash( $_POST['action'] ) ) : '';
     $is_checkout_ajax = wp_doing_ajax() && in_array(
@@ -249,7 +249,7 @@ function zaher_is_memberpress_checkout_context() {
     return class_exists( 'MeprProduct' ) && is_singular( MeprProduct::$cpt );
 }
 
-function zaher_is_memberpress_thankyou_context() {
+function theme_is_memberpress_thankyou_context() {
     if ( ! did_action( 'wp' ) ) {
         return false;
     }
@@ -269,13 +269,13 @@ function zaher_is_memberpress_thankyou_context() {
     return $mepr_options && ! empty( $mepr_options->thankyou_page_id ) && is_page( (int) $mepr_options->thankyou_page_id );
 }
 
-function zaher_is_memberpress_checkout_shell_context() {
-    return zaher_is_memberpress_checkout_context() || zaher_is_memberpress_thankyou_context();
+function theme_is_memberpress_checkout_shell_context() {
+    return theme_is_memberpress_checkout_context() || theme_is_memberpress_thankyou_context();
 }
 
-add_action( 'wp_ajax_zaher_memberpress_coupon_nonce', 'zaher_memberpress_coupon_nonce_ajax' );
-add_action( 'wp_ajax_nopriv_zaher_memberpress_coupon_nonce', 'zaher_memberpress_coupon_nonce_ajax' );
-function zaher_memberpress_coupon_nonce_ajax() {
+add_action( 'wp_ajax_theme_memberpress_coupon_nonce', 'theme_memberpress_coupon_nonce_ajax' );
+add_action( 'wp_ajax_nopriv_theme_memberpress_coupon_nonce', 'theme_memberpress_coupon_nonce_ajax' );
+function theme_memberpress_coupon_nonce_ajax() {
     nocache_headers();
 
     wp_send_json_success(
@@ -286,10 +286,10 @@ function zaher_memberpress_coupon_nonce_ajax() {
 }
 
 // Bridge for the checkout-coupon-nonce.js module. Config is exposed as
-// window.zaherMemberPressCouponNonce; the JS lives in src/assets/js/lib/checkout-coupon-nonce.js.
-add_action( 'wp_enqueue_scripts', 'zaher_enqueue_memberpress_coupon_nonce_refresh', 1000002 );
-function zaher_enqueue_memberpress_coupon_nonce_refresh() {
-    if ( ! zaher_is_memberpress_checkout_context() ) {
+// window.themeMemberPressCouponNonce; the JS lives in src/assets/js/lib/checkout-coupon-nonce.js.
+add_action( 'wp_enqueue_scripts', 'theme_enqueue_memberpress_coupon_nonce_refresh', 1000002 );
+function theme_enqueue_memberpress_coupon_nonce_refresh() {
+    if ( ! theme_is_memberpress_checkout_context() ) {
         return;
     }
 
@@ -301,10 +301,10 @@ function zaher_enqueue_memberpress_coupon_nonce_refresh() {
 
     wp_add_inline_script(
         $handle,
-        'window.zaherMemberPressCouponNonce=' . wp_json_encode(
+        'window.themeMemberPressCouponNonce=' . wp_json_encode(
             array(
                 'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-                'action'  => 'zaher_memberpress_coupon_nonce',
+                'action'  => 'theme_memberpress_coupon_nonce',
             )
         ) . ';',
         'before'

@@ -15,7 +15,7 @@
 		[ 'core/paragraph', { className: 'hero__note', content: 'Postojeće članice mogu nadograditi pretplatu unutar svog korisničkog računa.' } ]
 	];
 
-	blocks.registerBlockType( 'zaher/landing-final-cta', {
+	blocks.registerBlockType( 'theme/landing-final-cta', {
 		edit: function() {
 			return el(
 				'section',

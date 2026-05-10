@@ -1,8 +1,8 @@
 <?php
 /**
  * Title: Landing Section - Hero (Black Week LOOP)
- * Slug: zaherpilates/landing-hero-black-week-loop
- * Categories: zaher-landing
+ * Slug: theme/landing-hero-black-week-loop
+ * Categories: theme-landing
  * Keywords: landing, hero, black week
  */
 ?>

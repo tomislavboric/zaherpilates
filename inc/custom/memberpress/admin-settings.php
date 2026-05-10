@@ -3,11 +3,11 @@
  * Admin setting: Member redirect URL.
  * Lets you override where logged-in users are redirected when they visit the homepage.
  */
-add_action( 'admin_init', 'zaher_register_member_redirect_url_setting' );
-function zaher_register_member_redirect_url_setting() {
+add_action( 'admin_init', 'theme_register_member_redirect_url_setting' );
+function theme_register_member_redirect_url_setting() {
 	register_setting(
 		'general',
-		'zaher_member_katalog_url',
+		'theme_member_katalog_url',
 		array(
 			'type'              => 'string',
 			'sanitize_callback' => 'esc_url_raw',
@@ -16,21 +16,21 @@ function zaher_register_member_redirect_url_setting() {
 	);
 
 	add_settings_field(
-		'zaher_member_katalog_url',
+		'theme_member_katalog_url',
 		'Member redirect URL',
-		'zaher_render_member_redirect_url_setting_field',
+		'theme_render_member_redirect_url_setting_field',
 		'general'
 	);
 }
 
-function zaher_render_member_redirect_url_setting_field() {
-	$value = (string) get_option( 'zaher_member_katalog_url', '' );
-	echo '<input type="url" class="regular-text ltr" id="zaher_member_katalog_url" name="zaher_member_katalog_url" value="' . esc_attr( $value ) . '" placeholder="https://localhost:3000/katalog/" />';
+function theme_render_member_redirect_url_setting_field() {
+	$value = (string) get_option( 'theme_member_katalog_url', '' );
+	echo '<input type="url" class="regular-text ltr" id="theme_member_katalog_url" name="theme_member_katalog_url" value="' . esc_attr( $value ) . '" placeholder="https://localhost:3000/katalog/" />';
 	echo '<p class="description">If set, logged-in users visiting the homepage will be redirected to this URL (e.g. <code>https://localhost:3000/katalog/</code>). Leave empty to use the normal Katalog permalink.</p>';
 }
 
-add_action( 'admin_menu', 'zaher_register_checkout_popup_settings_page' );
-function zaher_register_checkout_popup_settings_page() {
+add_action( 'admin_menu', 'theme_register_checkout_popup_settings_page' );
+function theme_register_checkout_popup_settings_page() {
 	if ( ! class_exists( 'MeprAppCtrl' ) ) {
 		return;
 	}
@@ -40,20 +40,20 @@ function zaher_register_checkout_popup_settings_page() {
 		'Checkout Popup',
 		'Checkout Popup',
 		'manage_options',
-		'zaher-checkout-popup-settings',
-		'zaher_render_checkout_popup_settings_page'
+		'theme-checkout-popup-settings',
+		'theme_render_checkout_popup_settings_page'
 	);
 }
 
-add_action( 'admin_menu', 'zaher_reorder_checkout_popup_settings_page', 999 );
-function zaher_reorder_checkout_popup_settings_page() {
+add_action( 'admin_menu', 'theme_reorder_checkout_popup_settings_page', 999 );
+function theme_reorder_checkout_popup_settings_page() {
 	global $submenu;
 
 	if ( empty( $submenu['memberpress'] ) || ! is_array( $submenu['memberpress'] ) ) {
 		return;
 	}
 
-	$target_slug = 'zaher-checkout-popup-settings';
+	$target_slug = 'theme-checkout-popup-settings';
 	$target_item = null;
 	$new_order   = array();
 
@@ -87,11 +87,11 @@ function zaher_reorder_checkout_popup_settings_page() {
 	$submenu['memberpress'] = $new_order;
 }
 
-add_action( 'admin_enqueue_scripts', 'zaher_enqueue_checkout_popup_admin_assets' );
-function zaher_enqueue_checkout_popup_admin_assets( $hook_suffix ) {
-	$is_checkout_popup_page = 'memberpress_page_zaher-checkout-popup-settings' === $hook_suffix;
+add_action( 'admin_enqueue_scripts', 'theme_enqueue_checkout_popup_admin_assets' );
+function theme_enqueue_checkout_popup_admin_assets( $hook_suffix ) {
+	$is_checkout_popup_page = 'memberpress_page_theme-checkout-popup-settings' === $hook_suffix;
 
-	if ( ! $is_checkout_popup_page && ( ! isset( $_GET['page'] ) || 'zaher-checkout-popup-settings' !== $_GET['page'] ) ) {
+	if ( ! $is_checkout_popup_page && ( ! isset( $_GET['page'] ) || 'theme-checkout-popup-settings' !== $_GET['page'] ) ) {
 		return;
 	}
 
@@ -100,22 +100,22 @@ function zaher_enqueue_checkout_popup_admin_assets( $hook_suffix ) {
 	}
 }
 
-add_action( 'admin_init', 'zaher_register_checkout_popup_settings' );
-function zaher_register_checkout_popup_settings() {
+add_action( 'admin_init', 'theme_register_checkout_popup_settings' );
+function theme_register_checkout_popup_settings() {
 	register_setting(
-		'zaher_checkout_popup_settings',
-		'zaher_checkout_popups',
+		'theme_checkout_popup_settings',
+		'theme_checkout_popups',
 		array(
 			'type'              => 'array',
-			'sanitize_callback' => 'zaher_sanitize_checkout_popups',
+			'sanitize_callback' => 'theme_sanitize_checkout_popups',
 			'default'           => array(),
 		)
 	);
 }
 
-function zaher_sanitize_checkout_popups( $value ) {
-	$field_map     = zaher_get_checkout_popup_custom_copy_field_map();
-	$default_key   = zaher_get_checkout_popup_default_template_key();
+function theme_sanitize_checkout_popups( $value ) {
+	$field_map     = theme_get_checkout_popup_custom_copy_field_map();
+	$default_key   = theme_get_checkout_popup_default_template_key();
 	$rows          = is_array( $value ) ? $value : array();
 	$sanitized     = array();
 	$seen_sources  = array();
@@ -140,7 +140,7 @@ function zaher_sanitize_checkout_popups( $value ) {
 		}
 
 		if ( isset( $row['custom_body_html'] ) ) {
-			$custom_copy['custom_subtitle_html'] = zaher_merge_checkout_popup_content_html(
+			$custom_copy['custom_subtitle_html'] = theme_merge_checkout_popup_content_html(
 				$custom_copy['custom_subtitle_html'],
 				wp_kses_post( wp_unslash( $row['custom_body_html'] ) )
 			);
@@ -151,30 +151,30 @@ function zaher_sanitize_checkout_popups( $value ) {
 		}
 
 		if ( ! $source_product_id || ! $target_product_id ) {
-			add_settings_error( 'zaher_checkout_popups', 'zaher_popup_missing_products_' . $row_number, sprintf( 'Popup #%d nije spremljen jer nedostaje izvorna ili ciljana pretplata.', $row_number ), 'error' );
+			add_settings_error( 'theme_checkout_popups', 'theme_popup_missing_products_' . $row_number, sprintf( 'Popup #%d nije spremljen jer nedostaje izvorna ili ciljana pretplata.', $row_number ), 'error' );
 			continue;
 		}
 
 		if ( $source_product_id === $target_product_id ) {
-			add_settings_error( 'zaher_checkout_popups', 'zaher_popup_same_products_' . $row_number, sprintf( 'Popup #%d nije spremljen jer izvorna i ciljana pretplata ne mogu biti iste.', $row_number ), 'error' );
+			add_settings_error( 'theme_checkout_popups', 'theme_popup_same_products_' . $row_number, sprintf( 'Popup #%d nije spremljen jer izvorna i ciljana pretplata ne mogu biti iste.', $row_number ), 'error' );
 			continue;
 		}
 
-		$source_product = zaher_get_checkout_popup_product( $source_product_id );
-		$target_product = zaher_get_checkout_popup_product( $target_product_id );
+		$source_product = theme_get_checkout_popup_product( $source_product_id );
+		$target_product = theme_get_checkout_popup_product( $target_product_id );
 
 		if ( ! $source_product || ! $target_product ) {
-			add_settings_error( 'zaher_checkout_popups', 'zaher_popup_invalid_products_' . $row_number, sprintf( 'Popup #%d nije spremljen jer jedna od odabranih pretplata više ne postoji.', $row_number ), 'error' );
+			add_settings_error( 'theme_checkout_popups', 'theme_popup_invalid_products_' . $row_number, sprintf( 'Popup #%d nije spremljen jer jedna od odabranih pretplata više ne postoji.', $row_number ), 'error' );
 			continue;
 		}
 
 		if ( isset( $seen_sources[ $source_product_id ] ) ) {
-			add_settings_error( 'zaher_checkout_popups', 'zaher_popup_duplicate_source_' . $row_number, sprintf( 'Popup #%d nije spremljen jer već postoji popup za isti checkout.', $row_number ), 'error' );
+			add_settings_error( 'theme_checkout_popups', 'theme_popup_duplicate_source_' . $row_number, sprintf( 'Popup #%d nije spremljen jer već postoji popup za isti checkout.', $row_number ), 'error' );
 			continue;
 		}
 
 		if ( $coupon_code && class_exists( 'MeprCoupon' ) && ! MeprCoupon::is_valid_coupon_code( $coupon_code, $target_product_id ) ) {
-			add_settings_error( 'zaher_checkout_popups', 'zaher_popup_invalid_coupon_' . $row_number, sprintf( 'Kupon za popup #%d nije valjan za odabranu ciljanu pretplatu pa je uklonjen.', $row_number ), 'warning' );
+			add_settings_error( 'theme_checkout_popups', 'theme_popup_invalid_coupon_' . $row_number, sprintf( 'Kupon za popup #%d nije valjan za odabranu ciljanu pretplatu pa je uklonjen.', $row_number ), 'warning' );
 			$coupon_code = '';
 		}
 
@@ -195,7 +195,7 @@ function zaher_sanitize_checkout_popups( $value ) {
 	return array_values( $sanitized );
 }
 
-function zaher_get_checkout_popup_product_choices() {
+function theme_get_checkout_popup_product_choices() {
 	$choices = array();
 
 	if ( ! class_exists( 'MeprProduct' ) ) {
@@ -214,7 +214,7 @@ function zaher_get_checkout_popup_product_choices() {
 	);
 
 	foreach ( $product_ids as $product_id ) {
-		$product = zaher_get_checkout_popup_product( $product_id );
+		$product = theme_get_checkout_popup_product( $product_id );
 
 		if ( ! $product ) {
 			continue;
@@ -223,12 +223,12 @@ function zaher_get_checkout_popup_product_choices() {
 		$choices[ (string) $product->ID ] = array(
 			'id'               => (int) $product->ID,
 			'title'            => get_the_title( $product->ID ),
-			'label'            => sprintf( '%s (%s)', get_the_title( $product->ID ), zaher_get_checkout_popup_new_price_text( $product ) ),
+			'label'            => sprintf( '%s (%s)', get_the_title( $product->ID ), theme_get_checkout_popup_new_price_text( $product ) ),
 			'price'            => (float) $product->price,
 			'period'           => (int) $product->period,
 			'periodType'       => (string) $product->period_type,
 			'isOneTime'        => (bool) $product->is_one_time_payment(),
-			'shortPeriodLabel' => zaher_get_checkout_popup_short_period_label( $product ),
+			'shortPeriodLabel' => theme_get_checkout_popup_short_period_label( $product ),
 			'url'              => $product->url(),
 		);
 	}
@@ -236,7 +236,7 @@ function zaher_get_checkout_popup_product_choices() {
 	return $choices;
 }
 
-function zaher_get_checkout_popup_coupon_option_label( $coupon ) {
+function theme_get_checkout_popup_coupon_option_label( $coupon ) {
 	if ( ! $coupon instanceof MeprCoupon ) {
 		return '';
 	}
@@ -262,7 +262,7 @@ function zaher_get_checkout_popup_coupon_option_label( $coupon ) {
 	return sprintf( '%s (%s)', $code, $amount );
 }
 
-function zaher_get_checkout_popup_coupon_choices() {
+function theme_get_checkout_popup_coupon_choices() {
 	$choices = array();
 
 	if ( ! class_exists( 'MeprCoupon' ) ) {
@@ -291,7 +291,7 @@ function zaher_get_checkout_popup_coupon_choices() {
 
 		$choices[ $code ] = array(
 			'code'                     => $code,
-			'label'                    => zaher_get_checkout_popup_coupon_option_label( $coupon ),
+			'label'                    => theme_get_checkout_popup_coupon_option_label( $coupon ),
 			'validProductIds'          => array_map( 'intval', is_array( $coupon->valid_products ) ? $coupon->valid_products : array() ),
 			'appliesToAllProducts'     => empty( $coupon->valid_products ),
 			'discountMode'             => (string) $coupon->discount_mode,
@@ -305,7 +305,7 @@ function zaher_get_checkout_popup_coupon_choices() {
 	return $choices;
 }
 
-function zaher_render_checkout_popup_select_options( $items, $selected, $placeholder ) {
+function theme_render_checkout_popup_select_options( $items, $selected, $placeholder ) {
 	echo '<option value="">' . esc_html( $placeholder ) . '</option>';
 
 	foreach ( $items as $value => $item ) {
@@ -319,7 +319,7 @@ function zaher_render_checkout_popup_select_options( $items, $selected, $placeho
 	}
 }
 
-function zaher_get_checkout_popup_custom_copy_fields() {
+function theme_get_checkout_popup_custom_copy_fields() {
 	return array(
 		'custom_title_html' => array(
 			'templateField' => 'title_html',
@@ -342,81 +342,81 @@ function zaher_get_checkout_popup_custom_copy_fields() {
 	);
 }
 
-function zaher_render_checkout_popup_row( $index, $popup, $source_products, $target_products, $coupon_choices ) {
+function theme_render_checkout_popup_row( $index, $popup, $source_products, $target_products, $coupon_choices ) {
 	$source_product_id = isset( $popup['source_product_id'] ) ? absint( $popup['source_product_id'] ) : 0;
 	$target_product_id = isset( $popup['target_product_id'] ) ? absint( $popup['target_product_id'] ) : 0;
 	$coupon_code       = isset( $popup['coupon_code'] ) ? sanitize_text_field( $popup['coupon_code'] ) : '';
 	$enabled           = ! isset( $popup['enabled'] ) || ! empty( $popup['enabled'] );
-	$custom_copy       = zaher_get_checkout_popup_row_custom_copy( $popup );
-	$custom_fields     = zaher_get_checkout_popup_custom_copy_fields();
+	$custom_copy       = theme_get_checkout_popup_row_custom_copy( $popup );
+	$custom_fields     = theme_get_checkout_popup_custom_copy_fields();
 	?>
-	<div class="zaher-popup-card<?php echo $enabled ? '' : ' is-disabled'; ?>" data-popup-row>
-		<div class="zaher-popup-card__header">
+	<div class="theme-popup-card<?php echo $enabled ? '' : ' is-disabled'; ?>" data-popup-row>
+		<div class="theme-popup-card__header">
 			<div>
-				<h2 class="zaher-popup-card__title" data-popup-title>Popup</h2>
-				<p class="zaher-popup-card__subtitle" data-popup-subtitle>Odaberi checkout na kojem se popup prikazuje i pretplatu na koju vodi CTA.</p>
+				<h2 class="theme-popup-card__title" data-popup-title>Popup</h2>
+				<p class="theme-popup-card__subtitle" data-popup-subtitle>Odaberi checkout na kojem se popup prikazuje i pretplatu na koju vodi CTA.</p>
 			</div>
-			<div class="zaher-popup-card__actions">
-				<label class="zaher-popup-toggle">
-					<input type="hidden" name="zaher_checkout_popups[<?php echo esc_attr( $index ); ?>][enabled]" value="0" />
-					<input type="checkbox" name="zaher_checkout_popups[<?php echo esc_attr( $index ); ?>][enabled]" value="1" <?php checked( $enabled ); ?> data-popup-enabled />
-					<span class="zaher-popup-toggle__track" aria-hidden="true"></span>
-					<span class="zaher-popup-toggle__label" data-popup-enabled-label><?php echo $enabled ? 'Uključen' : 'Isključen'; ?></span>
+			<div class="theme-popup-card__actions">
+				<label class="theme-popup-toggle">
+					<input type="hidden" name="theme_checkout_popups[<?php echo esc_attr( $index ); ?>][enabled]" value="0" />
+					<input type="checkbox" name="theme_checkout_popups[<?php echo esc_attr( $index ); ?>][enabled]" value="1" <?php checked( $enabled ); ?> data-popup-enabled />
+					<span class="theme-popup-toggle__track" aria-hidden="true"></span>
+					<span class="theme-popup-toggle__label" data-popup-enabled-label><?php echo $enabled ? 'Uključen' : 'Isključen'; ?></span>
 				</label>
 				<button type="button" class="button-link-delete" data-remove-popup>Ukloni</button>
 			</div>
 		</div>
 
-		<div class="zaher-popup-card__layout">
-			<div class="zaher-popup-card__form">
-				<section class="zaher-popup-card__section">
-					<div class="zaher-popup-card__section-header">
-						<p class="zaher-popup-card__eyebrow">Osnovno</p>
+		<div class="theme-popup-card__layout">
+			<div class="theme-popup-card__form">
+				<section class="theme-popup-card__section">
+					<div class="theme-popup-card__section-header">
+						<p class="theme-popup-card__eyebrow">Osnovno</p>
 						<h3>Povezivanje checkouta i ponude</h3>
 						<p>Izvorišni checkout aktivira popup, a ciljna pretplata i kupon definiraju cijenu i CTA odredište.</p>
 					</div>
 
-					<div class="zaher-popup-card__grid">
-						<div class="zaher-popup-field">
-							<label for="zaher-popup-source-<?php echo esc_attr( $index ); ?>">Prikaži na checkoutu</label>
-							<select id="zaher-popup-source-<?php echo esc_attr( $index ); ?>" name="zaher_checkout_popups[<?php echo esc_attr( $index ); ?>][source_product_id]" data-popup-source>
-								<?php zaher_render_checkout_popup_select_options( $source_products, $source_product_id, 'Odaberi pretplatu' ); ?>
+					<div class="theme-popup-card__grid">
+						<div class="theme-popup-field">
+							<label for="theme-popup-source-<?php echo esc_attr( $index ); ?>">Prikaži na checkoutu</label>
+							<select id="theme-popup-source-<?php echo esc_attr( $index ); ?>" name="theme_checkout_popups[<?php echo esc_attr( $index ); ?>][source_product_id]" data-popup-source>
+								<?php theme_render_checkout_popup_select_options( $source_products, $source_product_id, 'Odaberi pretplatu' ); ?>
 							</select>
 							<p class="description">Možeš vezati popup uz bilo koji postojeći MemberPress checkout.</p>
 						</div>
 
-						<div class="zaher-popup-field">
-							<label for="zaher-popup-target-<?php echo esc_attr( $index ); ?>">CTA vodi na</label>
-							<select id="zaher-popup-target-<?php echo esc_attr( $index ); ?>" name="zaher_checkout_popups[<?php echo esc_attr( $index ); ?>][target_product_id]" data-popup-target>
-								<?php zaher_render_checkout_popup_select_options( $target_products, $target_product_id, 'Odaberi ciljanu pretplatu' ); ?>
+						<div class="theme-popup-field">
+							<label for="theme-popup-target-<?php echo esc_attr( $index ); ?>">CTA vodi na</label>
+							<select id="theme-popup-target-<?php echo esc_attr( $index ); ?>" name="theme_checkout_popups[<?php echo esc_attr( $index ); ?>][target_product_id]" data-popup-target>
+								<?php theme_render_checkout_popup_select_options( $target_products, $target_product_id, 'Odaberi ciljanu pretplatu' ); ?>
 							</select>
 							<p class="description">CTA URL se generira automatski iz odabrane ciljane pretplate.</p>
 						</div>
 
-						<div class="zaher-popup-field">
-							<label for="zaher-popup-coupon-<?php echo esc_attr( $index ); ?>">Kupon</label>
-							<select id="zaher-popup-coupon-<?php echo esc_attr( $index ); ?>" name="zaher_checkout_popups[<?php echo esc_attr( $index ); ?>][coupon_code]" data-popup-coupon>
-								<?php zaher_render_checkout_popup_select_options( $coupon_choices, $coupon_code, 'Bez kupona' ); ?>
+						<div class="theme-popup-field">
+							<label for="theme-popup-coupon-<?php echo esc_attr( $index ); ?>">Kupon</label>
+							<select id="theme-popup-coupon-<?php echo esc_attr( $index ); ?>" name="theme_checkout_popups[<?php echo esc_attr( $index ); ?>][coupon_code]" data-popup-coupon>
+								<?php theme_render_checkout_popup_select_options( $coupon_choices, $coupon_code, 'Bez kupona' ); ?>
 							</select>
 							<p class="description">Ako je kupon valjan za ciljanu pretplatu, cijene i CTA URL računaju se automatski preko njega.</p>
 						</div>
 					</div>
 				</section>
 
-					<section class="zaher-popup-card__section">
-						<div class="zaher-popup-card__section-header">
-							<p class="zaher-popup-card__eyebrow">Sadržaj</p>
+					<section class="theme-popup-card__section">
+						<div class="theme-popup-card__section-header">
+							<p class="theme-popup-card__eyebrow">Sadržaj</p>
 							<h3>Naslov i sadržaj popupa</h3>
 							<p>Ovdje upisuješ vlastiti naslov i sadržaj. Preview i stvarni popup koriste ovaj sadržaj umjesto default copyja.</p>
 						</div>
 
-						<div class="zaher-popup-card__grid">
+						<div class="theme-popup-card__grid">
 							<?php foreach ( $custom_fields as $field_key => $field_config ) : ?>
-								<div class="zaher-popup-field<?php echo ! empty( $field_config['wide'] ) ? ' is-wide' : ''; ?>">
-								<label for="zaher-popup-<?php echo esc_attr( $field_key ); ?>-<?php echo esc_attr( $index ); ?>"><?php echo esc_html( $field_config['label'] ); ?></label>
+								<div class="theme-popup-field<?php echo ! empty( $field_config['wide'] ) ? ' is-wide' : ''; ?>">
+								<label for="theme-popup-<?php echo esc_attr( $field_key ); ?>-<?php echo esc_attr( $index ); ?>"><?php echo esc_html( $field_config['label'] ); ?></label>
 								<textarea
-									id="zaher-popup-<?php echo esc_attr( $field_key ); ?>-<?php echo esc_attr( $index ); ?>"
-									name="zaher_checkout_popups[<?php echo esc_attr( $index ); ?>][<?php echo esc_attr( $field_key ); ?>]"
+									id="theme-popup-<?php echo esc_attr( $field_key ); ?>-<?php echo esc_attr( $index ); ?>"
+									name="theme_checkout_popups[<?php echo esc_attr( $index ); ?>][<?php echo esc_attr( $field_key ); ?>]"
 									rows="<?php echo esc_attr( isset( $field_config['rows'] ) ? (int) $field_config['rows'] : 4 ); ?>"
 									data-popup-custom-input="<?php echo esc_attr( $field_config['templateField'] ); ?>"
 									<?php echo ! empty( $field_config['rich'] ) ? 'data-popup-rich-editor="1"' : ''; ?>
@@ -428,32 +428,32 @@ function zaher_render_checkout_popup_row( $index, $popup, $source_products, $tar
 					</section>
 				</div>
 
-			<aside class="zaher-popup-card__preview-pane">
-				<div class="zaher-popup-card__preview-header">
+			<aside class="theme-popup-card__preview-pane">
+				<div class="theme-popup-card__preview-header">
 					<div>
-						<p class="zaher-popup-card__eyebrow">Preview</p>
+						<p class="theme-popup-card__eyebrow">Preview</p>
 						<h3>Live prikaz popupa</h3>
 					</div>
-					<span class="zaher-popup-card__preview-note">Ažurira se odmah</span>
+					<span class="theme-popup-card__preview-note">Ažurira se odmah</span>
 				</div>
-				<div class="zaher-popup-card__preview" data-popup-preview></div>
+				<div class="theme-popup-card__preview" data-popup-preview></div>
 			</aside>
 		</div>
 	</div>
 	<?php
 }
 
-function zaher_render_checkout_popup_settings_page() {
+function theme_render_checkout_popup_settings_page() {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
 
-	$source_products = zaher_get_checkout_popup_product_choices();
-	$target_products = zaher_get_checkout_popup_product_choices();
-	$coupon_choices  = zaher_get_checkout_popup_coupon_choices();
-	$template_choices = zaher_get_checkout_popup_template_choices();
-	$default_template = zaher_get_checkout_popup_default_template_key();
-	$saved_rows      = zaher_get_saved_checkout_popup_rows();
+	$source_products = theme_get_checkout_popup_product_choices();
+	$target_products = theme_get_checkout_popup_product_choices();
+	$coupon_choices  = theme_get_checkout_popup_coupon_choices();
+	$template_choices = theme_get_checkout_popup_template_choices();
+	$default_template = theme_get_checkout_popup_default_template_key();
+	$saved_rows      = theme_get_saved_checkout_popup_rows();
 	$rows            = is_array( $saved_rows ) && ! empty( $saved_rows ) ? array_values( $saved_rows ) : array(
 		array(
 			'template_key'      => $default_template,
@@ -477,24 +477,24 @@ function zaher_render_checkout_popup_settings_page() {
 		),
 	);
 	?>
-	<div class="wrap zaher-popup-settings">
+	<div class="wrap theme-popup-settings">
 		<style>
-			.zaher-popup-settings {
-				--zaher-popup-bg: #f5f1ea;
-				--zaher-popup-surface: #ffffff;
-				--zaher-popup-surface-alt: #fcfaf6;
-				--zaher-popup-border: #e6ddd2;
-				--zaher-popup-text: #1f2937;
-				--zaher-popup-muted: #6b7280;
-				--zaher-popup-accent: #c2410c;
-				--zaher-popup-accent-soft: #fff4eb;
-				--zaher-popup-accent-strong: #ec4899;
-				--zaher-popup-shadow: 0 28px 70px -42px rgba(65, 31, 14, 0.38);
+			.theme-popup-settings {
+				--theme-popup-bg: #f5f1ea;
+				--theme-popup-surface: #ffffff;
+				--theme-popup-surface-alt: #fcfaf6;
+				--theme-popup-border: #e6ddd2;
+				--theme-popup-text: #1f2937;
+				--theme-popup-muted: #6b7280;
+				--theme-popup-accent: #c2410c;
+				--theme-popup-accent-soft: #fff4eb;
+				--theme-popup-accent-strong: #ec4899;
+				--theme-popup-shadow: 0 28px 70px -42px rgba(65, 31, 14, 0.38);
 				max-width: 1440px;
 				margin-right: 24px;
-				color: var(--zaher-popup-text);
+				color: var(--theme-popup-text);
 			}
-			.zaher-popup-settings .zaher-popup-settings__hero {
+			.theme-popup-settings .theme-popup-settings__hero {
 				display: grid;
 				grid-template-columns: minmax(0, 1.35fr) auto;
 				gap: 24px;
@@ -510,7 +510,7 @@ function zaher_render_checkout_popup_settings_page() {
 				overflow: hidden;
 				position: relative;
 			}
-			.zaher-popup-settings .zaher-popup-settings__hero::after {
+			.theme-popup-settings .theme-popup-settings__hero::after {
 				content: "";
 				position: absolute;
 				inset: auto -80px -80px auto;
@@ -520,21 +520,21 @@ function zaher_render_checkout_popup_settings_page() {
 				background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0) 72%);
 				pointer-events: none;
 			}
-			.zaher-popup-settings .zaher-popup-settings__hero h1 {
+			.theme-popup-settings .theme-popup-settings__hero h1 {
 				margin: 0 0 10px;
 				font-size: 34px;
 				line-height: 1.08;
 				color: #ffffff;
 			}
-			.zaher-popup-settings .zaher-popup-settings__hero p {
+			.theme-popup-settings .theme-popup-settings__hero p {
 				margin: 0;
 				max-width: 780px;
 				font-size: 15px;
 				line-height: 1.7;
 				color: rgba(255, 247, 237, 0.88);
 			}
-			.zaher-popup-settings .zaher-popup-settings__eyebrow,
-			.zaher-popup-settings .zaher-popup-card__eyebrow {
+			.theme-popup-settings .theme-popup-settings__eyebrow,
+			.theme-popup-settings .theme-popup-card__eyebrow {
 				margin: 0 0 8px;
 				font-size: 11px;
 				font-weight: 700;
@@ -542,16 +542,16 @@ function zaher_render_checkout_popup_settings_page() {
 				letter-spacing: 0.18em;
 				text-transform: uppercase;
 			}
-			.zaher-popup-settings .zaher-popup-settings__eyebrow {
+			.theme-popup-settings .theme-popup-settings__eyebrow {
 				color: rgba(255, 247, 237, 0.78);
 			}
-			.zaher-popup-settings .zaher-popup-settings__stats {
+			.theme-popup-settings .theme-popup-settings__stats {
 				display: grid;
 				grid-template-columns: repeat(2, minmax(0, 1fr));
 				gap: 14px;
 				min-width: min(360px, 100%);
 			}
-			.zaher-popup-settings .zaher-popup-settings__stat {
+			.theme-popup-settings .theme-popup-settings__stat {
 				padding: 16px 18px;
 				border-radius: 18px;
 				background: rgba(255, 255, 255, 0.16);
@@ -560,13 +560,13 @@ function zaher_render_checkout_popup_settings_page() {
 				border: 1px solid rgba(255, 255, 255, 0.16);
 				box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
 			}
-			.zaher-popup-settings .zaher-popup-settings__stat strong {
+			.theme-popup-settings .theme-popup-settings__stat strong {
 				display: block;
 				font-size: 28px;
 				line-height: 1;
 				color: #ffffff;
 			}
-			.zaher-popup-settings .zaher-popup-settings__stat span {
+			.theme-popup-settings .theme-popup-settings__stat span {
 				display: block;
 				margin-top: 6px;
 				font-size: 12px;
@@ -574,11 +574,11 @@ function zaher_render_checkout_popup_settings_page() {
 				text-transform: uppercase;
 				color: rgba(255, 247, 237, 0.8);
 			}
-			.zaher-popup-settings .notice,
-			.zaher-popup-settings .settings-error {
+			.theme-popup-settings .notice,
+			.theme-popup-settings .settings-error {
 				margin: 18px 0 0;
 			}
-			.zaher-popup-settings .zaher-popup-settings__toolbar {
+			.theme-popup-settings .theme-popup-settings__toolbar {
 				display: flex;
 				align-items: center;
 				justify-content: space-between;
@@ -586,80 +586,80 @@ function zaher_render_checkout_popup_settings_page() {
 				margin: 26px 0 18px;
 				padding: 18px 22px;
 				border-radius: 22px;
-				background: var(--zaher-popup-surface);
-				border: 1px solid var(--zaher-popup-border);
-				box-shadow: var(--zaher-popup-shadow);
+				background: var(--theme-popup-surface);
+				border: 1px solid var(--theme-popup-border);
+				box-shadow: var(--theme-popup-shadow);
 			}
-			.zaher-popup-settings .zaher-popup-settings__toolbar p {
+			.theme-popup-settings .theme-popup-settings__toolbar p {
 				margin: 0;
 				max-width: 760px;
-				color: var(--zaher-popup-muted);
+				color: var(--theme-popup-muted);
 			}
-			.zaher-popup-settings .zaher-popup-settings__toolbar .button {
+			.theme-popup-settings .theme-popup-settings__toolbar .button {
 				height: auto;
 				padding: 10px 18px;
 				border-radius: 999px;
 				border: 1px solid rgba(194, 65, 12, 0.28);
 				background: linear-gradient(120deg, rgba(255, 244, 235, 0.98), rgba(255, 255, 255, 0.98));
-				color: var(--zaher-popup-accent);
+				color: var(--theme-popup-accent);
 				font-weight: 600;
 				box-shadow: 0 14px 30px -26px rgba(194, 65, 12, 0.9);
 			}
-			.zaher-popup-settings .zaher-popup-settings__list {
+			.theme-popup-settings .theme-popup-settings__list {
 				display: grid;
 				gap: 22px;
 			}
-			.zaher-popup-settings .zaher-popup-card {
+			.theme-popup-settings .theme-popup-card {
 				background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(252, 250, 246, 0.98));
-				border: 1px solid var(--zaher-popup-border);
+				border: 1px solid var(--theme-popup-border);
 				border-radius: 28px;
 				padding: 24px;
-				box-shadow: var(--zaher-popup-shadow);
+				box-shadow: var(--theme-popup-shadow);
 				transition: opacity 0.2s ease, transform 0.2s ease;
 			}
-			.zaher-popup-settings .zaher-popup-card.is-disabled {
+			.theme-popup-settings .theme-popup-card.is-disabled {
 				opacity: 0.72;
 			}
-			.zaher-popup-settings .zaher-popup-card__header {
+			.theme-popup-settings .theme-popup-card__header {
 				display: flex;
 				align-items: flex-start;
 				justify-content: space-between;
 				gap: 18px;
 				margin-bottom: 20px;
 			}
-			.zaher-popup-settings .zaher-popup-card__actions {
+			.theme-popup-settings .theme-popup-card__actions {
 				display: flex;
 				align-items: center;
 				gap: 14px;
 			}
-			.zaher-popup-settings .zaher-popup-card__title {
+			.theme-popup-settings .theme-popup-card__title {
 				margin: 0 0 6px;
 				font-size: 22px;
 				line-height: 1.2;
-				color: var(--zaher-popup-text);
+				color: var(--theme-popup-text);
 			}
-			.zaher-popup-settings .zaher-popup-card__subtitle {
+			.theme-popup-settings .theme-popup-card__subtitle {
 				margin: 0;
 				max-width: 780px;
-				color: var(--zaher-popup-muted);
+				color: var(--theme-popup-muted);
 				line-height: 1.55;
 			}
-			.zaher-popup-settings .zaher-popup-toggle {
+			.theme-popup-settings .theme-popup-toggle {
 				display: inline-flex;
 				align-items: center;
 				gap: 10px;
 				cursor: pointer;
 				user-select: none;
 			}
-			.zaher-popup-settings .zaher-popup-toggle input[type="hidden"] {
+			.theme-popup-settings .theme-popup-toggle input[type="hidden"] {
 				display: none;
 			}
-			.zaher-popup-settings .zaher-popup-toggle input[type="checkbox"] {
+			.theme-popup-settings .theme-popup-toggle input[type="checkbox"] {
 				position: absolute;
 				opacity: 0;
 				pointer-events: none;
 			}
-			.zaher-popup-settings .zaher-popup-toggle__track {
+			.theme-popup-settings .theme-popup-toggle__track {
 				position: relative;
 				width: 48px;
 				height: 28px;
@@ -667,7 +667,7 @@ function zaher_render_checkout_popup_settings_page() {
 				background: #d1d5db;
 				transition: background 0.2s ease;
 			}
-			.zaher-popup-settings .zaher-popup-toggle__track::after {
+			.theme-popup-settings .theme-popup-toggle__track::after {
 				content: "";
 				position: absolute;
 				top: 4px;
@@ -679,83 +679,83 @@ function zaher_render_checkout_popup_settings_page() {
 				box-shadow: 0 4px 10px rgba(15, 23, 42, 0.22);
 				transition: transform 0.2s ease;
 			}
-			.zaher-popup-settings .zaher-popup-toggle input[type="checkbox"]:checked + .zaher-popup-toggle__track {
+			.theme-popup-settings .theme-popup-toggle input[type="checkbox"]:checked + .theme-popup-toggle__track {
 				background: linear-gradient(120deg, #ea580c, #db2777);
 			}
-			.zaher-popup-settings .zaher-popup-toggle input[type="checkbox"]:checked + .zaher-popup-toggle__track::after {
+			.theme-popup-settings .theme-popup-toggle input[type="checkbox"]:checked + .theme-popup-toggle__track::after {
 				transform: translateX(20px);
 			}
-			.zaher-popup-settings .zaher-popup-toggle input[type="checkbox"]:focus-visible + .zaher-popup-toggle__track {
+			.theme-popup-settings .theme-popup-toggle input[type="checkbox"]:focus-visible + .theme-popup-toggle__track {
 				outline: 2px solid #1d4ed8;
 				outline-offset: 2px;
 			}
-			.zaher-popup-settings .zaher-popup-toggle__label {
+			.theme-popup-settings .theme-popup-toggle__label {
 				font-weight: 700;
-				color: var(--zaher-popup-text);
+				color: var(--theme-popup-text);
 			}
-			.zaher-popup-settings .zaher-popup-card .button-link-delete {
+			.theme-popup-settings .theme-popup-card .button-link-delete {
 				padding: 0;
 				color: #b42318;
 			}
-			.zaher-popup-settings .zaher-popup-card__layout {
+			.theme-popup-settings .theme-popup-card__layout {
 				display: grid;
 				grid-template-columns: minmax(0, 1.18fr) minmax(340px, 0.82fr);
 				gap: 22px;
 			}
-			.zaher-popup-settings .zaher-popup-card__form,
-			.zaher-popup-settings .zaher-popup-card__preview-pane {
+			.theme-popup-settings .theme-popup-card__form,
+			.theme-popup-settings .theme-popup-card__preview-pane {
 				min-width: 0;
 			}
-			.zaher-popup-settings .zaher-popup-card__form {
+			.theme-popup-settings .theme-popup-card__form {
 				display: grid;
 				gap: 18px;
 			}
-			.zaher-popup-settings .zaher-popup-card__section,
-			.zaher-popup-settings .zaher-popup-card__preview-pane {
+			.theme-popup-settings .theme-popup-card__section,
+			.theme-popup-settings .theme-popup-card__preview-pane {
 				padding: 20px;
 				border-radius: 24px;
 				border: 1px solid rgba(230, 221, 210, 0.9);
-				background: var(--zaher-popup-surface);
+				background: var(--theme-popup-surface);
 			}
-			.zaher-popup-settings .zaher-popup-card__section {
+			.theme-popup-settings .theme-popup-card__section {
 				box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.96);
 			}
-			.zaher-popup-settings .zaher-popup-card__section-header {
+			.theme-popup-settings .theme-popup-card__section-header {
 				margin-bottom: 16px;
 			}
-			.zaher-popup-settings .zaher-popup-card__section-header h3,
-			.zaher-popup-settings .zaher-popup-card__preview-header h3 {
+			.theme-popup-settings .theme-popup-card__section-header h3,
+			.theme-popup-settings .theme-popup-card__preview-header h3 {
 				margin: 0 0 6px;
 				font-size: 18px;
 				line-height: 1.25;
-				color: var(--zaher-popup-text);
+				color: var(--theme-popup-text);
 			}
-			.zaher-popup-settings .zaher-popup-card__eyebrow {
+			.theme-popup-settings .theme-popup-card__eyebrow {
 				color: #9a3412;
 			}
-			.zaher-popup-settings .zaher-popup-card__grid {
+			.theme-popup-settings .theme-popup-card__grid {
 				display: grid;
 				grid-template-columns: repeat(2, minmax(0, 1fr));
 				gap: 16px 18px;
 			}
-			.zaher-popup-settings .zaher-popup-card__grid--compact {
+			.theme-popup-settings .theme-popup-card__grid--compact {
 				grid-template-columns: repeat(2, minmax(220px, 1fr));
 			}
-			.zaher-popup-settings .zaher-popup-field {
+			.theme-popup-settings .theme-popup-field {
 				min-width: 0;
 			}
-			.zaher-popup-settings .zaher-popup-field.is-wide {
+			.theme-popup-settings .theme-popup-field.is-wide {
 				grid-column: 1 / -1;
 			}
-			.zaher-popup-settings .zaher-popup-field label {
+			.theme-popup-settings .theme-popup-field label {
 				display: block;
 				margin-bottom: 7px;
 				font-weight: 700;
-				color: var(--zaher-popup-text);
+				color: var(--theme-popup-text);
 			}
-			.zaher-popup-settings .zaher-popup-field input,
-			.zaher-popup-settings .zaher-popup-field select,
-			.zaher-popup-settings .zaher-popup-field textarea {
+			.theme-popup-settings .theme-popup-field input,
+			.theme-popup-settings .theme-popup-field select,
+			.theme-popup-settings .theme-popup-field textarea {
 				width: 100%;
 				max-width: none;
 				border-color: #d6d3d1;
@@ -764,66 +764,66 @@ function zaher_render_checkout_popup_settings_page() {
 				box-shadow: none;
 				background: #ffffff;
 			}
-			.zaher-popup-settings .zaher-popup-field textarea {
+			.theme-popup-settings .theme-popup-field textarea {
 				min-height: 92px;
 				resize: vertical;
 			}
-			.zaher-popup-settings .zaher-popup-field .wp-editor-wrap {
+			.theme-popup-settings .theme-popup-field .wp-editor-wrap {
 				border: 1px solid #d6d3d1;
 				border-radius: 14px;
 				overflow: hidden;
 				background: #ffffff;
 			}
-			.zaher-popup-settings .zaher-popup-field .wp-editor-wrap .wp-editor-tools {
+			.theme-popup-settings .theme-popup-field .wp-editor-wrap .wp-editor-tools {
 				padding: 0 12px;
 				border-bottom: 1px solid #e7e5e4;
 				background: #ffffff;
 			}
-			.zaher-popup-settings .zaher-popup-field .wp-editor-container,
-			.zaher-popup-settings .zaher-popup-field .quicktags-toolbar,
-			.zaher-popup-settings .zaher-popup-field .mce-top-part::before,
-			.zaher-popup-settings .zaher-popup-field .mce-tinymce {
+			.theme-popup-settings .theme-popup-field .wp-editor-container,
+			.theme-popup-settings .theme-popup-field .quicktags-toolbar,
+			.theme-popup-settings .theme-popup-field .mce-top-part::before,
+			.theme-popup-settings .theme-popup-field .mce-tinymce {
 				border: 0;
 				box-shadow: none;
 			}
-			.zaher-popup-settings .zaher-popup-field .wp-editor-area {
+			.theme-popup-settings .theme-popup-field .wp-editor-area {
 				min-height: 150px;
 			}
-			.zaher-popup-settings .zaher-popup-field .mce-toolbar-grp {
+			.theme-popup-settings .theme-popup-field .mce-toolbar-grp {
 				border-bottom: 1px solid #e7e5e4;
 			}
-			.zaher-popup-settings .zaher-popup-field .mce-panel {
+			.theme-popup-settings .theme-popup-field .mce-panel {
 				border: 0;
 				box-shadow: none;
 			}
-			.zaher-popup-settings .zaher-popup-field input:focus,
-			.zaher-popup-settings .zaher-popup-field select:focus,
-			.zaher-popup-settings .zaher-popup-field textarea:focus {
+			.theme-popup-settings .theme-popup-field input:focus,
+			.theme-popup-settings .theme-popup-field select:focus,
+			.theme-popup-settings .theme-popup-field textarea:focus {
 				border-color: #ea580c;
 				box-shadow: 0 0 0 1px #ea580c;
 			}
-			.zaher-popup-settings .zaher-popup-field .description {
+			.theme-popup-settings .theme-popup-field .description {
 				margin: 8px 0 0;
-				color: var(--zaher-popup-muted);
+				color: var(--theme-popup-muted);
 				line-height: 1.55;
 			}
-			.zaher-popup-settings .zaher-popup-card__section--manual-copy[hidden] {
+			.theme-popup-settings .theme-popup-card__section--manual-copy[hidden] {
 				display: none;
 			}
-			.zaher-popup-settings .zaher-popup-card__preview-pane {
+			.theme-popup-settings .theme-popup-card__preview-pane {
 				background:
 					radial-gradient(circle at top, rgba(236, 72, 153, 0.1), transparent 42%),
 					linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(254, 247, 237, 0.98));
 				display: grid;
 				gap: 16px;
 			}
-			.zaher-popup-settings .zaher-popup-card__preview-header {
+			.theme-popup-settings .theme-popup-card__preview-header {
 				display: flex;
 				align-items: flex-start;
 				justify-content: space-between;
 				gap: 16px;
 			}
-			.zaher-popup-settings .zaher-popup-card__preview-note {
+			.theme-popup-settings .theme-popup-card__preview-note {
 				display: inline-flex;
 				align-items: center;
 				padding: 7px 10px;
@@ -835,11 +835,11 @@ function zaher_render_checkout_popup_settings_page() {
 				letter-spacing: 0.04em;
 				text-transform: uppercase;
 			}
-			.zaher-popup-settings .zaher-popup-card__preview {
+			.theme-popup-settings .theme-popup-card__preview {
 				display: grid;
 				gap: 14px;
 			}
-			.zaher-popup-settings .zaher-popup-preview__device {
+			.theme-popup-settings .theme-popup-preview__device {
 				position: relative;
 				padding: 26px 16px 16px;
 				border-radius: 28px;
@@ -849,7 +849,7 @@ function zaher_render_checkout_popup_settings_page() {
 				box-shadow: 0 24px 50px -34px rgba(15, 23, 42, 0.88);
 				overflow: hidden;
 			}
-			.zaher-popup-settings .zaher-popup-preview__device::before {
+			.theme-popup-settings .theme-popup-preview__device::before {
 				content: "";
 				position: absolute;
 				top: 10px;
@@ -860,12 +860,12 @@ function zaher_render_checkout_popup_settings_page() {
 				background: rgba(255, 255, 255, 0.14);
 				transform: translateX(-50%);
 			}
-			.zaher-popup-settings .zaher-popup-preview__backdrop {
+			.theme-popup-settings .theme-popup-preview__backdrop {
 				position: absolute;
 				inset: 0;
 				background: linear-gradient(180deg, rgba(15, 23, 42, 0.16), rgba(15, 23, 42, 0.54));
 			}
-			.zaher-popup-settings .zaher-popup-preview__modal {
+			.theme-popup-settings .theme-popup-preview__modal {
 				position: relative;
 				z-index: 1;
 				margin: 18px auto 0;
@@ -878,7 +878,7 @@ function zaher_render_checkout_popup_settings_page() {
 				text-align: center;
 				overflow: hidden;
 			}
-			.zaher-popup-settings .zaher-popup-preview__accent {
+			.theme-popup-settings .theme-popup-preview__accent {
 				position: absolute;
 				top: -1px;
 				left: -1px;
@@ -887,7 +887,7 @@ function zaher_render_checkout_popup_settings_page() {
 				border-radius: 28px 28px 0 0;
 				background: linear-gradient(90deg, #f97316 0%, #db2777 100%);
 			}
-			.zaher-popup-settings .zaher-popup-preview__close {
+			.theme-popup-settings .theme-popup-preview__close {
 				position: absolute;
 				top: 14px;
 				right: 14px;
@@ -903,7 +903,7 @@ function zaher_render_checkout_popup_settings_page() {
 				align-items: center;
 				justify-content: center;
 			}
-			.zaher-popup-settings .zaher-popup-preview__badge {
+			.theme-popup-settings .theme-popup-preview__badge {
 				display: inline-flex;
 				align-items: center;
 				justify-content: center;
@@ -917,7 +917,7 @@ function zaher_render_checkout_popup_settings_page() {
 				letter-spacing: 0.16em;
 				text-transform: uppercase;
 			}
-			.zaher-popup-settings .zaher-popup-preview__title {
+			.theme-popup-settings .theme-popup-preview__title {
 				margin: 0;
 				font-size: 31px;
 				line-height: 1.06;
@@ -925,32 +925,32 @@ function zaher_render_checkout_popup_settings_page() {
 				font-weight: 700;
 				color: #111827;
 			}
-			.zaher-popup-settings .zaher-popup-preview__subtitle {
+			.theme-popup-settings .theme-popup-preview__subtitle {
 				color: #6b7280;
 				line-height: 1.58;
 				margin: 14px 0 0;
 				font-size: 15px;
 			}
-			.zaher-popup-settings .zaher-popup-preview__subtitle p,
-			.zaher-popup-settings .zaher-popup-preview__subtitle ul,
-			.zaher-popup-settings .zaher-popup-preview__subtitle ol {
+			.theme-popup-settings .theme-popup-preview__subtitle p,
+			.theme-popup-settings .theme-popup-preview__subtitle ul,
+			.theme-popup-settings .theme-popup-preview__subtitle ol {
 				margin: 0;
 			}
-			.zaher-popup-settings .zaher-popup-preview__subtitle p + p,
-			.zaher-popup-settings .zaher-popup-preview__subtitle p + ul,
-			.zaher-popup-settings .zaher-popup-preview__subtitle p + ol,
-			.zaher-popup-settings .zaher-popup-preview__subtitle ul + p,
-			.zaher-popup-settings .zaher-popup-preview__subtitle ul + ul,
-			.zaher-popup-settings .zaher-popup-preview__subtitle ul + ol,
-			.zaher-popup-settings .zaher-popup-preview__subtitle ol + p,
-			.zaher-popup-settings .zaher-popup-preview__subtitle ol + ul,
-			.zaher-popup-settings .zaher-popup-preview__subtitle ol + ol {
+			.theme-popup-settings .theme-popup-preview__subtitle p + p,
+			.theme-popup-settings .theme-popup-preview__subtitle p + ul,
+			.theme-popup-settings .theme-popup-preview__subtitle p + ol,
+			.theme-popup-settings .theme-popup-preview__subtitle ul + p,
+			.theme-popup-settings .theme-popup-preview__subtitle ul + ul,
+			.theme-popup-settings .theme-popup-preview__subtitle ul + ol,
+			.theme-popup-settings .theme-popup-preview__subtitle ol + p,
+			.theme-popup-settings .theme-popup-preview__subtitle ol + ul,
+			.theme-popup-settings .theme-popup-preview__subtitle ol + ol {
 				margin-top: 9px;
 			}
-			.zaher-popup-settings .zaher-popup-preview__subtitle strong {
+			.theme-popup-settings .theme-popup-preview__subtitle strong {
 				color: #111827;
 			}
-			.zaher-popup-settings .zaher-popup-preview__prices {
+			.theme-popup-settings .theme-popup-preview__prices {
 				display: grid;
 				gap: 10px;
 				margin-top: 18px;
@@ -959,44 +959,44 @@ function zaher_render_checkout_popup_settings_page() {
 				background: #fafaf9;
 				border: 1px solid rgba(229, 231, 235, 0.96);
 			}
-			.zaher-popup-settings .zaher-popup-preview__price-row {
+			.theme-popup-settings .theme-popup-preview__price-row {
 				display: flex;
 				align-items: baseline;
 				justify-content: center;
 				flex-wrap: wrap;
 				gap: 9px;
 			}
-			.zaher-popup-settings .zaher-popup-preview__price-old {
+			.theme-popup-settings .theme-popup-preview__price-old {
 				color: #9ca3af;
 				font-size: 16px;
 				text-decoration: line-through;
 			}
-			.zaher-popup-settings .zaher-popup-preview__price-old span {
+			.theme-popup-settings .theme-popup-preview__price-old span {
 				font-size: 0.82em;
 			}
-			.zaher-popup-settings .zaher-popup-preview__price-arrow {
+			.theme-popup-settings .theme-popup-preview__price-arrow {
 				color: #c2410c;
 				font-size: 18px;
 			}
-			.zaher-popup-settings .zaher-popup-preview__price-new {
+			.theme-popup-settings .theme-popup-preview__price-new {
 				color: #111827;
 				font-size: 34px;
 				line-height: 1;
 				font-weight: 700;
 				letter-spacing: -0.03em;
 			}
-			.zaher-popup-settings .zaher-popup-preview__price-new span {
+			.theme-popup-settings .theme-popup-preview__price-new span {
 				font-size: 14px;
 				font-weight: 500;
 				color: #6b7280;
 			}
-			.zaher-popup-settings .zaher-popup-preview__renewal {
+			.theme-popup-settings .theme-popup-preview__renewal {
 				margin: 0;
 				color: #6b7280;
 				font-size: 12px;
 				line-height: 1.5;
 			}
-			.zaher-popup-settings .zaher-popup-preview__benefit {
+			.theme-popup-settings .theme-popup-preview__benefit {
 				display: inline-flex;
 				align-items: center;
 				justify-content: center;
@@ -1009,7 +1009,7 @@ function zaher_render_checkout_popup_settings_page() {
 				font-weight: 700;
 				line-height: 1.45;
 			}
-			.zaher-popup-settings .zaher-popup-preview__urgency {
+			.theme-popup-settings .theme-popup-preview__urgency {
 				display: inline-flex;
 				align-items: center;
 				justify-content: center;
@@ -1019,29 +1019,29 @@ function zaher_render_checkout_popup_settings_page() {
 				font-size: 12px;
 				font-weight: 600;
 			}
-			.zaher-popup-settings .zaher-popup-preview__urgency-dot {
+			.theme-popup-settings .theme-popup-preview__urgency-dot {
 				width: 9px;
 				height: 9px;
 				border-radius: 50%;
 				background: #ea580c;
 				box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.4);
-				animation: zaherPopupPreviewPulse 1.8s ease-out infinite;
+				animation: themePopupPreviewPulse 1.8s ease-out infinite;
 			}
-			.zaher-popup-settings .zaher-popup-preview__timing {
+			.theme-popup-settings .theme-popup-preview__timing {
 				margin-top: 14px;
 				color: #6b7280;
 				font-size: 12px;
 				line-height: 1.5;
 			}
-			.zaher-popup-settings .zaher-popup-preview__cta,
-			.zaher-popup-settings .zaher-popup-preview__skip {
+			.theme-popup-settings .theme-popup-preview__cta,
+			.theme-popup-settings .theme-popup-preview__skip {
 				display: inline-flex;
 				align-items: center;
 				justify-content: center;
 				width: 100%;
 				border-radius: 18px;
 			}
-			.zaher-popup-settings .zaher-popup-preview__cta {
+			.theme-popup-settings .theme-popup-preview__cta {
 				margin-top: 16px;
 				padding: 14px 16px;
 				border: 0;
@@ -1053,7 +1053,7 @@ function zaher_render_checkout_popup_settings_page() {
 				letter-spacing: 0.03em;
 				box-shadow: 0 24px 40px -28px rgba(236, 72, 153, 0.9);
 			}
-			.zaher-popup-settings .zaher-popup-preview__skip {
+			.theme-popup-settings .theme-popup-preview__skip {
 				margin-top: 10px;
 				padding: 0;
 				border: 0;
@@ -1064,22 +1064,22 @@ function zaher_render_checkout_popup_settings_page() {
 				text-decoration-style: dashed;
 				text-underline-offset: 3px;
 			}
-			.zaher-popup-settings .zaher-popup-preview__meta {
+			.theme-popup-settings .theme-popup-preview__meta {
 				display: grid;
 				gap: 12px;
 			}
-			.zaher-popup-settings .zaher-popup-preview__meta-grid {
+			.theme-popup-settings .theme-popup-preview__meta-grid {
 				display: grid;
 				grid-template-columns: repeat(2, minmax(0, 1fr));
 				gap: 10px;
 			}
-			.zaher-popup-settings .zaher-popup-preview__meta-item {
+			.theme-popup-settings .theme-popup-preview__meta-item {
 				padding: 12px 14px;
 				border-radius: 16px;
 				background: rgba(255, 255, 255, 0.82);
 				border: 1px solid rgba(230, 221, 210, 0.9);
 			}
-			.zaher-popup-settings .zaher-popup-preview__meta-item span {
+			.theme-popup-settings .theme-popup-preview__meta-item span {
 				display: block;
 				margin-bottom: 5px;
 				font-size: 11px;
@@ -1088,41 +1088,41 @@ function zaher_render_checkout_popup_settings_page() {
 				text-transform: uppercase;
 				color: #9ca3af;
 			}
-			.zaher-popup-settings .zaher-popup-preview__meta-item strong,
-			.zaher-popup-settings .zaher-popup-preview__meta-item code {
+			.theme-popup-settings .theme-popup-preview__meta-item strong,
+			.theme-popup-settings .theme-popup-preview__meta-item code {
 				display: block;
 				font-size: 13px;
 				line-height: 1.55;
 				color: #111827;
 				word-break: break-word;
 			}
-			.zaher-popup-settings .zaher-popup-preview__meta-item code {
+			.theme-popup-settings .theme-popup-preview__meta-item code {
 				font-family: SFMono-Regular, Consolas, Monaco, monospace;
 			}
-			.zaher-popup-settings .zaher-popup-preview__warning,
-			.zaher-popup-settings .zaher-popup-preview__hint {
+			.theme-popup-settings .theme-popup-preview__warning,
+			.theme-popup-settings .theme-popup-preview__hint {
 				padding: 12px 14px;
 				border-radius: 16px;
 				font-size: 13px;
 				line-height: 1.55;
 			}
-			.zaher-popup-settings .zaher-popup-preview__warning {
+			.theme-popup-settings .theme-popup-preview__warning {
 				background: #fff7ed;
 				border: 1px solid rgba(249, 115, 22, 0.25);
 				color: #9a3412;
 			}
-			.zaher-popup-settings .zaher-popup-preview__hint {
+			.theme-popup-settings .theme-popup-preview__hint {
 				background: rgba(255, 255, 255, 0.82);
 				border: 1px solid rgba(230, 221, 210, 0.9);
-				color: var(--zaher-popup-muted);
+				color: var(--theme-popup-muted);
 			}
-			.zaher-popup-settings .zaher-popup-settings__footer {
+			.theme-popup-settings .theme-popup-settings__footer {
 				margin-top: 22px;
 				display: flex;
 				gap: 12px;
 				align-items: center;
 			}
-			.zaher-popup-settings .zaher-popup-settings__footer .button-primary {
+			.theme-popup-settings .theme-popup-settings__footer .button-primary {
 				min-height: 46px;
 				padding: 0 22px;
 				border: 0;
@@ -1130,7 +1130,7 @@ function zaher_render_checkout_popup_settings_page() {
 				background: linear-gradient(120deg, #c2410c, #db2777);
 				box-shadow: 0 22px 42px -28px rgba(194, 65, 12, 0.78);
 			}
-			@keyframes zaherPopupPreviewPulse {
+			@keyframes themePopupPreviewPulse {
 				0% {
 					transform: scale(0.95);
 					box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.34);
@@ -1145,101 +1145,101 @@ function zaher_render_checkout_popup_settings_page() {
 				}
 			}
 			@media (max-width: 960px) {
-				.zaher-popup-settings {
+				.theme-popup-settings {
 					margin-right: 12px;
 				}
-				.zaher-popup-settings .zaher-popup-settings__hero,
-				.zaher-popup-settings .zaher-popup-card__layout,
-				.zaher-popup-settings .zaher-popup-settings__toolbar {
+				.theme-popup-settings .theme-popup-settings__hero,
+				.theme-popup-settings .theme-popup-card__layout,
+				.theme-popup-settings .theme-popup-settings__toolbar {
 					grid-template-columns: 1fr;
 				}
-				.zaher-popup-settings .zaher-popup-settings__hero,
-				.zaher-popup-settings .zaher-popup-settings__toolbar,
-				.zaher-popup-settings .zaher-popup-card__header {
+				.theme-popup-settings .theme-popup-settings__hero,
+				.theme-popup-settings .theme-popup-settings__toolbar,
+				.theme-popup-settings .theme-popup-card__header {
 					align-items: flex-start;
 				}
-				.zaher-popup-settings .zaher-popup-settings__toolbar,
-				.zaher-popup-settings .zaher-popup-card__header {
+				.theme-popup-settings .theme-popup-settings__toolbar,
+				.theme-popup-settings .theme-popup-card__header {
 					flex-direction: column;
 				}
-				.zaher-popup-settings .zaher-popup-card__grid,
-				.zaher-popup-settings .zaher-popup-card__grid--compact,
-				.zaher-popup-settings .zaher-popup-preview__meta-grid,
-				.zaher-popup-settings .zaher-popup-settings__stats {
+				.theme-popup-settings .theme-popup-card__grid,
+				.theme-popup-settings .theme-popup-card__grid--compact,
+				.theme-popup-settings .theme-popup-preview__meta-grid,
+				.theme-popup-settings .theme-popup-settings__stats {
 					grid-template-columns: 1fr;
 				}
 			}
 			@media (max-width: 640px) {
-				.zaher-popup-settings .zaher-popup-settings__hero,
-				.zaher-popup-settings .zaher-popup-card,
-				.zaher-popup-settings .zaher-popup-settings__toolbar,
-				.zaher-popup-settings .zaher-popup-card__section,
-				.zaher-popup-settings .zaher-popup-card__preview-pane {
+				.theme-popup-settings .theme-popup-settings__hero,
+				.theme-popup-settings .theme-popup-card,
+				.theme-popup-settings .theme-popup-settings__toolbar,
+				.theme-popup-settings .theme-popup-card__section,
+				.theme-popup-settings .theme-popup-card__preview-pane {
 					padding: 18px;
 					border-radius: 22px;
 				}
-				.zaher-popup-settings .zaher-popup-settings__hero h1 {
+				.theme-popup-settings .theme-popup-settings__hero h1 {
 					font-size: 28px;
 				}
-				.zaher-popup-settings .zaher-popup-preview__modal {
+				.theme-popup-settings .theme-popup-preview__modal {
 					padding: 22px 16px 18px;
 				}
-				.zaher-popup-settings .zaher-popup-preview__title {
+				.theme-popup-settings .theme-popup-preview__title {
 					font-size: 27px;
 				}
 			}
 		</style>
 
-		<div class="zaher-popup-settings__hero">
+		<div class="theme-popup-settings__hero">
 			<div>
-				<p class="zaher-popup-settings__eyebrow">MemberPress admin</p>
+				<p class="theme-popup-settings__eyebrow">MemberPress admin</p>
 				<h1>Checkout Popup</h1>
 				<p>Svaki popup povezuje jedan checkout s ciljanim planom i opcionalnim kuponom. Cijene, ušteda i CTA URL i dalje se računaju automatski, a naslov i tekst popupa sada uređuješ direktno po popupu.</p>
 			</div>
-			<div class="zaher-popup-settings__stats">
-				<div class="zaher-popup-settings__stat">
+			<div class="theme-popup-settings__stats">
+				<div class="theme-popup-settings__stat">
 					<strong data-popup-total-count><?php echo esc_html( count( $rows ) ); ?></strong>
 					<span>Ukupno popupova</span>
 				</div>
-				<div class="zaher-popup-settings__stat">
+				<div class="theme-popup-settings__stat">
 					<strong data-popup-active-count><?php echo esc_html( count( array_filter( $rows, static function( $row ) { return ! isset( $row['enabled'] ) || ! empty( $row['enabled'] ); } ) ) ); ?></strong>
 					<span>Aktivnih popupova</span>
 				</div>
 			</div>
 		</div>
 
-		<?php settings_errors( 'zaher_checkout_popups' ); ?>
+		<?php settings_errors( 'theme_checkout_popups' ); ?>
 
-		<form action="options.php" method="post" id="zaher-checkout-popup-form">
-			<?php settings_fields( 'zaher_checkout_popup_settings' ); ?>
-			<input type="hidden" name="zaher_checkout_popups[_present]" value="1" />
+		<form action="options.php" method="post" id="theme-checkout-popup-form">
+			<?php settings_fields( 'theme_checkout_popup_settings' ); ?>
+			<input type="hidden" name="theme_checkout_popups[_present]" value="1" />
 
-			<div class="zaher-popup-settings__toolbar">
+			<div class="theme-popup-settings__toolbar">
 					<p>Možeš imati više popupova, ali samo jedan po izvornom checkoutu. Cijene i CTA URL se automatski prilagođavaju odabranoj ciljanoj pretplati i kuponu, dok copy uređuješ ručno.</p>
-				<button type="button" class="button" id="zaher-add-popup">Dodaj popup</button>
+				<button type="button" class="button" id="theme-add-popup">Dodaj popup</button>
 			</div>
 
-			<div class="zaher-popup-settings__list" id="zaher-popup-settings-list">
+			<div class="theme-popup-settings__list" id="theme-popup-settings-list">
 				<?php foreach ( $rows as $index => $popup ) : ?>
-					<?php zaher_render_checkout_popup_row( $index, $popup, $source_products, $target_products, $coupon_choices ); ?>
+					<?php theme_render_checkout_popup_row( $index, $popup, $source_products, $target_products, $coupon_choices ); ?>
 				<?php endforeach; ?>
 			</div>
 
-			<div class="zaher-popup-settings__footer">
+			<div class="theme-popup-settings__footer">
 				<?php submit_button( 'Spremi postavke', 'primary', 'submit', false ); ?>
 			</div>
 		</form>
 
-		<template id="zaher-popup-row-template">
-			<?php zaher_render_checkout_popup_row( '__INDEX__', array(), $source_products, $target_products, $coupon_choices ); ?>
+		<template id="theme-popup-row-template">
+			<?php theme_render_checkout_popup_row( '__INDEX__', array(), $source_products, $target_products, $coupon_choices ); ?>
 		</template>
 
 		<script>
 		(function() {
 			const data = <?php echo wp_json_encode( $admin_data ); ?>;
-			const list = document.getElementById('zaher-popup-settings-list');
-			const addButton = document.getElementById('zaher-add-popup');
-			const template = document.getElementById('zaher-popup-row-template');
+			const list = document.getElementById('theme-popup-settings-list');
+			const addButton = document.getElementById('theme-add-popup');
+			const template = document.getElementById('theme-popup-row-template');
 			const totalCount = document.querySelector('[data-popup-total-count]');
 			const activeCount = document.querySelector('[data-popup-active-count]');
 			let editorInitTimer = null;
@@ -1780,7 +1780,7 @@ function zaher_render_checkout_popup_settings_page() {
 				const contentTag = useCode ? 'code' : 'strong';
 				const safeValue = useCode ? escapeHtml(value) : escapeHtml(value);
 
-				return '<div class="zaher-popup-preview__meta-item"><span>' + escapeHtml(label) + '</span><' + contentTag + '>' + safeValue + '</' + contentTag + '></div>';
+				return '<div class="theme-popup-preview__meta-item"><span>' + escapeHtml(label) + '</span><' + contentTag + '>' + safeValue + '</' + contentTag + '></div>';
 			}
 
 			function getTemplateContent(row, source, target, coupon) {
@@ -1824,47 +1824,47 @@ function zaher_render_checkout_popup_settings_page() {
 					warnings.push('Trial override kupon može imati drugačiji prvi obračun od ovog pregleda. Backend će i dalje obračunati stvarnu cijenu na checkoutu.');
 				}
 
-				previewParts.push('<div class="zaher-popup-preview__device">');
-				previewParts.push('<div class="zaher-popup-preview__backdrop" aria-hidden="true"></div>');
-				previewParts.push('<div class="zaher-popup-preview__modal">');
-				previewParts.push('<div class="zaher-popup-preview__accent" aria-hidden="true"></div>');
-				previewParts.push('<button type="button" class="zaher-popup-preview__close" tabindex="-1" aria-hidden="true">&times;</button>');
+				previewParts.push('<div class="theme-popup-preview__device">');
+				previewParts.push('<div class="theme-popup-preview__backdrop" aria-hidden="true"></div>');
+				previewParts.push('<div class="theme-popup-preview__modal">');
+				previewParts.push('<div class="theme-popup-preview__accent" aria-hidden="true"></div>');
+				previewParts.push('<button type="button" class="theme-popup-preview__close" tabindex="-1" aria-hidden="true">&times;</button>');
 
 					if (content.badgeText) {
-						previewParts.push('<p class="zaher-popup-preview__badge">' + escapeHtml(content.badgeText) + '</p>');
+						previewParts.push('<p class="theme-popup-preview__badge">' + escapeHtml(content.badgeText) + '</p>');
 					}
 
-					previewParts.push('<h4 class="zaher-popup-preview__title">' + (content.titleHtml || 'Ovdje će se prikazati naslov popupa') + '</h4>');
-					previewParts.push('<div class="zaher-popup-preview__subtitle">' + (content.subtitleHtml || 'Odaberi ciljanu pretplatu za pregled popup sadržaja.') + '</div>');
+					previewParts.push('<h4 class="theme-popup-preview__title">' + (content.titleHtml || 'Ovdje će se prikazati naslov popupa') + '</h4>');
+					previewParts.push('<div class="theme-popup-preview__subtitle">' + (content.subtitleHtml || 'Odaberi ciljanu pretplatu za pregled popup sadržaja.') + '</div>');
 
-				previewParts.push('<div class="zaher-popup-preview__prices">');
-				previewParts.push('<div class="zaher-popup-preview__price-row">');
+				previewParts.push('<div class="theme-popup-preview__prices">');
+				previewParts.push('<div class="theme-popup-preview__price-row">');
 
 				if (priceBox.oldPrice) {
-					previewParts.push(renderPriceMarkup(priceBox.oldPrice, 'zaher-popup-preview__price-old'));
-					previewParts.push('<span class="zaher-popup-preview__price-arrow" aria-hidden="true">&rarr;</span>');
+					previewParts.push(renderPriceMarkup(priceBox.oldPrice, 'theme-popup-preview__price-old'));
+					previewParts.push('<span class="theme-popup-preview__price-arrow" aria-hidden="true">&rarr;</span>');
 				}
 
-				previewParts.push(renderPriceMarkup(priceBox.newPrice || 'Odaberi ciljanu pretplatu.', 'zaher-popup-preview__price-new'));
+				previewParts.push(renderPriceMarkup(priceBox.newPrice || 'Odaberi ciljanu pretplatu.', 'theme-popup-preview__price-new'));
 				previewParts.push('</div>');
 
 				if (priceBox.renewalNote) {
-					previewParts.push('<p class="zaher-popup-preview__renewal">' + escapeHtml(priceBox.renewalNote) + '</p>');
+					previewParts.push('<p class="theme-popup-preview__renewal">' + escapeHtml(priceBox.renewalNote) + '</p>');
 				}
 
 				if (priceBox.benefitPrimary) {
-					previewParts.push('<p class="zaher-popup-preview__benefit">' + escapeHtml(priceBox.benefitPrimary) + '</p>');
+					previewParts.push('<p class="theme-popup-preview__benefit">' + escapeHtml(priceBox.benefitPrimary) + '</p>');
 				}
 
 				previewParts.push('</div>');
-				previewParts.push('<div class="zaher-popup-preview__urgency"><span class="zaher-popup-preview__urgency-dot" aria-hidden="true"></span><span>Ponuda vrijedi samo na ovom checkoutu</span></div>');
-				previewParts.push('<button type="button" class="zaher-popup-preview__cta" tabindex="-1">' + escapeHtml(content.ctaLabel || 'Da, želim ovu ponudu') + '</button>');
-				previewParts.push('<button type="button" class="zaher-popup-preview__skip" tabindex="-1">' + escapeHtml(content.skipLabel || 'Ne, ostajem pri odabranoj pretplati') + '</button>');
+				previewParts.push('<div class="theme-popup-preview__urgency"><span class="theme-popup-preview__urgency-dot" aria-hidden="true"></span><span>Ponuda vrijedi samo na ovom checkoutu</span></div>');
+				previewParts.push('<button type="button" class="theme-popup-preview__cta" tabindex="-1">' + escapeHtml(content.ctaLabel || 'Da, želim ovu ponudu') + '</button>');
+				previewParts.push('<button type="button" class="theme-popup-preview__skip" tabindex="-1">' + escapeHtml(content.skipLabel || 'Ne, ostajem pri odabranoj pretplati') + '</button>');
 				previewParts.push('</div>');
 				previewParts.push('</div>');
 
-				previewParts.push('<div class="zaher-popup-preview__meta">');
-				previewParts.push('<div class="zaher-popup-preview__meta-grid">');
+				previewParts.push('<div class="theme-popup-preview__meta">');
+				previewParts.push('<div class="theme-popup-preview__meta-grid">');
 				previewParts.push(renderMetaItem('Status', state.isEnabled ? 'Uključen' : 'Isključen', false));
 				previewParts.push(renderMetaItem('Danas plaćaš', state.pricing.displayText || 'Odaberi ciljanu pretplatu.', false));
 				previewParts.push(renderMetaItem('CTA URL', state.ctaUrl || 'Odaberi ciljanu pretplatu.', true));
@@ -1872,7 +1872,7 @@ function zaher_render_checkout_popup_settings_page() {
 
 				if (warnings.length) {
 					warnings.forEach(function(message) {
-						previewParts.push('<div class="zaher-popup-preview__warning">' + escapeHtml(message) + '</div>');
+						previewParts.push('<div class="theme-popup-preview__warning">' + escapeHtml(message) + '</div>');
 					});
 				}
 

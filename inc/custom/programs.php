@@ -2,8 +2,8 @@
 /**
  * Keep a numeric minutes meta in sync for program posts.
  */
-add_action( 'save_post_programs', 'zaher_sync_program_minutes_meta', 20, 2 );
-function zaher_sync_program_minutes_meta( $post_id, $post ) {
+add_action( 'save_post_programs', 'theme_sync_program_minutes_meta', 20, 2 );
+function theme_sync_program_minutes_meta( $post_id, $post ) {
 	if ( wp_is_post_revision( $post_id ) || ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) ) {
 		return;
 	}
@@ -13,12 +13,12 @@ function zaher_sync_program_minutes_meta( $post_id, $post ) {
 	}
 
 	$raw     = function_exists( 'get_field' ) ? get_field( 'video_length', $post_id ) : get_post_meta( $post_id, 'video_length', true );
-	$minutes = zaher_parse_video_length_minutes( $raw );
+	$minutes = theme_parse_video_length_minutes( $raw );
 
 	if ( $minutes === null ) {
-		delete_post_meta( $post_id, 'zaher_video_length_minutes' );
+		delete_post_meta( $post_id, 'theme_video_length_minutes' );
 	} else {
-		update_post_meta( $post_id, 'zaher_video_length_minutes', (int) $minutes );
+		update_post_meta( $post_id, 'theme_video_length_minutes', (int) $minutes );
 	}
 }
 
@@ -26,7 +26,7 @@ function zaher_sync_program_minutes_meta( $post_id, $post ) {
  * Check if the current user has access to a given program (based on MemberPress capabilities + ACF field).
  * If no subscription is set on a program, it is considered accessible.
  */
-function zaher_user_has_program_access( $program_id ) {
+function theme_user_has_program_access( $program_id ) {
 	if ( current_user_can( 'administrator' ) ) {
 		return true;
 	}
@@ -60,7 +60,7 @@ function zaher_user_has_program_access( $program_id ) {
 /**
  * Check if a user completed a program.
  */
-function zaher_user_completed_program( $program_id, $user_id = 0 ) {
+function theme_user_completed_program( $program_id, $user_id = 0 ) {
 	if ( ! $user_id ) {
 		if ( ! is_user_logged_in() ) {
 			return false;
@@ -68,13 +68,13 @@ function zaher_user_completed_program( $program_id, $user_id = 0 ) {
 		$user_id = get_current_user_id();
 	}
 
-	return (bool) get_user_meta( $user_id, 'zaher_program_completed_' . (int) $program_id, true );
+	return (bool) get_user_meta( $user_id, 'theme_program_completed_' . (int) $program_id, true );
 }
 
 /**
  * Get completed program IDs for a user (most recent first).
  */
-function zaher_get_completed_program_ids( $user_id = 0 ) {
+function theme_get_completed_program_ids( $user_id = 0 ) {
 	if ( ! $user_id ) {
 		if ( ! is_user_logged_in() ) {
 			return array();
@@ -84,7 +84,7 @@ function zaher_get_completed_program_ids( $user_id = 0 ) {
 
 	global $wpdb;
 
-	$prefix = $wpdb->esc_like( 'zaher_program_completed_' );
+	$prefix = $wpdb->esc_like( 'theme_program_completed_' );
 	$rows   = $wpdb->get_results(
 		$wpdb->prepare(
 			"SELECT meta_key, meta_value FROM {$wpdb->usermeta} WHERE user_id = %d AND meta_key LIKE %s",
@@ -119,7 +119,7 @@ function zaher_get_completed_program_ids( $user_id = 0 ) {
  * @param int $user_id Optional. User ID. Defaults to current user.
  * @return array Array of program IDs with progress data, or empty array.
  */
-function zaher_get_in_progress_program_ids( $user_id = 0 ) {
+function theme_get_in_progress_program_ids( $user_id = 0 ) {
 	if ( ! $user_id ) {
 		if ( ! is_user_logged_in() ) {
 			return array();
@@ -129,7 +129,7 @@ function zaher_get_in_progress_program_ids( $user_id = 0 ) {
 
 	global $wpdb;
 
-	$prefix = $wpdb->esc_like( 'zaher_program_progress_' );
+	$prefix = $wpdb->esc_like( 'theme_program_progress_' );
 	$rows   = $wpdb->get_results(
 		$wpdb->prepare(
 			"SELECT meta_key, meta_value FROM {$wpdb->usermeta} WHERE user_id = %d AND meta_key LIKE %s",
@@ -143,7 +143,7 @@ function zaher_get_in_progress_program_ids( $user_id = 0 ) {
 	}
 
 	// Get completed IDs to exclude them.
-	$completed_ids = zaher_get_completed_program_ids( $user_id );
+	$completed_ids = theme_get_completed_program_ids( $user_id );
 
 	$in_progress = array();
 	foreach ( $rows as $row ) {
@@ -175,7 +175,7 @@ function zaher_get_in_progress_program_ids( $user_id = 0 ) {
  * @param int $user_id    Optional. User ID. Defaults to current user.
  * @return float Progress as decimal (0-1), or 0 if not found.
  */
-function zaher_get_program_progress( $program_id, $user_id = 0 ) {
+function theme_get_program_progress( $program_id, $user_id = 0 ) {
 	if ( ! $user_id ) {
 		$user_id = get_current_user_id();
 	}
@@ -183,7 +183,7 @@ function zaher_get_program_progress( $program_id, $user_id = 0 ) {
 		return 0;
 	}
 
-	$meta = get_user_meta( $user_id, 'zaher_program_progress_' . (int) $program_id, true );
+	$meta = get_user_meta( $user_id, 'theme_program_progress_' . (int) $program_id, true );
 	if ( ! $meta ) {
 		return 0;
 	}
@@ -195,8 +195,8 @@ function zaher_get_program_progress( $program_id, $user_id = 0 ) {
 /**
  * Track member progress: last viewed program + view count (for "Popular").
  */
-add_action( 'template_redirect', 'zaher_track_program_view_for_members', 20 );
-function zaher_track_program_view_for_members() {
+add_action( 'template_redirect', 'theme_track_program_view_for_members', 20 );
+function theme_track_program_view_for_members() {
 	if ( is_admin() || wp_doing_ajax() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
 		return;
 	}
@@ -213,31 +213,31 @@ function zaher_track_program_view_for_members() {
 	}
 
 	// Only track if user can access this workout.
-	if ( ! zaher_user_has_program_access( $program_id ) ) {
+	if ( ! theme_user_has_program_access( $program_id ) ) {
 		return;
 	}
 
 	$user_id = get_current_user_id();
 
-	update_user_meta( $user_id, 'zaher_last_program_id', (int) $program_id );
-	update_user_meta( $user_id, 'zaher_last_program_url', esc_url_raw( get_permalink( $program_id ) ) );
-	update_user_meta( $user_id, 'zaher_last_program_ts', time() );
+	update_user_meta( $user_id, 'theme_last_program_id', (int) $program_id );
+	update_user_meta( $user_id, 'theme_last_program_url', esc_url_raw( get_permalink( $program_id ) ) );
+	update_user_meta( $user_id, 'theme_last_program_ts', time() );
 
-	$views = (int) get_post_meta( $program_id, 'zaher_views', true );
-	update_post_meta( $program_id, 'zaher_views', $views + 1 );
+	$views = (int) get_post_meta( $program_id, 'theme_views', true );
+	update_post_meta( $program_id, 'theme_views', $views + 1 );
 }
 
 /**
  * REST: track member video progress for "Nastavi".
  */
-add_action( 'rest_api_init', 'zaher_register_progress_endpoint' );
-function zaher_register_progress_endpoint() {
+add_action( 'rest_api_init', 'theme_register_progress_endpoint' );
+function theme_register_progress_endpoint() {
 	register_rest_route(
-		'zaher/v1',
+		'theme/v1',
 		'/progress',
 		array(
 			'methods'             => WP_REST_Server::CREATABLE,
-			'callback'            => 'zaher_update_program_progress',
+			'callback'            => 'theme_update_program_progress',
 			'permission_callback' => function () {
 				return is_user_logged_in();
 			},
@@ -258,7 +258,7 @@ function zaher_register_progress_endpoint() {
 	);
 }
 
-function zaher_update_program_progress( WP_REST_Request $request ) {
+function theme_update_program_progress( WP_REST_Request $request ) {
 	$user_id    = get_current_user_id();
 	$program_id = absint( $request->get_param( 'program_id' ) );
 	$progress   = (float) $request->get_param( 'progress' );
@@ -272,7 +272,7 @@ function zaher_update_program_progress( WP_REST_Request $request ) {
 		return new WP_Error( 'invalid_program', 'Program unavailable.', array( 'status' => 403 ) );
 	}
 
-	if ( ! zaher_user_has_program_access( $program_id ) ) {
+	if ( ! theme_user_has_program_access( $program_id ) ) {
 		return new WP_Error( 'forbidden', 'No access to this program.', array( 'status' => 403 ) );
 	}
 
@@ -282,24 +282,24 @@ function zaher_update_program_progress( WP_REST_Request $request ) {
 	}
 
 	if ( $completed ) {
-		update_user_meta( $user_id, 'zaher_program_completed_' . $program_id, time() );
+		update_user_meta( $user_id, 'theme_program_completed_' . $program_id, time() );
 		// Remove from in-progress when completed.
-		delete_user_meta( $user_id, 'zaher_program_progress_' . $program_id );
-		$last_in_progress = (int) get_user_meta( $user_id, 'zaher_last_in_progress_program_id', true );
+		delete_user_meta( $user_id, 'theme_program_progress_' . $program_id );
+		$last_in_progress = (int) get_user_meta( $user_id, 'theme_last_in_progress_program_id', true );
 		if ( $last_in_progress === $program_id ) {
-			delete_user_meta( $user_id, 'zaher_last_in_progress_program_id' );
-			delete_user_meta( $user_id, 'zaher_last_in_progress_program_url' );
-			delete_user_meta( $user_id, 'zaher_last_in_progress_program_ts' );
-			delete_user_meta( $user_id, 'zaher_last_in_progress_program_progress' );
+			delete_user_meta( $user_id, 'theme_last_in_progress_program_id' );
+			delete_user_meta( $user_id, 'theme_last_in_progress_program_url' );
+			delete_user_meta( $user_id, 'theme_last_in_progress_program_ts' );
+			delete_user_meta( $user_id, 'theme_last_in_progress_program_progress' );
 		}
 	} else {
 		// Store individual progress for this program (timestamp:progress format).
-		update_user_meta( $user_id, 'zaher_program_progress_' . $program_id, time() . ':' . $progress );
+		update_user_meta( $user_id, 'theme_program_progress_' . $program_id, time() . ':' . $progress );
 		// Keep last in-progress for quick access.
-		update_user_meta( $user_id, 'zaher_last_in_progress_program_id', $program_id );
-		update_user_meta( $user_id, 'zaher_last_in_progress_program_url', esc_url_raw( get_permalink( $program_id ) ) );
-		update_user_meta( $user_id, 'zaher_last_in_progress_program_ts', time() );
-		update_user_meta( $user_id, 'zaher_last_in_progress_program_progress', $progress );
+		update_user_meta( $user_id, 'theme_last_in_progress_program_id', $program_id );
+		update_user_meta( $user_id, 'theme_last_in_progress_program_url', esc_url_raw( get_permalink( $program_id ) ) );
+		update_user_meta( $user_id, 'theme_last_in_progress_program_ts', time() );
+		update_user_meta( $user_id, 'theme_last_in_progress_program_progress', $progress );
 	}
 
 	return rest_ensure_response(

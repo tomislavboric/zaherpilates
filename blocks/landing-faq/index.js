@@ -23,7 +23,7 @@
 		] ]
 	];
 
-	blocks.registerBlockType( 'zaher/landing-faq', {
+	blocks.registerBlockType( 'theme/landing-faq', {
 		edit: function() {
 			return el(
 				'section',

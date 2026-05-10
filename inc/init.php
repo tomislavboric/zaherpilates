@@ -60,26 +60,32 @@ require_once( 'library/responsive-images.php' );
 /** If your site requires protocol relative url's for theme assets, uncomment the line below */
 // require_once( 'library/class-foundationpress-protocol-relative-theme-assets.php' );
 
-// Custom
+// Theme custom (generic, reusable)
 require_once( 'custom/web-settings.php' );
 require_once( 'custom/acf-json.php' );
-require_once( 'custom/memberpress.php' );
-require_once( 'custom/pricing-helpers.php' );
-require_once( 'custom/checkout-popup.php' );
 require_once( 'custom/comments-loggedin-only.php' );
 require_once( 'custom/comments-croatian.php' );
 require_once( 'custom/comments-reply-ajax.php' );
-require_once( 'custom/mp-mailerlite-sync/bootstrap.php' );
 require_once( 'custom/catalog-router.php' );
 require_once( 'custom/video-utils.php' );
 require_once( 'custom/icons.php' );
 require_once( 'custom/programs.php' );
 require_once( 'custom/favorites.php' );
 require_once( 'custom/body-classes.php' );
-require_once( 'custom/admin-settings.php' );
 require_once( 'custom/query-tweaks.php' );
-require_once( 'custom/memberships.php' );
 require_once( 'custom/admin-ui.php' );
-require_once( 'custom/account-actions.php' );
-require_once( 'custom/auth-pages.php' );
 require_once( 'custom/gtm.php' );
+
+// MemberPress integration
+require_once( 'custom/memberpress/core.php' );
+require_once( 'custom/memberpress/pricing-helpers.php' );
+require_once( 'custom/memberpress/checkout-popup.php' );
+require_once( 'custom/memberpress/admin-settings.php' );
+require_once( 'custom/memberpress/memberships.php' );
+require_once( 'custom/memberpress/account-routing.php' );
+require_once( 'custom/memberpress/account-helpers.php' );
+require_once( 'custom/memberpress/account-actions.php' );
+require_once( 'custom/memberpress/auth-pages.php' );
+
+// Third-party sync
+require_once( 'custom/mp-mailerlite-sync/bootstrap.php' );

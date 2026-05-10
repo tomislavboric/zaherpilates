@@ -1,8 +1,8 @@
 <?php
 /**
  * Title: Landing Section - Testimonials (LOOP)
- * Slug: zaherpilates/landing-testimonials-black-week-loop
- * Categories: zaher-landing
+ * Slug: theme/landing-testimonials-black-week-loop
+ * Categories: theme-landing
  * Keywords: landing, testimonials, loop
  */
 ?>

@@ -1,8 +1,8 @@
 <?php
 /**
  * Title: Landing Section - Offer (Black Week LOOP)
- * Slug: zaherpilates/landing-offer-black-week-loop
- * Categories: zaher-landing
+ * Slug: theme/landing-offer-black-week-loop
+ * Categories: theme-landing
  * Keywords: landing, offer, pricing
  */
 ?>

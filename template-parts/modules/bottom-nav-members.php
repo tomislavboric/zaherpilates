@@ -15,7 +15,7 @@ $loop_url  = $loop_page ? get_permalink( $loop_page ) : home_url( '/loop/' );
 
 $account_url = home_url( '/moj-racun/' );
 
-$is_katalog = zaher_is_catalog_page()
+$is_katalog = theme_is_catalog_page()
 	|| is_page_template( 'page-templates/page-catalog.php' )
 	|| is_tax( 'catalog' )
 	|| is_singular( array( 'programs', 'collection' ) )
@@ -30,34 +30,34 @@ $is_search = is_page_template( 'page-templates/page-catalog.php' ) && isset( $_G
 
 <nav class="bottom-nav bottom-nav--members" aria-label="Member navigation" style="display: none;">
 	<a class="bottom-nav__item <?php echo $is_katalog ? 'is-active' : ''; ?>" href="<?php echo esc_url( $katalog_url ); ?>">
-		<?php echo zaher_lineicon_svg( 'layout', 'bottom-nav__icon' ); ?>
+		<?php echo theme_lineicon_svg( 'layout', 'bottom-nav__icon' ); ?>
 		<span class="bottom-nav__label">Katalog</span>
 	</a>
 
 	<?php /*
 	<a class="bottom-nav__item <?php echo $is_search ? 'is-active' : ''; ?>" href="<?php echo esc_url( $katalog_url . '#katalog-search' ); ?>">
-		<?php echo zaher_lineicon_svg( 'search', 'bottom-nav__icon' ); ?>
+		<?php echo theme_lineicon_svg( 'search', 'bottom-nav__icon' ); ?>
 		<span class="bottom-nav__label">Search</span>
 	</a>
 	*/ ?>
 
 	<a class="bottom-nav__item" href="<?php echo esc_url( $katalog_url . '#moji-favoriti' ); ?>">
-		<?php echo zaher_lineicon_svg( 'heart', 'bottom-nav__icon' ); ?>
+		<?php echo theme_lineicon_svg( 'heart', 'bottom-nav__icon' ); ?>
 		<span class="bottom-nav__label">Favoriti</span>
 	</a>
 
 	<a class="bottom-nav__item <?php echo $is_loop ? 'is-active' : ''; ?>" href="<?php echo esc_url( $loop_url ); ?>">
-		<?php echo zaher_lineicon_svg( 'refresh', 'bottom-nav__icon' ); ?>
+		<?php echo theme_lineicon_svg( 'refresh', 'bottom-nav__icon' ); ?>
 		<span class="bottom-nav__label">LOOP</span>
 	</a>
 
 	<a class="bottom-nav__item <?php echo $is_account ? 'is-active' : ''; ?>" href="<?php echo esc_url( $account_url ); ?>">
-		<?php echo zaher_lineicon_svg( 'user', 'bottom-nav__icon' ); ?>
+		<?php echo theme_lineicon_svg( 'user', 'bottom-nav__icon' ); ?>
 		<span class="bottom-nav__label">Račun</span>
 	</a>
 
 	<button class="bottom-nav__item bottom-nav__menu-toggle" type="button" aria-expanded="false" aria-controls="header-menu" aria-label="Otvori izbornik">
-		<?php echo zaher_lineicon_svg( 'menu', 'bottom-nav__icon' ); ?>
+		<?php echo theme_lineicon_svg( 'menu', 'bottom-nav__icon' ); ?>
 		<span class="bottom-nav__label">Izbornik</span>
 	</button>
 </nav>

@@ -9,7 +9,7 @@
  *
  * @since 1.0.0
  */
-class Zaher_Member_Catalog_Router {
+class Theme_Member_Catalog_Router {
 
 	/**
 	 * Whether we're serving catalog at home for a member.
@@ -130,13 +130,13 @@ class Zaher_Member_Catalog_Router {
 	}
 }
 
-Zaher_Member_Catalog_Router::init();
+Theme_Member_Catalog_Router::init();
 
 /**
  * Helper function: Check if displaying catalog content.
  *
  * @return bool
  */
-function zaher_is_catalog_page() {
-	return Zaher_Member_Catalog_Router::is_catalog_page();
+function theme_is_catalog_page() {
+	return Theme_Member_Catalog_Router::is_catalog_page();
 }

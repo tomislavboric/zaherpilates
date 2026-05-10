@@ -45,7 +45,7 @@
 		[ 'core/paragraph', { className: 'bf-note', content: 'Sve što trebaš je kliknuti na odabranu opciju i pratiti daljnje korake.<br> <strong>Obje opcije</strong> vrijede za postojeće članice LOOP-a prilikom nadogradnje na višu pretplatu. Ako zapneš, tipkaj nam preko <a href="mailto:info@zaherpilates.com">info@zaherpilates.com</a>.' } ]
 	];
 
-	blocks.registerBlockType( 'zaher/landing-offer', {
+	blocks.registerBlockType( 'theme/landing-offer', {
 		edit: function() {
 			return el(
 				'section',

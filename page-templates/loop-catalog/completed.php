@@ -5,9 +5,9 @@ if ( ! is_user_logged_in() ) {
 	return;
 }
 
-$completed_ids = get_query_var( 'zaher_completed_ids', array() );
-if ( empty( $completed_ids ) && function_exists( 'zaher_get_completed_program_ids' ) ) {
-	$completed_ids = zaher_get_completed_program_ids( get_current_user_id() );
+$completed_ids = get_query_var( 'theme_completed_ids', array() );
+if ( empty( $completed_ids ) && function_exists( 'theme_get_completed_program_ids' ) ) {
+	$completed_ids = theme_get_completed_program_ids( get_current_user_id() );
 }
 if ( $completed_ids ) {
 	$completed_ids = array_values(
@@ -27,7 +27,7 @@ if ( empty( $completed_ids ) ) :
 	<div class="grid-container full" id="pogledano" style="margin-bottom:60px!important">
 		<div class="empty-state">
 			<div class="empty-state__icon">
-				<?php echo zaher_lineicon_svg( 'check-circle' ); ?>
+				<?php echo theme_lineicon_svg( 'check-circle' ); ?>
 			</div>
 			<h3 class="empty-state__title">Još nema pogledanih videa</h3>
 			<p class="empty-state__text">Kad završiš trening do kraja, pojavit će se ovdje.</p>
@@ -61,7 +61,7 @@ $completed_query = new WP_Query(
 							?>
 							<img src="<?php echo esc_url( $thumb ); ?>" alt="<?php the_title_attribute(); ?>">
 							<div class="cards__badge" aria-label="Pogledano do kraja">
-								<?php echo zaher_lineicon_svg( 'check-circle' ); ?>
+								<?php echo theme_lineicon_svg( 'check-circle' ); ?>
 								Pogledano
 							</div>
 							<?php if ( function_exists( 'get_field' ) && ( $video_length = get_field( 'video_length' ) ) ) : ?>
@@ -78,7 +78,7 @@ $completed_query = new WP_Query(
 	<?php else : ?>
 		<div class="empty-state">
 			<div class="empty-state__icon">
-				<?php echo zaher_lineicon_svg( 'check-circle' ); ?>
+				<?php echo theme_lineicon_svg( 'check-circle' ); ?>
 			</div>
 			<h3 class="empty-state__title">Još nema pogledanih videa</h3>
 			<p class="empty-state__text">Kad završiš trening do kraja, pojavit će se ovdje.</p>

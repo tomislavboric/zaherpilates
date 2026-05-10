@@ -1,9 +1,9 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 2,
-	"name": "zaher/landing-intro",
+	"name": "theme/landing-intro",
 	"title": "Landing Intro (LOOP)",
-	"category": "zaher-landing",
+	"category": "theme-landing",
 	"icon": "align-center",
 	"description": "Intro text section for landing pages.",
 	"textdomain": "foundationpress",

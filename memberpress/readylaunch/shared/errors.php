@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die( 'You are not allowed to call this page directly.' );
 }
 
-if ( function_exists( 'zaher_is_memberpress_auth_context' ) && zaher_is_memberpress_auth_context() ) {
+if ( function_exists( 'theme_is_memberpress_auth_context' ) && theme_is_memberpress_auth_context() ) {
 	return;
 }
 ?>

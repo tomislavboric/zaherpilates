@@ -1,8 +1,8 @@
 <?php
 /**
  * Title: Landing Page - Black Week LOOP
- * Slug: zaherpilates/landing-page-black-week-loop
- * Categories: zaher-landing
+ * Slug: theme/landing-page-black-week-loop
+ * Categories: theme-landing
  * Keywords: landing, black week, loop
  */
 ?>

@@ -5,7 +5,7 @@
  * @package memberpress-pro-template
  */
 
-$is_auth_page = function_exists( 'zaher_is_memberpress_auth_context' ) && zaher_is_memberpress_auth_context();
+$is_auth_page = function_exists( 'theme_is_memberpress_auth_context' ) && theme_is_memberpress_auth_context();
 $body_classes = 'mepr-pro-template mepr-guest-layout';
 $header_class = '';
 
@@ -14,7 +14,7 @@ if ( $is_auth_page ) {
 	$header_class  = 'mepr-auth-header';
 }
 
-$pricing_url = function_exists( 'zaher_pricing_page_url' ) ? zaher_pricing_page_url() : home_url( '/cjenik/' );
+$pricing_url = function_exists( 'theme_pricing_page_url' ) ? theme_pricing_page_url() : home_url( '/cjenik/' );
 ?>
 <!doctype html>
 <html <?php language_attributes(); ?>>
@@ -35,7 +35,7 @@ $pricing_url = function_exists( 'zaher_pricing_page_url' ) ? zaher_pricing_page_
 					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
 						<polyline points="15 18 9 12 15 6"></polyline>
 					</svg>
-					<span><?php esc_html_e( 'Natrag na cjenik', 'zaherpilates' ); ?></span>
+					<span><?php esc_html_e( 'Natrag na cjenik', 'foundationpress' ); ?></span>
 				</a>
 			<?php endif; ?>
 
@@ -51,7 +51,7 @@ $pricing_url = function_exists( 'zaher_pricing_page_url' ) ? zaher_pricing_page_
 						<rect x="5" y="11" width="14" height="10" rx="2"></rect>
 						<path d="M8 11V8a4 4 0 0 1 8 0v3"></path>
 					</svg>
-					<span><?php esc_html_e( 'Siguran pristup', 'zaherpilates' ); ?></span>
+					<span><?php esc_html_e( 'Siguran pristup', 'foundationpress' ); ?></span>
 				</div>
 			<?php endif; ?>
 		</header>

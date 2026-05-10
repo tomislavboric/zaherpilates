@@ -59,8 +59,8 @@ if ( $has_memberpress ) {
 			array( 'id', 'user_id', 'product_id', 'subscr_id', 'status', 'created_at', 'expires_at', 'active' )
 		);
 		$subscriptions = $subscription_table['results'];
-		if ( function_exists( 'zaher_filter_account_subscription_rows' ) ) {
-			$subscriptions = zaher_filter_account_subscription_rows( $subscriptions );
+		if ( function_exists( 'theme_filter_account_subscription_rows' ) ) {
+			$subscriptions = theme_filter_account_subscription_rows( $subscriptions );
 		}
 	}
 	$transactions  = MeprTransaction::get_all_by_user_id(
@@ -68,8 +68,8 @@ if ( $has_memberpress ) {
 		'created_at DESC',
 		50
 	);
-	if ( function_exists( 'zaher_filter_account_payment_transactions' ) ) {
-		$transactions = zaher_filter_account_payment_transactions( $transactions, 10 );
+	if ( function_exists( 'theme_filter_account_payment_transactions' ) ) {
+		$transactions = theme_filter_account_payment_transactions( $transactions, 10 );
 	}
 	$profile_address = array_merge( $profile_address, $mepr_user->full_address( false ) );
 }
@@ -143,7 +143,7 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 							aria-controls="account-panel-<?php echo esc_attr( $tab_key ); ?>"
 							aria-selected="<?php echo $is_active ? 'true' : 'false'; ?>"
 						>
-							<?php echo zaher_lineicon_svg( $tab_data['icon'] ); ?>
+							<?php echo theme_lineicon_svg( $tab_data['icon'] ); ?>
 							<?php echo esc_html( $tab_data['label'] ); ?>
 						</button>
 					<?php endforeach; ?>
@@ -166,8 +166,8 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 
 					<div class="account-page__card">
 						<form class="account-page__form" method="post" enctype="multipart/form-data" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-							<input type="hidden" name="action" value="zaher_update_profile">
-							<?php wp_nonce_field( 'zaher_update_profile', 'zaher_profile_nonce' ); ?>
+							<input type="hidden" name="action" value="theme_update_profile">
+							<?php wp_nonce_field( 'theme_update_profile', 'theme_profile_nonce' ); ?>
 
 							<div class="account-page__field">
 								<label class="account-page__label" for="profile_first_name">Ime</label>
@@ -273,7 +273,7 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 											echo 'Došlo je do greške. Pokušajte ponovno.';
 											break;
 										case 'memberpress':
-											$profile_errors = function_exists( 'zaher_get_profile_errors' ) ? zaher_get_profile_errors( get_current_user_id() ) : array();
+											$profile_errors = function_exists( 'theme_get_profile_errors' ) ? theme_get_profile_errors( get_current_user_id() ) : array();
 											if ( empty( $profile_errors ) ) {
 												echo 'Provjerite označena polja.';
 											} else {
@@ -305,7 +305,7 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 						<h1 class="account-page__title">Pretplata</h1>
 
 						<?php if ( isset( $_GET['account_message'] ) ) : ?>
-							<?php $account_message = function_exists( 'zaher_account_notice_text' ) ? zaher_account_notice_text( 'success', sanitize_key( $_GET['account_message'] ) ) : ''; ?>
+							<?php $account_message = function_exists( 'theme_account_notice_text' ) ? theme_account_notice_text( 'success', sanitize_key( $_GET['account_message'] ) ) : ''; ?>
 							<?php if ( $account_message ) : ?>
 								<div class="account-page__message account-page__message--success account-page__message--inline">
 									<?php echo esc_html( $account_message ); ?>
@@ -314,14 +314,14 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 						<?php endif; ?>
 
 						<?php if ( isset( $_GET['account_error'] ) ) : ?>
-							<?php $account_error = function_exists( 'zaher_account_notice_text' ) ? zaher_account_notice_text( 'error', sanitize_key( $_GET['account_error'] ) ) : 'Došlo je do greške.'; ?>
+							<?php $account_error = function_exists( 'theme_account_notice_text' ) ? theme_account_notice_text( 'error', sanitize_key( $_GET['account_error'] ) ) : 'Došlo je do greške.'; ?>
 							<div class="account-page__message account-page__message--error account-page__message--inline">
 								<?php echo esc_html( $account_error ); ?>
 							</div>
 						<?php endif; ?>
 
-						<?php if ( $account_action && function_exists( 'zaher_render_account_subscription_action' ) ) : ?>
-							<?php zaher_render_account_subscription_action( $account_action, $account_action_sub_id ); ?>
+						<?php if ( $account_action && function_exists( 'theme_render_account_subscription_action' ) ) : ?>
+							<?php theme_render_account_subscription_action( $account_action, $account_action_sub_id ); ?>
 						<?php elseif ( ! empty( $subscriptions ) ) : ?>
 							<?php foreach ( $subscriptions as $subscription_row ) : ?>
 							<?php
@@ -357,8 +357,8 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 									$product_title = $product->post_title;
 								}
 
-								$latest_txn = function_exists( 'zaher_account_latest_subscription_transaction' )
-									? zaher_account_latest_subscription_transaction( $sub )
+								$latest_txn = function_exists( 'theme_account_latest_subscription_transaction' )
+									? theme_account_latest_subscription_transaction( $sub )
 									: $sub->latest_txn();
 								if ( $latest_txn instanceof MeprTransaction ) {
 									if ( class_exists( 'MeprTransactionsHelper' ) ) {
@@ -370,8 +370,8 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 									$price_value = number_format( $sub->price, 2, ',', '.' ) . ' €';
 								}
 
-								if ( function_exists( 'zaher_account_subscription_date_display' ) ) {
-									$date_display = zaher_account_subscription_date_display( $sub );
+								if ( function_exists( 'theme_account_subscription_date_display' ) ) {
+									$date_display = theme_account_subscription_date_display( $sub );
 									$date_label   = $date_display['label'];
 									$date_value   = $date_display['value'];
 								} elseif ( ! empty( $sub->next_billing_at ) ) {
@@ -405,36 +405,36 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 									)
 									&& ( ! method_exists( $sub, 'in_grace_period' ) || ! $sub->in_grace_period() );
 
-								if ( $can_manage && function_exists( 'zaher_account_subscription_action_available' ) && function_exists( 'zaher_account_subscription_action_url' ) ) {
+								if ( $can_manage && function_exists( 'theme_account_subscription_action_available' ) && function_exists( 'theme_account_subscription_action_url' ) ) {
 									$payment_method = method_exists( $sub, 'payment_method' ) ? $sub->payment_method() : null;
 
-									if ( zaher_account_subscription_action_available( 'update', $sub, $payment_method ) ) {
+									if ( theme_account_subscription_action_available( 'update', $sub, $payment_method ) ) {
 										$subscription_action_links[] = array(
-											'url'   => zaher_account_subscription_action_url( 'update', $sub->id ),
+											'url'   => theme_account_subscription_action_url( 'update', $sub->id ),
 											'label' => 'Ažuriraj karticu',
 											'class' => '',
 										);
 									}
 
-									if ( zaher_account_subscription_action_available( 'upgrade', $sub, $payment_method ) ) {
+									if ( theme_account_subscription_action_available( 'upgrade', $sub, $payment_method ) ) {
 										$subscription_action_links[] = array(
-											'url'   => zaher_account_subscription_action_url( 'upgrade', $sub->id ),
+											'url'   => theme_account_subscription_action_url( 'upgrade', $sub->id ),
 											'label' => 'Promijeni plan',
 											'class' => 'button--hollow',
 										);
 									}
 
-									if ( zaher_account_subscription_action_available( 'resume', $sub, $payment_method ) ) {
+									if ( theme_account_subscription_action_available( 'resume', $sub, $payment_method ) ) {
 										$subscription_action_links[] = array(
-											'url'   => zaher_account_subscription_action_url( 'resume', $sub->id ),
+											'url'   => theme_account_subscription_action_url( 'resume', $sub->id ),
 											'label' => 'Nastavi pretplatu',
 											'class' => 'button--hollow',
 										);
 									}
 
-									if ( zaher_account_subscription_action_available( 'cancel', $sub, $payment_method ) ) {
+									if ( theme_account_subscription_action_available( 'cancel', $sub, $payment_method ) ) {
 										$subscription_action_links[] = array(
-											'url'   => zaher_account_subscription_action_url( 'cancel', $sub->id ),
+											'url'   => theme_account_subscription_action_url( 'cancel', $sub->id ),
 											'label' => 'Otkaži pretplatu',
 											'class' => 'button--hollow account-page__danger-link',
 										);
@@ -513,7 +513,7 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 					<?php else : ?>
 						<div class="empty-state empty-state--card">
 							<div class="empty-state__icon">
-								<?php echo zaher_lineicon_svg( 'crown' ); ?>
+								<?php echo theme_lineicon_svg( 'crown' ); ?>
 							</div>
 							<h3 class="empty-state__title">Nema aktivne pretplate</h3>
 							<p class="empty-state__text">Pretplatite se na jedan od naših planova i započnite vježbati s Pilates programima.</p>
@@ -535,7 +535,7 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 					<h1 class="account-page__title">Povijest plaćanja</h1>
 
 					<?php if ( ! empty( $transactions ) ) : ?>
-						<?php $has_payment_downloads = function_exists( 'zaher_account_payment_has_invoice_links' ) && zaher_account_payment_has_invoice_links( $transactions ); ?>
+						<?php $has_payment_downloads = function_exists( 'theme_account_payment_has_invoice_links' ) && theme_account_payment_has_invoice_links( $transactions ); ?>
 						<div class="account-page__card">
 							<table class="account-page__table">
 								<thead>
@@ -553,25 +553,25 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 									<?php foreach ( $transactions as $txn ) : ?>
 										<?php
 										$product       = get_post( $txn->product_id );
-										$payment_total = function_exists( 'zaher_account_payment_display_total' )
-											? zaher_account_payment_display_total( $txn )
+										$payment_total = function_exists( 'theme_account_payment_display_total' )
+											? theme_account_payment_display_total( $txn )
 											: ( isset( $txn->total ) ? (float) $txn->total : 0.0 );
-										$status_label = function_exists( 'zaher_account_payment_status_label' )
-											? zaher_account_payment_status_label( $txn->status, $txn )
+										$status_label = function_exists( 'theme_account_payment_status_label' )
+											? theme_account_payment_status_label( $txn->status, $txn )
 											: ( 'complete' === $txn->status ? 'Plaćeno' : ucfirst( $txn->status ) );
-										$status_class = function_exists( 'zaher_account_payment_status_class' )
-											? zaher_account_payment_status_class( $txn->status )
+										$status_class = function_exists( 'theme_account_payment_status_class' )
+											? theme_account_payment_status_class( $txn->status )
 											: ( 'complete' === $txn->status ? 'success' : 'pending' );
-										$invoice_url = function_exists( 'zaher_account_payment_invoice_url' )
-											? zaher_account_payment_invoice_url( $txn )
+										$invoice_url = function_exists( 'theme_account_payment_invoice_url' )
+											? theme_account_payment_invoice_url( $txn )
 											: '';
 										?>
 										<tr>
 											<td>
 												<?php
 												echo esc_html(
-													function_exists( 'zaher_account_format_date' )
-														? zaher_account_format_date( $txn->created_at, 'j.n.Y.' )
+													function_exists( 'theme_account_format_date' )
+														? theme_account_format_date( $txn->created_at, 'j.n.Y.' )
 														: date_i18n( 'j.n.Y.', strtotime( $txn->created_at ) )
 												);
 												?>
@@ -604,7 +604,7 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 					<?php else : ?>
 						<div class="empty-state empty-state--card">
 							<div class="empty-state__icon">
-								<?php echo zaher_lineicon_svg( 'file' ); ?>
+								<?php echo theme_lineicon_svg( 'file' ); ?>
 							</div>
 							<h3 class="empty-state__title">Uplate će se pojaviti ovdje</h3>
 							<p class="empty-state__text">Nakon prve uspješne naplate ovdje ćeš vidjeti povijest plaćanja i račune.</p>
@@ -624,16 +624,16 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 
 					<div class="account-page__card">
 						<form class="account-page__form" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-							<input type="hidden" name="action" value="zaher_change_password">
-							<?php wp_nonce_field( 'zaher_change_password', 'zaher_password_nonce' ); ?>
+							<input type="hidden" name="action" value="theme_change_password">
+							<?php wp_nonce_field( 'theme_change_password', 'theme_password_nonce' ); ?>
 
 							<div class="account-page__form-field">
 								<label for="current_password">Trenutna lozinka</label>
 								<div class="account-page__input-group">
 									<input type="password" id="current_password" name="current_password" required>
 									<button type="button" class="account-page__password-toggle" data-password-toggle aria-label="Prikaži lozinku" aria-pressed="false">
-										<span class="account-page__toggle-icon account-page__toggle-icon--show"><?php echo zaher_lineicon_svg( 'eye' ); ?></span>
-										<span class="account-page__toggle-icon account-page__toggle-icon--hide"><?php echo zaher_lineicon_svg( 'eye-off' ); ?></span>
+										<span class="account-page__toggle-icon account-page__toggle-icon--show"><?php echo theme_lineicon_svg( 'eye' ); ?></span>
+										<span class="account-page__toggle-icon account-page__toggle-icon--hide"><?php echo theme_lineicon_svg( 'eye-off' ); ?></span>
 									</button>
 								</div>
 							</div>
@@ -643,8 +643,8 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 								<div class="account-page__input-group">
 									<input type="password" id="new_password" name="new_password" required minlength="8">
 									<button type="button" class="account-page__password-toggle" data-password-toggle aria-label="Prikaži lozinku" aria-pressed="false">
-										<span class="account-page__toggle-icon account-page__toggle-icon--show"><?php echo zaher_lineicon_svg( 'eye' ); ?></span>
-										<span class="account-page__toggle-icon account-page__toggle-icon--hide"><?php echo zaher_lineicon_svg( 'eye-off' ); ?></span>
+										<span class="account-page__toggle-icon account-page__toggle-icon--show"><?php echo theme_lineicon_svg( 'eye' ); ?></span>
+										<span class="account-page__toggle-icon account-page__toggle-icon--hide"><?php echo theme_lineicon_svg( 'eye-off' ); ?></span>
 									</button>
 								</div>
 							</div>
@@ -654,8 +654,8 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 								<div class="account-page__input-group">
 									<input type="password" id="confirm_password" name="confirm_password" required minlength="8">
 									<button type="button" class="account-page__password-toggle" data-password-toggle aria-label="Prikaži lozinku" aria-pressed="false">
-										<span class="account-page__toggle-icon account-page__toggle-icon--show"><?php echo zaher_lineicon_svg( 'eye' ); ?></span>
-										<span class="account-page__toggle-icon account-page__toggle-icon--hide"><?php echo zaher_lineicon_svg( 'eye-off' ); ?></span>
+										<span class="account-page__toggle-icon account-page__toggle-icon--show"><?php echo theme_lineicon_svg( 'eye' ); ?></span>
+										<span class="account-page__toggle-icon account-page__toggle-icon--hide"><?php echo theme_lineicon_svg( 'eye-off' ); ?></span>
 									</button>
 								</div>
 							</div>

@@ -6,7 +6,7 @@
 	var PanelBody = components.PanelBody;
 	var TextControl = components.TextControl;
 
-	blocks.registerBlockType( 'zaher/landing-countdown-final', {
+	blocks.registerBlockType( 'theme/landing-countdown-final', {
 		edit: function( props ) {
 			var attributes = props.attributes;
 			var setAttributes = props.setAttributes;

@@ -1,8 +1,8 @@
 <?php
 /**
  * Title: Landing Section - Countdown Final (Black Week)
- * Slug: zaherpilates/landing-countdown-final-black-week-loop
- * Categories: zaher-landing
+ * Slug: theme/landing-countdown-final-black-week-loop
+ * Categories: theme-landing
  * Keywords: landing, countdown, black week
  */
 ?>

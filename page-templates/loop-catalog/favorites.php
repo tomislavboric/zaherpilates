@@ -6,7 +6,7 @@ if ( ! is_user_logged_in() ) :
 	<div class="grid-container full" id="moji-favoriti" style="margin-bottom:60px!important">
 		<div class="empty-state">
 			<div class="empty-state__icon">
-				<?php echo zaher_lineicon_svg( 'lock' ); ?>
+				<?php echo theme_lineicon_svg( 'lock' ); ?>
 			</div>
 			<h3 class="empty-state__title">Prijavi se za svoje favorite</h3>
 			<p class="empty-state__text">Prijavi se kako bi mogla spremati treninge i brzo im se vraćati.</p>
@@ -36,7 +36,7 @@ if ( empty( $fav_ids ) ) :
 	<div class="grid-container full" id="moji-favoriti" style="margin-bottom:60px!important">
 		<div class="empty-state">
 			<div class="empty-state__icon">
-				<?php echo zaher_lineicon_svg( 'heart' ); ?>
+				<?php echo theme_lineicon_svg( 'heart' ); ?>
 			</div>
 			<h3 class="empty-state__title">Još nema favorita</h3>
 			<p class="empty-state__text">Dodaj srce na treninge koje želiš spremiti na jedno mjesto.</p>
@@ -74,9 +74,9 @@ $fav_query = new WP_Query(array(
         <div class="cards__favorite">
           <?php
           if ( function_exists( 'the_favorites_button' ) ) {
-          	$GLOBALS['zaher_favorites_list_context'] = true;
+          	$GLOBALS['theme_favorites_list_context'] = true;
           	the_favorites_button( get_the_ID() );
-          	unset( $GLOBALS['zaher_favorites_list_context'] );
+          	unset( $GLOBALS['theme_favorites_list_context'] );
           }
           ?>
         </div>
@@ -86,9 +86,9 @@ $fav_query = new WP_Query(array(
             $thumb = has_post_thumbnail() ? get_the_post_thumbnail_url(get_the_ID(), 'fp-small') : $placeholder_url;
             ?>
             <img src="<?php echo esc_url($thumb); ?>" alt="<?php the_title_attribute(); ?>">
-            <?php if ( function_exists( 'zaher_user_completed_program' ) && zaher_user_completed_program( get_the_ID(), $user_id ) ) : ?>
+            <?php if ( function_exists( 'theme_user_completed_program' ) && theme_user_completed_program( get_the_ID(), $user_id ) ) : ?>
               <div class="cards__badge" aria-label="Pogledano do kraja">
-                <?php echo zaher_lineicon_svg( 'check-circle' ); ?>
+                <?php echo theme_lineicon_svg( 'check-circle' ); ?>
                 Pogledano
               </div>
             <?php endif; ?>
@@ -106,7 +106,7 @@ $fav_query = new WP_Query(array(
 
   <div class="empty-state favorites-empty--inline" style="display:none;">
     <div class="empty-state__icon">
-      <?php echo zaher_lineicon_svg( 'heart' ); ?>
+      <?php echo theme_lineicon_svg( 'heart' ); ?>
     </div>
     <h3 class="empty-state__title">Još nema favorita</h3>
     <p class="empty-state__text">Dodaj srce na treninge koje želiš spremiti na jedno mjesto.</p>

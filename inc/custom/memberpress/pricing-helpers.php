@@ -3,7 +3,7 @@
  * MemberPress pricing & price-box helpers.
  */
 
-function zaher_get_billing_period_text( $product ) {
+function theme_get_billing_period_text( $product ) {
     if ( ! $product instanceof MeprProduct || $product->is_one_time_payment() ) {
         return '';
     }
@@ -14,50 +14,50 @@ function zaher_get_billing_period_text( $product ) {
     switch ( $period_type ) {
         case 'months':
             if ( 1 === $period ) {
-                return __( 'Naplaćuje se mjesečno', 'zaherpilates' );
+                return __( 'Naplaćuje se mjesečno', 'foundationpress' );
             }
 
             if ( 12 === $period ) {
-                return __( 'Naplaćuje se godišnje', 'zaherpilates' );
+                return __( 'Naplaćuje se godišnje', 'foundationpress' );
             }
 
             if ( $period >= 2 && $period <= 4 ) {
                 /* translators: %d: number of months between charges */
-                return sprintf( __( 'Naplaćuje se svaka %d mjeseca', 'zaherpilates' ), $period );
+                return sprintf( __( 'Naplaćuje se svaka %d mjeseca', 'foundationpress' ), $period );
             }
 
             /* translators: %d: number of months between charges */
-            return sprintf( __( 'Naplaćuje se svakih %d mjeseci', 'zaherpilates' ), $period );
+            return sprintf( __( 'Naplaćuje se svakih %d mjeseci', 'foundationpress' ), $period );
 
         case 'years':
             if ( 1 === $period ) {
-                return __( 'Naplaćuje se godišnje', 'zaherpilates' );
+                return __( 'Naplaćuje se godišnje', 'foundationpress' );
             }
 
             /* translators: %d: number of years between charges */
-            return sprintf( __( 'Naplaćuje se svake %d godine', 'zaherpilates' ), $period );
+            return sprintf( __( 'Naplaćuje se svake %d godine', 'foundationpress' ), $period );
 
         case 'weeks':
             if ( 1 === $period ) {
-                return __( 'Naplaćuje se tjedno', 'zaherpilates' );
+                return __( 'Naplaćuje se tjedno', 'foundationpress' );
             }
 
             /* translators: %d: number of weeks between charges */
-            return sprintf( __( 'Naplaćuje se svakih %d tjedana', 'zaherpilates' ), $period );
+            return sprintf( __( 'Naplaćuje se svakih %d tjedana', 'foundationpress' ), $period );
 
         case 'days':
             if ( 1 === $period ) {
-                return __( 'Naplaćuje se dnevno', 'zaherpilates' );
+                return __( 'Naplaćuje se dnevno', 'foundationpress' );
             }
 
             /* translators: %d: number of days between charges */
-            return sprintf( __( 'Naplaćuje se svakih %d dana', 'zaherpilates' ), $period );
+            return sprintf( __( 'Naplaćuje se svakih %d dana', 'foundationpress' ), $period );
     }
 
     return '';
 }
 
-function zaher_get_pricing_price_term( $product ) {
+function theme_get_pricing_price_term( $product ) {
     if ( ! $product instanceof MeprProduct || $product->is_one_time_payment() ) {
         return '';
     }
@@ -67,51 +67,51 @@ function zaher_get_pricing_price_term( $product ) {
     switch ( (string) $product->period_type ) {
         case 'months':
             if ( 1 === $period ) {
-                return __( 'mjesec', 'zaherpilates' );
+                return __( 'mjesec', 'foundationpress' );
             }
 
             if ( $period >= 2 && $period <= 4 ) {
                 /* translators: %d: number of months in plan period */
-                return sprintf( __( '%d mjeseca', 'zaherpilates' ), $period );
+                return sprintf( __( '%d mjeseca', 'foundationpress' ), $period );
             }
 
             /* translators: %d: number of months in plan period */
-            return sprintf( __( '%d mjeseci', 'zaherpilates' ), $period );
+            return sprintf( __( '%d mjeseci', 'foundationpress' ), $period );
 
         case 'years':
             if ( 1 === $period ) {
-                return __( 'godina', 'zaherpilates' );
+                return __( 'godina', 'foundationpress' );
             }
 
             if ( $period >= 2 && $period <= 4 ) {
                 /* translators: %d: number of years in plan period */
-                return sprintf( __( '%d godine', 'zaherpilates' ), $period );
+                return sprintf( __( '%d godine', 'foundationpress' ), $period );
             }
 
             /* translators: %d: number of years in plan period */
-            return sprintf( __( '%d godina', 'zaherpilates' ), $period );
+            return sprintf( __( '%d godina', 'foundationpress' ), $period );
 
         case 'weeks':
             if ( 1 === $period ) {
-                return __( 'tjedan', 'zaherpilates' );
+                return __( 'tjedan', 'foundationpress' );
             }
 
             /* translators: %d: number of weeks in plan period */
-            return sprintf( __( '%d tjedana', 'zaherpilates' ), $period );
+            return sprintf( __( '%d tjedana', 'foundationpress' ), $period );
 
         case 'days':
             if ( 1 === $period ) {
-                return __( 'dan', 'zaherpilates' );
+                return __( 'dan', 'foundationpress' );
             }
 
             /* translators: %d: number of days in plan period */
-            return sprintf( __( '%d dana', 'zaherpilates' ), $period );
+            return sprintf( __( '%d dana', 'foundationpress' ), $period );
     }
 
     return '';
 }
 
-function zaher_get_checkout_benefits( $product ) {
+function theme_get_checkout_benefits( $product ) {
     $benefits = array();
 
     if ( $product instanceof MeprProduct && is_array( $product->pricing_benefits ) ) {
@@ -132,7 +132,7 @@ function zaher_get_checkout_benefits( $product ) {
                 continue;
             }
 
-            $benefits[] = zaher_format_price_box_benefit_text( $raw_benefit );
+            $benefits[] = theme_format_price_box_benefit_text( $raw_benefit );
         }
     }
 
@@ -142,26 +142,26 @@ function zaher_get_checkout_benefits( $product ) {
             : false;
         $has_trial = $product instanceof MeprProduct && ! empty( $product->trial ) && (int) $product->trial_days > 0;
 
-        $benefits[] = esc_html__( '200+ treninga po fazama ciklusa', 'zaherpilates' );
-        $benefits[] = esc_html__( 'Sve kategorije + live događanja', 'zaherpilates' );
+        $benefits[] = esc_html__( '200+ treninga po fazama ciklusa', 'foundationpress' );
+        $benefits[] = esc_html__( 'Sve kategorije + live događanja', 'foundationpress' );
 
         if ( $has_trial ) {
             $trial_days = (int) $product->trial_days;
             $benefits[] = esc_html(
                 sprintf(
                     /* translators: %d: number of trial days */
-                    _n( '%d dan probnog razdoblja uključen', '%d dana probnog razdoblja uključeno', $trial_days, 'zaherpilates' ),
+                    _n( '%d dan probnog razdoblja uključen', '%d dana probnog razdoblja uključeno', $trial_days, 'foundationpress' ),
                     $trial_days
                 )
             );
         }
 
         if ( $is_recurring ) {
-            $benefits[] = esc_html__( 'Otkaži u bilo kojem trenutku', 'zaherpilates' );
+            $benefits[] = esc_html__( 'Otkaži u bilo kojem trenutku', 'foundationpress' );
         }
     }
 
-    $custom = $product instanceof MeprProduct ? get_post_meta( $product->ID, '_zaher_checkout_benefits', true ) : '';
+    $custom = $product instanceof MeprProduct ? get_post_meta( $product->ID, '_theme_checkout_benefits', true ) : '';
 
     if ( is_string( $custom ) && '' !== trim( $custom ) ) {
         $lines     = preg_split( "/\r\n|\r|\n/", $custom );
@@ -169,7 +169,7 @@ function zaher_get_checkout_benefits( $product ) {
         $overrides = array();
 
         foreach ( $lines as $line ) {
-            $overrides[] = zaher_format_price_box_benefit_text( $line );
+            $overrides[] = theme_format_price_box_benefit_text( $line );
         }
 
         if ( ! empty( $overrides ) ) {
@@ -177,10 +177,10 @@ function zaher_get_checkout_benefits( $product ) {
         }
     }
 
-    return apply_filters( 'zaher_checkout_benefits', $benefits, $product );
+    return apply_filters( 'theme_checkout_benefits', $benefits, $product );
 }
 
-function zaher_format_price_box_benefit_text( $benefit ) {
+function theme_format_price_box_benefit_text( $benefit ) {
     $benefit = trim( wp_strip_all_tags( (string) $benefit ) );
     $parts   = preg_split( '/(\*\*.*?\*\*)/u', $benefit, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY );
     $html    = '';
@@ -196,7 +196,7 @@ function zaher_format_price_box_benefit_text( $benefit ) {
     return $html;
 }
 
-function zaher_get_plan_months_count( $product ) {
+function theme_get_plan_months_count( $product ) {
     if ( ! $product instanceof MeprProduct || $product->is_one_time_payment() ) {
         return 0;
     }
@@ -221,12 +221,12 @@ function zaher_get_plan_months_count( $product ) {
     return 0;
 }
 
-function zaher_user_has_upgrade_available() {
+function theme_user_has_upgrade_available() {
     if ( ! is_user_logged_in() || ! class_exists( 'MeprProduct' ) ) {
         return false;
     }
 
-    $sub_data = zaher_get_user_active_subscription_data();
+    $sub_data = theme_get_user_active_subscription_data();
 
     if ( empty( $sub_data['active_ids'] ) || ! $sub_data['primary_product'] instanceof MeprProduct ) {
         return false;
@@ -245,7 +245,7 @@ function zaher_user_has_upgrade_available() {
         return false;
     }
 
-    $current_months = zaher_get_plan_months_count( $current );
+    $current_months = theme_get_plan_months_count( $current );
 
     foreach ( $products as $product ) {
         if ( ! $product instanceof MeprProduct || (int) $product->ID === (int) $current->ID ) {
@@ -256,7 +256,7 @@ function zaher_user_has_upgrade_available() {
             continue;
         }
 
-        if ( zaher_get_plan_months_count( $product ) > $current_months ) {
+        if ( theme_get_plan_months_count( $product ) > $current_months ) {
             return true;
         }
     }
@@ -264,7 +264,7 @@ function zaher_user_has_upgrade_available() {
     return false;
 }
 
-function zaher_get_plan_monthly_price( $product ) {
+function theme_get_plan_monthly_price( $product ) {
     if ( ! $product instanceof MeprProduct || $product->is_one_time_payment() ) {
         return 0.0;
     }
@@ -299,13 +299,13 @@ function zaher_get_plan_monthly_price( $product ) {
     return (float) $product->price / $months;
 }
 
-function zaher_format_eur_amount( $amount ) {
+function theme_format_eur_amount( $amount ) {
     return '€' . number_format( (float) $amount, 2, ',', '.' );
 }
 
-function zaher_get_plan_savings_text( $current_product, $other_product ) {
-    $current_monthly = zaher_get_plan_monthly_price( $current_product );
-    $other_monthly   = zaher_get_plan_monthly_price( $other_product );
+function theme_get_plan_savings_text( $current_product, $other_product ) {
+    $current_monthly = theme_get_plan_monthly_price( $current_product );
+    $other_monthly   = theme_get_plan_monthly_price( $other_product );
 
     if ( $current_monthly <= 0 || $other_monthly <= 0 ) {
         return '';
@@ -320,10 +320,10 @@ function zaher_get_plan_savings_text( $current_product, $other_product ) {
     $annual_savings = $monthly_savings * 12.0;
 
     /* translators: %s: amount saved per year */
-    return sprintf( __( 'Štediš %s godišnje', 'zaherpilates' ), zaher_format_eur_amount( $annual_savings ) );
+    return sprintf( __( 'Štediš %s godišnje', 'foundationpress' ), theme_format_eur_amount( $annual_savings ) );
 }
 
-function zaher_get_user_active_subscription_data() {
+function theme_get_user_active_subscription_data() {
     $data = array(
         'is_logged_in'    => false,
         'active_ids'      => array(),
@@ -397,15 +397,15 @@ function zaher_get_user_active_subscription_data() {
         }
     }
 
-    $data['account_url'] = function_exists( 'zaher_account_tab_url' )
-        ? zaher_account_tab_url( 'subscription' )
+    $data['account_url'] = function_exists( 'theme_account_tab_url' )
+        ? theme_account_tab_url( 'subscription' )
         : home_url( '/moj-racun/?tab=subscription' );
 
     return $data;
 }
 
-function zaher_render_pricing_status_bar() {
-    $data = zaher_get_user_active_subscription_data();
+function theme_render_pricing_status_bar() {
+    $data = theme_get_user_active_subscription_data();
 
     if ( ! $data['is_logged_in'] || empty( $data['active_ids'] ) || ! $data['primary_product'] instanceof MeprProduct ) {
         return '';
@@ -443,9 +443,9 @@ function zaher_render_pricing_status_bar() {
             <p class="pricing-status-bar__label">
                 <?php
                 if ( $is_cancelled ) {
-                    esc_html_e( 'Pretplata otkazana', 'zaherpilates' );
+                    esc_html_e( 'Pretplata otkazana', 'foundationpress' );
                 } else {
-                    esc_html_e( 'Tvoja aktivna pretplata', 'zaherpilates' );
+                    esc_html_e( 'Tvoja aktivna pretplata', 'foundationpress' );
                 }
                 ?>
             </p>
@@ -456,7 +456,7 @@ function zaher_render_pricing_status_bar() {
                         <?php
                         printf(
                             /* translators: %d: number of additional active plans */
-                            esc_html( _n( '+ još %d aktivan plan', '+ još %d aktivnih planova', $extra_count, 'zaherpilates' ) ),
+                            esc_html( _n( '+ još %d aktivan plan', '+ još %d aktivnih planova', $extra_count, 'foundationpress' ) ),
                             $extra_count
                         );
                         ?>
@@ -472,13 +472,13 @@ function zaher_render_pricing_status_bar() {
                     if ( $is_cancelled ) {
                         printf(
                             /* translators: %s: date until access remains, in d.m.Y format */
-                            esc_html__( 'Vrijedi do: %s', 'zaherpilates' ),
+                            esc_html__( 'Vrijedi do: %s', 'foundationpress' ),
                             '<strong>' . esc_html( $meta_date ) . '</strong>'
                         );
                     } else {
                         printf(
                             /* translators: %s: next billing date in d.m.Y format */
-                            esc_html__( 'Sljedeći obračun: %s', 'zaherpilates' ),
+                            esc_html__( 'Sljedeći obračun: %s', 'foundationpress' ),
                             '<strong>' . esc_html( $meta_date ) . '</strong>'
                         );
                     }
@@ -489,9 +489,9 @@ function zaher_render_pricing_status_bar() {
         <a class="pricing-status-bar__cta" href="<?php echo esc_url( $manage_url ); ?>">
             <?php
             if ( $is_cancelled ) {
-                esc_html_e( 'Pregledaj pretplatu', 'zaherpilates' );
+                esc_html_e( 'Pregledaj pretplatu', 'foundationpress' );
             } else {
-                esc_html_e( 'Upravljaj pretplatom', 'zaherpilates' );
+                esc_html_e( 'Upravljaj pretplatom', 'foundationpress' );
             }
             ?>
             <span aria-hidden="true">→</span>
@@ -511,11 +511,11 @@ add_filter(
         $prefix     = '';
 
         if ( $is_first ) {
-            $prefix   = zaher_render_pricing_status_bar();
+            $prefix   = theme_render_pricing_status_bar();
             $is_first = false;
         }
 
-        $subscription_data = zaher_get_user_active_subscription_data();
+        $subscription_data = theme_get_user_active_subscription_data();
         $is_current_plan   = $product instanceof MeprProduct
             && in_array( (int) $product->ID, $subscription_data['active_ids'], true );
 
@@ -538,8 +538,8 @@ add_filter(
                 ? $subscription_data['account_url']
                 : home_url( '/' );
             $button_label    = $is_cancelled
-                ? __( 'Pregledaj pretplatu', 'zaherpilates' )
-                : __( 'Upravljaj pretplatom', 'zaherpilates' );
+                ? __( 'Pregledaj pretplatu', 'foundationpress' )
+                : __( 'Upravljaj pretplatom', 'foundationpress' );
             $current_button  = '<div class="mepr-price-box-button mepr-price-box-button--current">';
             $current_button .= '<a class="mepr-price-box-current-manage" href="' . esc_url( $manage_url ) . '">';
             $current_button .= esc_html( $button_label );
@@ -557,13 +557,13 @@ add_filter(
             $output = preg_replace_callback(
                 '#(<div class="mepr-price-box-button">\s*<a\b[^>]*>)(.*?)(</a>\s*</div>)#s',
                 function( $matches ) {
-                    return $matches[1] . esc_html__( 'Prijeđi na ovaj plan', 'zaherpilates' ) . $matches[3];
+                    return $matches[1] . esc_html__( 'Prijeđi na ovaj plan', 'foundationpress' ) . $matches[3];
                 },
                 $output,
                 1
             );
 
-            $savings_text = zaher_get_plan_savings_text( $subscription_data['primary_product'], $product );
+            $savings_text = theme_get_plan_savings_text( $subscription_data['primary_product'], $product );
 
             if ( '' !== $savings_text ) {
                 $savings_html = '<div class="mepr-price-box-savings"><span class="mepr-price-box-savings-icon" aria-hidden="true">↓</span>' . esc_html( $savings_text ) . '</div>';
@@ -595,7 +595,7 @@ add_filter(
 
                 $parts  = preg_split( '#\s*/\s*#', $price, 2 );
                 $amount = preg_replace( '/(?<=\d)\.(?=\d{2}\b)/', ',', trim( $parts[0] ) );
-                $term   = isset( $parts[1] ) ? trim( $parts[1] ) : zaher_get_pricing_price_term( $product );
+                $term   = isset( $parts[1] ) ? trim( $parts[1] ) : theme_get_pricing_price_term( $product );
 
                 $html  = '<div class="mepr-price-box-price">';
                 $html .= '<span class="mepr-price-box-price-amount">' . esc_html( $amount ) . '</span>';
@@ -621,7 +621,7 @@ add_filter(
 
                 if ( $is_note ) {
                     $benefit    = preg_replace( '/^\s*(?:\[note\]|\[price-note\]|\[cijena\])\s*/iu', '', $benefit );
-                    $price_note = zaher_format_price_box_benefit_text( $benefit );
+                    $price_note = theme_format_price_box_benefit_text( $benefit );
 
                     return '';
                 }
@@ -632,7 +632,7 @@ add_filter(
 
                 $class = 'mepr-price-box-benefits-item' . ( $is_muted ? ' is-muted' : '' );
 
-                return '<div class="' . esc_attr( $class ) . '"><span class="mepr-price-box-benefit-text">' . zaher_format_price_box_benefit_text( $benefit ) . '</span></div>';
+                return '<div class="' . esc_attr( $class ) . '"><span class="mepr-price-box-benefit-text">' . theme_format_price_box_benefit_text( $benefit ) . '</span></div>';
             },
             $output
         );

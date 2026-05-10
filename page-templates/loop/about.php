@@ -23,7 +23,7 @@
 
 		<div class="loop-about__right">
 			<figure>
-				<img src="<?php echo get_stylesheet_directory_uri(); ?>/dist/assets/images/ivana-zaher-ver.webp" alt="Ivana Zaher">
+				<img src="<?php echo get_stylesheet_directory_uri(); ?>/dist/assets/images/ivana-theme-ver.webp" alt="Ivana Zaher">
 			</figure>
 		</div>
 

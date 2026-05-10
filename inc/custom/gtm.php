@@ -1,7 +1,7 @@
 <?php
 // GTM u <head>
-add_action('wp_head', 'zaher_add_gtm_head', 1);
-function zaher_add_gtm_head() {
+add_action('wp_head', 'theme_add_gtm_head', 1);
+function theme_add_gtm_head() {
   ?>
   <!-- Google Tag Manager -->
   <script>

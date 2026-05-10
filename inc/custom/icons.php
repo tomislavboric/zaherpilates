@@ -1,5 +1,5 @@
 <?php
-function zaher_lineicon_svg( $name, $class = '' ) {
+function theme_lineicon_svg( $name, $class = '' ) {
 	static $icons = null;
 
 	if ( null === $icons ) {
