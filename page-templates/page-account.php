@@ -341,7 +341,7 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 								$sub = new MeprSubscription( $subscription_row->id );
 								if ( isset( $sub->status ) ) {
 									if ( MeprSubscription::$cancelled_str === $sub->status ) {
-										$status_label = 'Otkazana';
+										$status_label = 'Završava';
 										$status_class = 'cancelled';
 									} elseif ( MeprSubscription::$suspended_str === $sub->status ) {
 										$status_label = 'Zaustavljena';

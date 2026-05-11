@@ -416,38 +416,19 @@ function theme_render_pricing_status_bar() {
     $extra_count  = $count - 1;
     $manage_url   = $data['account_url'] ? $data['account_url'] : home_url( '/' );
     $is_cancelled = ! empty( $data['is_cancelled'] );
-    $bar_classes  = 'pricing-status-bar';
-
-    if ( $is_cancelled ) {
-        $bar_classes .= ' pricing-status-bar--cancelled';
-    }
 
     ob_start();
     ?>
-    <div class="<?php echo esc_attr( $bar_classes ); ?>" role="status">
+    <div class="pricing-status-bar" role="status">
         <div class="pricing-status-bar__icon" aria-hidden="true">
-            <?php if ( $is_cancelled ) : ?>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="8" x2="12" y2="12"></line>
-                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-            <?php else : ?>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <path d="M9 12l2 2 4-4"></path>
-                    <circle cx="12" cy="12" r="10"></circle>
-                </svg>
-            <?php endif; ?>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M9 12l2 2 4-4"></path>
+                <circle cx="12" cy="12" r="10"></circle>
+            </svg>
         </div>
         <div class="pricing-status-bar__copy">
             <p class="pricing-status-bar__label">
-                <?php
-                if ( $is_cancelled ) {
-                    esc_html_e( 'Pretplata otkazana', 'foundationpress' );
-                } else {
-                    esc_html_e( 'Tvoja aktivna pretplata', 'foundationpress' );
-                }
-                ?>
+                <?php esc_html_e( 'Tvoja aktivna pretplata', 'foundationpress' ); ?>
             </p>
             <p class="pricing-status-bar__plan">
                 <strong><?php echo esc_html( $plan_title ); ?></strong>
@@ -471,8 +452,8 @@ function theme_render_pricing_status_bar() {
                     <?php
                     if ( $is_cancelled ) {
                         printf(
-                            /* translators: %s: date until access remains, in d.m.Y format */
-                            esc_html__( 'Vrijedi do: %s', 'foundationpress' ),
+                            /* translators: %s: date subscription ends, in d.m.Y format */
+                            esc_html__( 'Završava %s', 'foundationpress' ),
                             '<strong>' . esc_html( $meta_date ) . '</strong>'
                         );
                     } else {
@@ -487,13 +468,7 @@ function theme_render_pricing_status_bar() {
             <?php endif; ?>
         </div>
         <a class="pricing-status-bar__cta" href="<?php echo esc_url( $manage_url ); ?>">
-            <?php
-            if ( $is_cancelled ) {
-                esc_html_e( 'Pregledaj pretplatu', 'foundationpress' );
-            } else {
-                esc_html_e( 'Upravljaj pretplatom', 'foundationpress' );
-            }
-            ?>
+            <?php esc_html_e( 'Upravljaj pretplatom', 'foundationpress' ); ?>
             <span aria-hidden="true">→</span>
         </a>
     </div>
@@ -520,16 +495,9 @@ add_filter(
             && in_array( (int) $product->ID, $subscription_data['active_ids'], true );
 
         if ( $is_current_plan ) {
-            $is_cancelled    = ! empty( $subscription_data['is_cancelled'] );
-            $current_classes = 'mepr-price-box is-current-plan';
-
-            if ( $is_cancelled ) {
-                $current_classes .= ' is-cancelled';
-            }
-
             $output = preg_replace(
                 '/class="mepr-price-box([^"]*)"/',
-                'class="' . $current_classes . '$1"',
+                'class="mepr-price-box is-current-plan$1"',
                 $output,
                 1
             );
@@ -537,9 +505,7 @@ add_filter(
             $manage_url      = $subscription_data['account_url']
                 ? $subscription_data['account_url']
                 : home_url( '/' );
-            $button_label    = $is_cancelled
-                ? __( 'Pregledaj pretplatu', 'foundationpress' )
-                : __( 'Upravljaj pretplatom', 'foundationpress' );
+            $button_label    = __( 'Upravljaj pretplatom', 'foundationpress' );
             $current_button  = '<div class="mepr-price-box-button mepr-price-box-button--current">';
             $current_button .= '<a class="mepr-price-box-current-manage" href="' . esc_url( $manage_url ) . '">';
             $current_button .= esc_html( $button_label );
