@@ -161,6 +161,23 @@ $checkout_form_action .= '#mepr_jump';
                 </div>
             <?php endif; ?>
 
+            <?php if ( ! empty( $mepr_options->enable_spc_invoice ) ) : ?>
+                <div class="mepr-transaction-invoice-wrapper mepr-hidden">
+                    <span class="mepr-invoice-loader mepr-hidden">
+                        <img src="<?php echo esc_url( includes_url( 'js/thickbox/loadingAnimation.gif' ) ); ?>"
+                            alt="<?php esc_attr_e( 'Loading...', 'memberpress' ); ?>"
+                            title="<?php echo esc_attr_x( 'Loading icon', 'ui', 'memberpress' ); ?>" width="100" height="10" />
+                    </span>
+                    <div>
+                        <?php
+                        if ( class_exists( 'MeprProductsHelper' ) && method_exists( 'MeprProductsHelper', 'display_spc_invoice' ) ) {
+                            MeprProductsHelper::display_spc_invoice( $product, $mepr_coupon_code_value );
+                        }
+                        ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+
             <?php $checkout_benefits = function_exists( 'theme_get_checkout_benefits' ) ? theme_get_checkout_benefits( $product ) : array(); ?>
             <?php if ( ! empty( $checkout_benefits ) ) : ?>
                 <ul class="mepr-checkout-benefits">

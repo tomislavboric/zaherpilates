@@ -19,6 +19,11 @@ if ( empty( $redirect_to ) || trailingslashit( $redirect_to ) === trailingslashi
 if ( ! empty( $_REQUEST['mepr_process_login_form'] ) && ! empty( $_REQUEST['errors'] ) ) {
 	$errors = array_map( 'wp_kses_post', wp_unslash( $_REQUEST['errors'] ) );
 }
+
+$mepr_options_local = isset( $mepr_options ) && is_object( $mepr_options ) ? $mepr_options : MeprOptions::fetch();
+$login_label        = ! empty( $mepr_options_local->username_is_email )
+	? MeprHooks::apply_filters( 'mepr-login-uname-or-email-str', __( 'E-mail adresa', 'foundationpress' ) )
+	: MeprHooks::apply_filters( 'mepr-login-uname-str', __( 'Korisničko ime', 'foundationpress' ) );
 ?>
 
 <section class="mepr-auth" aria-labelledby="mepr-auth-title">
@@ -82,7 +87,7 @@ if ( ! empty( $_REQUEST['mepr_process_login_form'] ) && ! empty( $_REQUEST['erro
 
 			<form name="mepr_loginform" id="mepr_loginform" class="mepr-auth__form mepro-form" action="<?php echo esc_url( $login_url ); ?>" method="post">
 				<div class="mp-form-row mepr_username mepr-auth__field">
-					<label for="user_login"><?php esc_html_e( 'E-mail adresa', 'foundationpress' ); ?></label>
+					<label for="user_login"><?php echo esc_html( $login_label ); ?></label>
 					<input type="text" name="log" placeholder="<?php esc_attr_e( 'ana@primjer.hr', 'foundationpress' ); ?>" id="user_login" value="<?php echo isset( $_REQUEST['log'] ) ? esc_attr( stripcslashes( wp_unslash( $_REQUEST['log'] ) ) ) : ''; ?>" autocomplete="username" required>
 				</div>
 
