@@ -44,21 +44,21 @@ function theme_handle_account_subscription_action() {
 		exit;
 	}
 
-	$context = theme_get_account_subscription_context( $sub_id );
-	if ( is_wp_error( $context ) ) {
-		wp_safe_redirect( add_query_arg( 'account_error', $context->get_error_code(), $redirect_url ) );
-		exit;
-	}
-
-	$sub = $context['sub'];
-	$pm  = $context['gateway'];
-
-	if ( ! theme_account_subscription_action_available( $action, $sub, $pm ) ) {
-		wp_safe_redirect( add_query_arg( 'account_error', 'not_available', $redirect_url ) );
-		exit;
-	}
-
 	try {
+		$context = theme_get_account_subscription_context( $sub_id );
+		if ( is_wp_error( $context ) ) {
+			wp_safe_redirect( add_query_arg( 'account_error', $context->get_error_code(), $redirect_url ) );
+			exit;
+		}
+
+		$sub = $context['sub'];
+		$pm  = $context['gateway'];
+
+		if ( ! theme_account_subscription_action_available( $action, $sub, $pm ) ) {
+			wp_safe_redirect( add_query_arg( 'account_error', 'not_available', $redirect_url ) );
+			exit;
+		}
+
 		if ( 'cancel' === $action ) {
 			$pm->process_cancel_subscription( $sub->id );
 			$message = 'cancelled';
@@ -72,10 +72,78 @@ function theme_handle_account_subscription_action() {
 
 		wp_safe_redirect( add_query_arg( 'account_message', $message, $redirect_url ) );
 		exit;
-	} catch ( Exception $e ) {
+	} catch ( Throwable $e ) {
+		theme_log_account_subscription_action_error( $action, $sub_id, $e );
+
+		$message = theme_account_subscription_action_success_code( $action );
+		if ( $message && theme_account_subscription_action_was_applied( $action, $sub_id ) ) {
+			wp_safe_redirect( add_query_arg( 'account_message', $message, $redirect_url ) );
+			exit;
+		}
+
 		wp_safe_redirect( add_query_arg( 'account_error', 'action_failed', $redirect_url ) );
 		exit;
 	}
+}
+
+function theme_account_subscription_action_success_code( $action ) {
+	$messages = array(
+		'cancel'  => 'cancelled',
+		'suspend' => 'suspended',
+		'resume'  => 'resumed',
+	);
+
+	$action = sanitize_key( $action );
+
+	return isset( $messages[ $action ] ) ? $messages[ $action ] : '';
+}
+
+function theme_account_subscription_action_was_applied( $action, $sub_id ) {
+	if ( ! class_exists( 'MeprSubscription' ) ) {
+		return false;
+	}
+
+	try {
+		$sub = new MeprSubscription( absint( $sub_id ) );
+		if ( empty( $sub->id ) ) {
+			return false;
+		}
+	} catch ( Throwable $e ) {
+		theme_log_account_subscription_action_error( $action, $sub_id, $e );
+		return false;
+	}
+
+	$status = isset( $sub->status ) ? (string) $sub->status : '';
+
+	if ( 'cancel' === $action ) {
+		return MeprSubscription::$cancelled_str === $status;
+	}
+
+	if ( 'suspend' === $action ) {
+		return MeprSubscription::$suspended_str === $status;
+	}
+
+	if ( 'resume' === $action ) {
+		return MeprSubscription::$active_str === $status;
+	}
+
+	return false;
+}
+
+function theme_log_account_subscription_action_error( $action, $sub_id, Throwable $error ) {
+	if ( ! function_exists( 'error_log' ) ) {
+		return;
+	}
+
+	error_log(
+		sprintf(
+			'Zaher account subscription action failed: action=%s sub_id=%d error=%s message=%s',
+			sanitize_key( $action ),
+			absint( $sub_id ),
+			get_class( $error ),
+			$error->getMessage()
+		)
+	);
 }
 
 function theme_account_notice_text( $type, $code ) {
@@ -177,7 +245,7 @@ function theme_render_account_subscription_action( $action, $sub_id ) {
 						try {
 							$pm->process_update_account_form( $sub->id );
 							$message = 'Podaci za plaćanje su ažurirani.';
-						} catch ( Exception $e ) {
+						} catch ( Throwable $e ) {
 							$errors[] = $e->getMessage();
 						}
 					}

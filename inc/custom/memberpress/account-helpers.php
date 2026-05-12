@@ -444,7 +444,7 @@ function theme_account_stripe_subscription_period_end( $sub ) {
 
 	try {
 		$stripe_sub = $pm->retrieve_subscription( $sub->subscr_id );
-	} catch ( Exception $e ) {
+	} catch ( Throwable $e ) {
 		return '';
 	}
 
@@ -545,6 +545,30 @@ function theme_get_account_subscription_context( $sub_id ) {
 	);
 }
 
+function theme_account_gateway_can( $pm, $capability ) {
+	if ( ! is_object( $pm ) || ! method_exists( $pm, 'can' ) ) {
+		return false;
+	}
+
+	try {
+		return (bool) $pm->can( $capability );
+	} catch ( Throwable $e ) {
+		if ( function_exists( 'error_log' ) ) {
+			error_log(
+				sprintf(
+					'Zaher account gateway capability check failed: gateway=%s capability=%s error=%s message=%s',
+					get_class( $pm ),
+					(string) $capability,
+					get_class( $e ),
+					$e->getMessage()
+				)
+			);
+		}
+	}
+
+	return false;
+}
+
 function theme_account_subscription_action_available( $action, $sub, $pm = null ) {
 	if ( ! $sub instanceof MeprSubscription ) {
 		return false;
@@ -562,8 +586,7 @@ function theme_account_subscription_action_available( $action, $sub, $pm = null 
 				&& ( ! method_exists( $sub, 'in_grace_period' ) || ! $sub->in_grace_period() )
 				&& is_object( $pm )
 				&& ( ! class_exists( 'MeprBaseRealGateway' ) || $pm instanceof MeprBaseRealGateway )
-				&& method_exists( $pm, 'can' )
-				&& $pm->can( 'update-subscriptions' )
+				&& theme_account_gateway_can( $pm, 'update-subscriptions' )
 				&& method_exists( $pm, 'display_update_account_form' );
 
 		case 'upgrade':
@@ -582,8 +605,7 @@ function theme_account_subscription_action_available( $action, $sub, $pm = null 
 				&& ! empty( $mepr_options->allow_cancel_subs )
 				&& MeprSubscription::$active_str === $status
 				&& is_object( $pm )
-				&& method_exists( $pm, 'can' )
-				&& $pm->can( 'cancel-subscriptions' )
+				&& theme_account_gateway_can( $pm, 'cancel-subscriptions' )
 				&& method_exists( $pm, 'process_cancel_subscription' );
 
 		case 'suspend':
@@ -592,8 +614,7 @@ function theme_account_subscription_action_available( $action, $sub, $pm = null 
 				&& MeprSubscription::$active_str === $status
 				&& ( ! method_exists( $sub, 'in_free_trial' ) || ! $sub->in_free_trial() )
 				&& is_object( $pm )
-				&& method_exists( $pm, 'can' )
-				&& $pm->can( 'suspend-subscriptions' )
+				&& theme_account_gateway_can( $pm, 'suspend-subscriptions' )
 				&& method_exists( $pm, 'process_suspend_subscription' );
 
 		case 'resume':
@@ -601,8 +622,7 @@ function theme_account_subscription_action_available( $action, $sub, $pm = null 
 				&& ! empty( $mepr_options->allow_suspend_subs )
 				&& MeprSubscription::$suspended_str === $status
 				&& is_object( $pm )
-				&& method_exists( $pm, 'can' )
-				&& $pm->can( 'suspend-subscriptions' )
+				&& theme_account_gateway_can( $pm, 'suspend-subscriptions' )
 				&& method_exists( $pm, 'process_resume_subscription' );
 	}
 
