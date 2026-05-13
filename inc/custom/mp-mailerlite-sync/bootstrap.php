@@ -4,61 +4,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( class_exists( 'MPMLS_MemberPress_Hooks' ) || defined( 'MPMLS_BOOTSTRAPPED' ) ) {
-	return;
-}
-
-define( 'MPMLS_BOOTSTRAPPED', true );
-define( 'MPMLS_VERSION', '1.0.0' );
-define( 'MPMLS_PATH', trailingslashit( get_stylesheet_directory() ) . 'inc/custom/mp-mailerlite-sync/' );
-define( 'MPMLS_URL', trailingslashit( get_stylesheet_directory_uri() ) . 'inc/custom/mp-mailerlite-sync/' );
-define( 'MPMLS_OPTION_KEY', 'mpmls_settings' );
-
-class MPMLS_Logger {
-	public static function table_name() {
-		global $wpdb;
-		return $wpdb->prefix . 'mpmls_logs';
-	}
-
-	public static function is_enabled() {
-		$settings = get_option( MPMLS_OPTION_KEY, array() );
-		return ! empty( $settings['logging_enabled'] );
-	}
-
-	public static function log( $data ) {
-		if ( ! self::is_enabled() ) {
-			return;
-		}
-
-		global $wpdb;
-		$table = self::table_name();
-
-		$wpdb->insert(
-			$table,
-			array(
-				'created_at'    => current_time( 'mysql' ),
-				'event'         => isset( $data['event'] ) ? (string) $data['event'] : '',
-				'email'         => isset( $data['email'] ) ? (string) $data['email'] : '',
-				'wp_user_id'    => isset( $data['wp_user_id'] ) ? (int) $data['wp_user_id'] : 0,
-				'membership_id' => isset( $data['membership_id'] ) ? (int) $data['membership_id'] : 0,
-				'group_id'      => isset( $data['group_id'] ) ? (string) $data['group_id'] : '',
-				'action'        => isset( $data['action'] ) ? (string) $data['action'] : '',
-				'success'       => ! empty( $data['success'] ) ? 1 : 0,
-				'message'       => isset( $data['message'] ) ? (string) $data['message'] : '',
-			),
-			array( '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%d', '%s' )
-		);
-	}
-}
-
-function mpmls_get_setting( $key, $default = '' ) {
-	$settings = get_option( MPMLS_OPTION_KEY, array() );
-	return isset( $settings[ $key ] ) ? $settings[ $key ] : $default;
-}
-
-function mpmls_activate() {
+function theme_mpmls_ensure_log_table_exists() {
 	global $wpdb;
-	$table = MPMLS_Logger::table_name();
+
+	$table  = $wpdb->prefix . 'mpmls_logs';
+	$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
+
+	if ( $exists === $table ) {
+		return true;
+	}
+
 	$charset_collate = $wpdb->get_charset_collate();
 
 	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -82,15 +37,88 @@ function mpmls_activate() {
 	) {$charset_collate};";
 
 	dbDelta( $sql );
+
+	$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
+
+	return ( $exists === $table );
+}
+
+if ( class_exists( 'MPMLS_MemberPress_Hooks' ) || defined( 'MPMLS_BOOTSTRAPPED' ) ) {
+	add_action( 'init', 'theme_mpmls_ensure_log_table_exists', 1 );
+	add_action( 'admin_init', 'theme_mpmls_ensure_log_table_exists' );
+	return;
+}
+
+define( 'MPMLS_BOOTSTRAPPED', true );
+define( 'MPMLS_VERSION', '1.0.0' );
+define( 'MPMLS_PATH', trailingslashit( get_stylesheet_directory() ) . 'inc/custom/mp-mailerlite-sync/' );
+define( 'MPMLS_URL', trailingslashit( get_stylesheet_directory_uri() ) . 'inc/custom/mp-mailerlite-sync/' );
+define( 'MPMLS_OPTION_KEY', 'mpmls_settings' );
+
+class MPMLS_Logger {
+	private static $table_ready = null;
+
+	public static function table_name() {
+		global $wpdb;
+		return $wpdb->prefix . 'mpmls_logs';
+	}
+
+	public static function is_enabled() {
+		$settings = get_option( MPMLS_OPTION_KEY, array() );
+		return ! empty( $settings['logging_enabled'] );
+	}
+
+	public static function log( $data ) {
+		if ( ! self::is_enabled() ) {
+			return;
+		}
+
+		if ( ! self::ensure_table() ) {
+			return;
+		}
+
+		global $wpdb;
+		$table = self::table_name();
+
+		$wpdb->insert(
+			$table,
+			array(
+				'created_at'    => current_time( 'mysql' ),
+				'event'         => isset( $data['event'] ) ? (string) $data['event'] : '',
+				'email'         => isset( $data['email'] ) ? (string) $data['email'] : '',
+				'wp_user_id'    => isset( $data['wp_user_id'] ) ? (int) $data['wp_user_id'] : 0,
+				'membership_id' => isset( $data['membership_id'] ) ? (int) $data['membership_id'] : 0,
+				'group_id'      => isset( $data['group_id'] ) ? (string) $data['group_id'] : '',
+				'action'        => isset( $data['action'] ) ? (string) $data['action'] : '',
+				'success'       => ! empty( $data['success'] ) ? 1 : 0,
+				'message'       => isset( $data['message'] ) ? (string) $data['message'] : '',
+			),
+			array( '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%d', '%s' )
+		);
+	}
+
+	public static function ensure_table() {
+		if ( null !== self::$table_ready ) {
+			return self::$table_ready;
+		}
+
+		self::$table_ready = theme_mpmls_ensure_log_table_exists();
+
+		return self::$table_ready;
+	}
+}
+
+function mpmls_get_setting( $key, $default = '' ) {
+	$settings = get_option( MPMLS_OPTION_KEY, array() );
+	return isset( $settings[ $key ] ) ? $settings[ $key ] : $default;
+}
+
+function mpmls_activate() {
+	theme_mpmls_ensure_log_table_exists();
 }
 
 function mpmls_ensure_log_table() {
-	global $wpdb;
-	$table = MPMLS_Logger::table_name();
-	$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
-	if ( $exists !== $table ) {
-		mpmls_activate();
-	}
+	MPMLS_Logger::ensure_table();
 }
 
 add_action( 'after_switch_theme', 'mpmls_activate' );

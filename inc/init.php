@@ -82,6 +82,7 @@ require_once( 'custom/memberpress/pricing-helpers.php' );
 require_once( 'custom/memberpress/checkout-popup.php' );
 require_once( 'custom/memberpress/admin-settings.php' );
 require_once( 'custom/memberpress/memberships.php' );
+require_once( 'custom/memberpress/mail-guards.php' );
 require_once( 'custom/memberpress/account-routing.php' );
 require_once( 'custom/memberpress/account-helpers.php' );
 require_once( 'custom/memberpress/account-actions.php' );
