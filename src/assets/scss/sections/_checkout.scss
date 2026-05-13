@@ -1172,6 +1172,14 @@ body.mepr-checkout-surface {
     outline: 3px solid rgba($primary-color, 0.18);
     outline-offset: 2px;
   }
+
+  &[disabled] {
+    color: rgba($white, 0.75);
+    background: $primary-color;
+    cursor: wait;
+    opacity: 1;
+    pointer-events: none;
+  }
 }
 
 .mepr-checkout-container.mp_wrapper .mepr-loading-gif {
