@@ -5,7 +5,7 @@
 
 add_filter( 'pre_wp_mail', 'theme_skip_memberpress_webhook_mail_when_transport_is_unavailable', 10, 2 );
 function theme_skip_memberpress_webhook_mail_when_transport_is_unavailable( $pre_wp_mail, $atts ) {
-	if ( null !== $pre_wp_mail || function_exists( 'mail' ) || ! theme_is_memberpress_gateway_notify_request() ) {
+	if ( null !== $pre_wp_mail || theme_wp_mail_transport_is_available() || ! theme_is_memberpress_gateway_notify_request() ) {
 		return $pre_wp_mail;
 	}
 
@@ -15,6 +15,15 @@ function theme_skip_memberpress_webhook_mail_when_transport_is_unavailable( $pre
 	}
 
 	return false;
+}
+
+function theme_wp_mail_transport_is_available() {
+	if ( function_exists( 'mail' ) ) {
+		return true;
+	}
+
+	// SMTP plugins usually configure PHPMailer here, before wp_mail() calls send().
+	return (bool) has_action( 'phpmailer_init' );
 }
 
 function theme_is_memberpress_gateway_notify_request() {
