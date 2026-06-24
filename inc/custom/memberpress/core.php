@@ -65,6 +65,86 @@ add_action( 'wp', 'theme_apply_minimal_memberpress_checkout_options', 1 );
 
 add_filter( 'mepr-checkout-no-billing-address', '__return_true' );
 
+/**
+ * Replace MemberPress' blunt "You don't have access to purchase this item."
+ * with a friendlier, actionable message when a logged-in member who already
+ * has a subscription in the same group lands on a plan they cannot buy (the
+ * "Promijeni plan" / change-plan dead end). Ordinary visitors who legitimately
+ * lack access are left untouched.
+ *
+ * @param string      $message The default cannot-purchase HTML.
+ * @param MeprProduct $product The product being viewed.
+ * @return string
+ */
+function theme_friendly_cant_purchase_message( $message, $product ) {
+	if ( ! is_user_logged_in() || ! ( $product instanceof MeprProduct ) ) {
+		return $message;
+	}
+
+	// Only intervene when the member already has a subscription in this plan's
+	// group — i.e. they are trying to switch plans, not sign up fresh.
+	if ( ! theme_user_has_subscription_in_product_group( get_current_user_id(), $product ) ) {
+		return $message;
+	}
+
+	$contact_url = home_url( '/kontakt/' );
+
+	$html  = '<div class="account-page__message account-page__message--inline">';
+	$html .= '<p>Ovaj plan trenutno ne možeš odabrati izravno jer već imaš pretplatu u istoj grupi.</p>';
+	$html .= '<p>Da bismo ti promijenili plan bez gubitka uvjeta, javi se Ivani — riješit ćemo prelazak za tebe.</p>';
+	$html .= '<p><a class="button button--small" href="' . esc_url( $contact_url ) . '">Javi se Ivani</a></p>';
+	$html .= '</div>';
+
+	return $html;
+}
+
+add_filter( 'mepr-membership-cant-purchase-string', 'theme_friendly_cant_purchase_message', 20, 2 );
+
+/**
+ * Determine whether a user has any subscription (active, cancelled-but-valid,
+ * etc.) tied to a product that belongs to the same group as $product.
+ *
+ * @param int         $user_id User ID.
+ * @param MeprProduct $product Product whose group we compare against.
+ * @return bool
+ */
+function theme_user_has_subscription_in_product_group( $user_id, $product ) {
+	if ( ! $user_id || ! class_exists( 'MeprUser' ) || ! method_exists( $product, 'group' ) ) {
+		return false;
+	}
+
+	$group = $product->group();
+
+	if ( ! $group || empty( $group->ID ) || ! method_exists( $group, 'products' ) ) {
+		return false;
+	}
+
+	$group_product_ids = array();
+	foreach ( (array) $group->products() as $group_product ) {
+		if ( $group_product instanceof MeprProduct ) {
+			$group_product_ids[ (int) $group_product->ID ] = true;
+		}
+	}
+
+	if ( empty( $group_product_ids ) ) {
+		return false;
+	}
+
+	// Product IDs the user currently holds (non-expired transactions), which
+	// includes cancelled-but-still-valid subscriptions — exactly the case we
+	// want to catch.
+	$user           = new MeprUser( $user_id );
+	$active_prod_ids = (array) $user->active_product_subscriptions( 'ids' );
+
+	foreach ( $active_prod_ids as $prod_id ) {
+		if ( isset( $group_product_ids[ (int) $prod_id ] ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 function theme_memberpress_stripe_elements_appearance( $appearance ) {
     $appearance = is_array( $appearance ) ? $appearance : array();
 
