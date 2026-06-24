@@ -82,6 +82,101 @@ add_filter( 'mepr-checkout-no-billing-address', '__return_true' );
  */
 add_filter( 'mepr-allow-multiple-upgrades-downgrades', '__return_true' );
 
+/**
+ * Credit the amount already paid for the current plan when upgrading/downgrading
+ * within a group.
+ *
+ * MemberPress' default proration credits only the monetary value of the days
+ * still REMAINING in the current billing/trial period. For a member who is near
+ * the end of a (pro-rated) period that credit collapses toward zero, so an
+ * upgrade ends up charging almost the full new-plan price even though the member
+ * has already paid for the current plan.
+ *
+ * Our business rule is simpler and more generous: credit the total amount the
+ * member has actually paid for their current subscription, and charge only the
+ * difference up front (new plan price minus what they already paid). The new
+ * plan then continues to renew at its normal price.
+ *
+ * Hooking `mepr-proration` covers both the displayed checkout total and the
+ * actual first charge taken by the gateway, because both derive from the
+ * subscription's trial_amount produced here. See MeprSubscription::maybe_prorate().
+ *
+ * @param object             $prorations Object with `proration` (float) and `days` (int).
+ * @param float              $old_amount Old plan single-period amount.
+ * @param float              $new_amount New plan price (the up-front reference amount).
+ * @param int|string         $old_period Old period length in days (or 'lifetime').
+ * @param int|string         $new_period New period length in days (or 'lifetime').
+ * @param int|string         $old_days_left Days left on the old subscription.
+ * @param MeprSubscription|false $old_sub The current/old subscription.
+ * @param MeprSubscription|false $new_sub The new subscription being purchased.
+ * @param bool               $reset_period Whether the group resets the billing period.
+ * @return object
+ */
+function theme_proration_credit_amount_paid(
+	$prorations,
+	$old_amount,
+	$new_amount,
+	$old_period,
+	$new_period,
+	$old_days_left,
+	$old_sub,
+	$new_sub,
+	$reset_period
+) {
+	// Only handle recurring-to-recurring upgrades where we have a real old sub.
+	if ( ! ( $old_sub instanceof MeprSubscription ) || empty( $old_sub->id ) ) {
+		return $prorations;
+	}
+
+	// The override only takes effect when days > 0 (see maybe_prorate()), so we
+	// need a positive period to attach the prorated first charge to.
+	$days = is_numeric( $new_period ) ? (int) $new_period : (int) ( $prorations->days ?? 0 );
+
+	if ( $days <= 0 ) {
+		return $prorations;
+	}
+
+	$amount_paid = theme_subscription_total_paid( $old_sub->id );
+
+	// Charge only the difference between the new plan price and what was already
+	// paid, never less than zero (Stripe rejects negative amounts).
+	$prorations->proration = max( (float) $new_amount - $amount_paid, 0.00 );
+	$prorations->days      = $days;
+
+	return $prorations;
+}
+
+add_filter( 'mepr-proration', 'theme_proration_credit_amount_paid', 10, 9 );
+
+/**
+ * Sum the total amount actually paid for a subscription (completed/confirmed
+ * transactions), mirroring how MemberPress totals revenue (t.total includes tax).
+ *
+ * @param int $subscription_id Subscription ID.
+ * @return float
+ */
+function theme_subscription_total_paid( $subscription_id ) {
+	global $wpdb;
+
+	if ( ! class_exists( 'MeprTransaction' ) || ! class_exists( 'MeprDb' ) ) {
+		return 0.00;
+	}
+
+	$mepr_db = new MeprDb();
+
+	$total = $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT SUM(t.total) FROM {$mepr_db->transactions} AS t
+			 WHERE t.subscription_id = %d AND t.status IN ( %s, %s )",
+			(int) $subscription_id,
+			MeprTransaction::$complete_str,
+			MeprTransaction::$confirmed_str
+		)
+	);
+
+	return (float) $total;
+}
+
 function theme_memberpress_stripe_elements_appearance( $appearance ) {
     $appearance = is_array( $appearance ) ? $appearance : array();
 
