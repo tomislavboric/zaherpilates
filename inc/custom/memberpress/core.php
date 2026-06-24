@@ -65,6 +65,101 @@ add_action( 'wp', 'theme_apply_minimal_memberpress_checkout_options', 1 );
 
 add_filter( 'mepr-checkout-no-billing-address', '__return_true' );
 
+/**
+ * Allow members to upgrade/downgrade their plan at any time, even while still
+ * inside the pro-rated trial window created by a previous plan change.
+ *
+ * By default MemberPress blocks a new upgrade/downgrade when the member's
+ * current subscription in the group is a pro-rated trial that is still running
+ * (see MeprProduct::can_you_buy_me(), the prorated_trial + in_trial() guard).
+ * That is what produced the "You don't have access to purchase this item."
+ * message for an active member trying to change plans shortly after a previous
+ * change. Our business rule is that plan changes should always be available, so
+ * we lift that restriction.
+ *
+ * @param bool $allow Whether MemberPress permits the change (default false).
+ * @return bool
+ */
+add_filter( 'mepr-allow-multiple-upgrades-downgrades', '__return_true' );
+
+/**
+ * Credit the unused portion of the current plan when changing plans within a
+ * group, and charge only the difference up front.
+ *
+ * With the group's "Reset billing period" enabled, MemberPress' default
+ * proration prorates BOTH sides over the new (full) period, which collapses the
+ * credit to zero and charges the full new-plan price. That ignores what the
+ * member already paid for the days they have NOT yet used on their current plan.
+ *
+ * Our business rule: credit the value of the days still remaining on the current
+ * plan — `current_period_price * (days_left / days_in_period)` — and charge
+ * `new_plan_price - credit` today. The new plan then renews at its normal price.
+ *
+ * The three values we need are already provided to this filter:
+ *   - $old_amount    : the current plan's single-period price (what was paid for
+ *                      the running period, or its trial amount while in trial),
+ *   - $old_period    : the length of the current period in days,
+ *   - $old_days_left : the unused (remaining) days of the current period.
+ *
+ * Hooking `mepr-proration` covers both the displayed checkout total and the
+ * actual first charge taken by the gateway, because both derive from the
+ * subscription's trial_amount produced here. See MeprSubscription::maybe_prorate().
+ *
+ * @param object             $prorations Object with `proration` (float) and `days` (int).
+ * @param float              $old_amount Old plan single-period amount.
+ * @param float              $new_amount New plan price (the up-front reference amount).
+ * @param int|string         $old_period Old period length in days (or 'lifetime').
+ * @param int|string         $new_period New period length in days (or 'lifetime').
+ * @param int|string         $old_days_left Unused days left on the old subscription.
+ * @param MeprSubscription|false $old_sub The current/old subscription.
+ * @param MeprSubscription|false $new_sub The new subscription being purchased.
+ * @param bool               $reset_period Whether the group resets the billing period.
+ * @return object
+ */
+function theme_proration_credit_unused_days(
+	$prorations,
+	$old_amount,
+	$new_amount,
+	$old_period,
+	$new_period,
+	$old_days_left,
+	$old_sub,
+	$new_sub,
+	$reset_period
+) {
+	// Only handle recurring-to-recurring changes where we have a real old sub
+	// and numeric periods to prorate over.
+	if ( ! ( $old_sub instanceof MeprSubscription ) || empty( $old_sub->id ) ) {
+		return $prorations;
+	}
+
+	if ( ! is_numeric( $old_period ) || (int) $old_period <= 0 || ! is_numeric( $old_days_left ) ) {
+		return $prorations;
+	}
+
+	// The override only takes effect when days > 0 (see maybe_prorate()), so the
+	// prorated first charge needs a positive period to attach to.
+	$days = is_numeric( $new_period ) ? (int) $new_period : (int) ( $prorations->days ?? 0 );
+
+	if ( $days <= 0 ) {
+		return $prorations;
+	}
+
+	// Value of the days the member has NOT yet used on the current plan, clamped
+	// so we never credit more than a full period.
+	$days_left = max( 0, min( (int) $old_days_left, (int) $old_period ) );
+	$credit    = (float) $old_amount * ( $days_left / (int) $old_period );
+
+	// Charge the new plan price minus that credit, never below zero (Stripe
+	// rejects negative amounts).
+	$prorations->proration = max( (float) $new_amount - $credit, 0.00 );
+	$prorations->days      = $days;
+
+	return $prorations;
+}
+
+add_filter( 'mepr-proration', 'theme_proration_credit_unused_days', 10, 9 );
+
 function theme_memberpress_stripe_elements_appearance( $appearance ) {
     $appearance = is_array( $appearance ) ? $appearance : array();
 
