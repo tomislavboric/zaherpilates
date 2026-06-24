@@ -3,6 +3,59 @@
  * MemberPress pricing & price-box helpers.
  */
 
+/**
+ * Rewrite MemberPress' machine-translated proration price string into natural
+ * Croatian.
+ *
+ * The default output reads like "3 Mjeseca za €49.61 (proration), poslije
+ * €79.99 / 3 Mjeseca" or "183 Dana za €147.29 (proration), poslije €149.99 / 6
+ * Mjeseci" — it leaks the English "(proration)" and renders the first period in
+ * raw days. For a prorated change we instead build:
+ * "€49,61 za prijelaz, zatim €79,99 / <term>".
+ *
+ * Only proration strings are touched; every other price string is returned
+ * untouched.
+ *
+ * @param string $price_str   The composed price string.
+ * @param mixed  $obj         MeprSubscription|MeprProduct the string describes.
+ * @param bool   $show_symbol Whether currency symbols are shown.
+ * @return string
+ */
+function theme_natural_proration_price_string( $price_str, $obj, $show_symbol = true ) {
+    // Only act on a prorated change, where MemberPress set up a prorated trial.
+    if ( ! ( $obj instanceof MeprSubscription ) || empty( $obj->prorated_trial ) || (int) $obj->trial_days <= 0 ) {
+        return $price_str;
+    }
+
+    $today_amount = isset( $obj->trial_total ) && (float) $obj->trial_total > 0
+        ? (float) $obj->trial_total
+        : (float) $obj->trial_amount;
+
+    $regular_amount = (float) $obj->price;
+    $product        = method_exists( $obj, 'product' ) ? $obj->product() : false;
+    $term           = ( $product instanceof MeprProduct ) ? theme_get_pricing_price_term( $product ) : '';
+
+    $regular = '' !== $term
+        ? sprintf( '%s / %s', theme_format_eur_amount( $regular_amount ), $term )
+        : theme_format_eur_amount( $regular_amount );
+
+    /* translators: 1: amount due today, 2: regular price with term, e.g. "€79,99 / 3 mjeseca" */
+    $new_str = sprintf(
+        __( '%1$s za prijelaz, zatim %2$s', 'foundationpress' ),
+        theme_format_eur_amount( $today_amount ),
+        $regular
+    );
+
+    // Preserve any trailing coupon note MemberPress appended.
+    if ( preg_match( '/\s(?:with coupon|uz kupon|sa kuponom)\s+\S+\s*$/iu', $price_str, $m ) ) {
+        $new_str .= $m[0];
+    }
+
+    return $new_str;
+}
+
+add_filter( 'mepr-price-string', 'theme_natural_proration_price_string', 20, 3 );
+
 function theme_get_billing_period_text( $product ) {
     if ( ! $product instanceof MeprProduct || $product->is_one_time_payment() ) {
         return '';
