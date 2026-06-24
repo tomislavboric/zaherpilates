@@ -127,13 +127,27 @@ function theme_proration_credit_unused_days(
 	$new_sub,
 	$reset_period
 ) {
+	// TEMP DEBUG: confirm the filter fires and with what values. Remove after diagnosis.
+	theme_proration_debug_log( 'mepr-proration FIRED', array(
+		'old_amount'    => $old_amount,
+		'new_amount'    => $new_amount,
+		'old_period'    => $old_period,
+		'new_period'    => $new_period,
+		'old_days_left' => $old_days_left,
+		'old_sub_id'    => ( $old_sub instanceof MeprSubscription ) ? $old_sub->id : 'not-a-sub',
+		'reset_period'  => $reset_period,
+		'default_in'    => isset( $prorations->proration ) ? $prorations->proration : null,
+	) );
+
 	// Only handle recurring-to-recurring changes where we have a real old sub
 	// and numeric periods to prorate over.
 	if ( ! ( $old_sub instanceof MeprSubscription ) || empty( $old_sub->id ) ) {
+		theme_proration_debug_log( 'mepr-proration BAILED: no old sub', array() );
 		return $prorations;
 	}
 
 	if ( ! is_numeric( $old_period ) || (int) $old_period <= 0 || ! is_numeric( $old_days_left ) ) {
+		theme_proration_debug_log( 'mepr-proration BAILED: bad period/days', array( 'old_period' => $old_period, 'old_days_left' => $old_days_left ) );
 		return $prorations;
 	}
 
@@ -142,6 +156,7 @@ function theme_proration_credit_unused_days(
 	$days = is_numeric( $new_period ) ? (int) $new_period : (int) ( $prorations->days ?? 0 );
 
 	if ( $days <= 0 ) {
+		theme_proration_debug_log( 'mepr-proration BAILED: days <= 0', array( 'days' => $days ) );
 		return $prorations;
 	}
 
@@ -155,10 +170,90 @@ function theme_proration_credit_unused_days(
 	$prorations->proration = max( (float) $new_amount - $credit, 0.00 );
 	$prorations->days      = $days;
 
+	theme_proration_debug_log( 'mepr-proration APPLIED', array(
+		'credit'       => $credit,
+		'new_proration'=> $prorations->proration,
+		'days'         => $days,
+	) );
+
 	return $prorations;
 }
 
 add_filter( 'mepr-proration', 'theme_proration_credit_unused_days', 10, 9 );
+
+/**
+ * TEMP DEBUG: write a line to a debug file in uploads. Remove with the rest of
+ * the temporary proration debugging once diagnosed.
+ */
+function theme_proration_debug_log( $label, $data ) {
+	$upload = wp_upload_dir();
+	$file   = trailingslashit( $upload['basedir'] ) . 'proration-debug.log';
+	$line   = '[' . gmdate( 'Y-m-d H:i:s' ) . '] ' . $label . ' ' . wp_json_encode( $data ) . "\n";
+	@file_put_contents( $file, $line, FILE_APPEND | LOCK_EX );
+}
+
+/**
+ * TEMP DEBUG: on a MemberPress checkout page, log whether MemberPress would even
+ * run proration for the current logged-in member (the maybe_prorate gate). This
+ * catches the case where the mepr-proration filter never fires. Remove after
+ * diagnosis.
+ */
+add_action(
+	'wp',
+	function () {
+		if ( is_admin() || ! is_user_logged_in() ) {
+			return;
+		}
+		if ( ! function_exists( 'theme_is_memberpress_checkout_context' ) || ! theme_is_memberpress_checkout_context() ) {
+			return;
+		}
+		if ( ! class_exists( 'MeprProduct' ) || ! is_singular( MeprProduct::$cpt ) ) {
+			return;
+		}
+
+		$product = new MeprProduct( get_queried_object_id() );
+		$user    = MeprUtils::get_currentuserinfo();
+		$opts    = MeprOptions::fetch();
+
+		$info = array(
+			'product_id'         => $product->ID,
+			'product'            => $product->post_title,
+			'pro_rated_upgrades' => $opts->pro_rated_upgrades,
+			'user_id'            => $user ? $user->ID : 0,
+		);
+
+		$group = method_exists( $product, 'group' ) ? $product->group() : false;
+		$info['group_id']         = $group ? $group->ID : 'none';
+		$info['group_is_up_path'] = ( $group && method_exists( $group, 'is_upgrade_path' ) ) ? $group->is_upgrade_path() : 'n/a';
+
+		if ( $user && $group ) {
+			$sig = $user->subscription_in_group( $group->ID );
+			if ( $sig instanceof MeprSubscription ) {
+				$info['sub_in_group_id']     = $sig->id;
+				$info['sub_in_group_status'] = $sig->status;
+				$info['sub_in_group_product']= $sig->product_id;
+				$info['sub_in_free_trial']   = method_exists( $sig, 'in_free_trial' ) ? $sig->in_free_trial() : 'n/a';
+				$info['sub_days_in_period']  = method_exists( $sig, 'days_in_this_period' ) ? $sig->days_in_this_period() : 'n/a';
+				$info['sub_days_left']       = method_exists( $sig, 'days_till_expiration' ) ? $sig->days_till_expiration() : 'n/a';
+			} else {
+				$info['sub_in_group'] = 'NONE FOUND';
+			}
+		}
+
+		// All of the user's subscriptions, to see status/group of the current one.
+		if ( $user && method_exists( $user, 'subscriptions' ) ) {
+			$subs = array();
+			foreach ( (array) $user->subscriptions() as $s ) {
+				$so = ( $s instanceof MeprSubscription ) ? $s : new MeprSubscription( is_object( $s ) ? $s->id : $s );
+				$subs[] = array( 'id' => $so->id, 'product' => $so->product_id, 'status' => $so->status );
+			}
+			$info['all_subs'] = $subs;
+		}
+
+		theme_proration_debug_log( 'CHECKOUT GATE', $info );
+	},
+	999
+);
 
 function theme_memberpress_stripe_elements_appearance( $appearance ) {
     $appearance = is_array( $appearance ) ? $appearance : array();
