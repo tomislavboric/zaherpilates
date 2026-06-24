@@ -65,6 +65,23 @@ add_action( 'wp', 'theme_apply_minimal_memberpress_checkout_options', 1 );
 
 add_filter( 'mepr-checkout-no-billing-address', '__return_true' );
 
+/**
+ * Allow members to upgrade/downgrade their plan at any time, even while still
+ * inside the pro-rated trial window created by a previous plan change.
+ *
+ * By default MemberPress blocks a new upgrade/downgrade when the member's
+ * current subscription in the group is a pro-rated trial that is still running
+ * (see MeprProduct::can_you_buy_me(), the prorated_trial + in_trial() guard).
+ * That is what produced the "You don't have access to purchase this item."
+ * message for an active member trying to change plans shortly after a previous
+ * change. Our business rule is that plan changes should always be available, so
+ * we lift that restriction.
+ *
+ * @param bool $allow Whether MemberPress permits the change (default false).
+ * @return bool
+ */
+add_filter( 'mepr-allow-multiple-upgrades-downgrades', '__return_true' );
+
 function theme_memberpress_stripe_elements_appearance( $appearance ) {
     $appearance = is_array( $appearance ) ? $appearance : array();
 
