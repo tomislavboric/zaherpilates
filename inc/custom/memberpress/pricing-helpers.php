@@ -323,6 +323,63 @@ function theme_get_plan_savings_text( $current_product, $other_product ) {
     return sprintf( __( 'Štediš %s godišnje', 'foundationpress' ), theme_format_eur_amount( $annual_savings ) );
 }
 
+/**
+ * Compute the prorated "due today" amount for the current member switching to
+ * $product, exactly as the checkout will charge it.
+ *
+ * Builds a throwaway subscription for the target product owned by the current
+ * user and runs MemberPress' own maybe_prorate(), which goes through the same
+ * mepr-proration filter as checkout — so the displayed amount matches the
+ * checkout total to the cent. Returns null when no proration applies (e.g. not
+ * an in-group upgrade/downgrade, or member would pay full price anyway).
+ *
+ * @param MeprProduct $product Target plan.
+ * @return array|null { amount: float, days: int, full_price: float } or null.
+ */
+function theme_get_plan_proration_for_current_user( $product ) {
+    if ( ! ( $product instanceof MeprProduct ) || empty( $product->ID ) ) {
+        return null;
+    }
+
+    if ( ! is_user_logged_in() || ! class_exists( 'MeprSubscription' ) || ! class_exists( 'MeprUtils' ) ) {
+        return null;
+    }
+
+    $user = MeprUtils::get_currentuserinfo();
+
+    if ( ! $user || empty( $user->ID ) ) {
+        return null;
+    }
+
+    // Mirror the checkout: a fresh subscription for this product, owned by the
+    // current user, then let MemberPress prorate it.
+    $sub             = new MeprSubscription();
+    $sub->user_id    = (int) $user->ID;
+    $sub->product_id = (int) $product->ID;
+    $sub->price      = (float) $product->price;
+    $sub->period     = $product->period;
+    $sub->period_type = $product->period_type;
+
+    if ( ! method_exists( $sub, 'maybe_prorate' ) ) {
+        return null;
+    }
+
+    $sub->maybe_prorate();
+
+    // maybe_prorate() only sets a prorated trial when proration actually applies.
+    if ( empty( $sub->prorated_trial ) || (int) $sub->trial_days <= 0 ) {
+        return null;
+    }
+
+    $amount = isset( $sub->trial_total ) ? (float) $sub->trial_total : (float) $sub->trial_amount;
+
+    return array(
+        'amount'     => $amount,
+        'days'       => (int) $sub->trial_days,
+        'full_price' => (float) $product->price,
+    );
+}
+
 function theme_get_user_active_subscription_data() {
     $data = array(
         'is_logged_in'    => false,
@@ -537,6 +594,34 @@ add_filter(
                 $output = preg_replace(
                     '#(</div>)(\s*<div class="mepr-price-box-button"\b)#s',
                     '$1' . $savings_html . '$2',
+                    $output,
+                    1
+                );
+            }
+
+            // Show the actual prorated "due today" amount, matching the checkout.
+            $proration = theme_get_plan_proration_for_current_user( $product );
+
+            if ( null !== $proration ) {
+                $today_amount = theme_format_eur_amount( $proration['amount'] );
+                $full_price   = theme_format_eur_amount( $proration['full_price'] );
+                $term         = theme_get_pricing_price_term( $product );
+                $after_text   = '' !== $term
+                    /* translators: 1: full plan price, 2: billing term, e.g. "6 mjeseci" */
+                    ? sprintf( __( 'Nakon toga %1$s / %2$s', 'foundationpress' ), $full_price, $term )
+                    /* translators: %s: full plan price */
+                    : sprintf( __( 'Nakon toga %s', 'foundationpress' ), $full_price );
+
+                $proration_html  = '<div class="mepr-price-box-proration">';
+                $proration_html .= '<span class="mepr-price-box-proration-today">' . esc_html( sprintf( __( 'Danas %s', 'foundationpress' ), $today_amount ) ) . '</span>';
+                $proration_html .= '<span class="mepr-price-box-proration-note">' . esc_html__( 'za preostali dio trenutnog razdoblja', 'foundationpress' ) . '</span>';
+                $proration_html .= '<span class="mepr-price-box-proration-after">' . esc_html( $after_text ) . '</span>';
+                $proration_html .= '</div>';
+
+                // Place it right after the price block.
+                $output = preg_replace(
+                    '#(<div class="mepr-price-box-price">.*?</div>)#s',
+                    '$1' . $proration_html,
                     $output,
                     1
                 );
