@@ -2,7 +2,7 @@
 	<div class="grid-container">
 		<div class="hero__content">
 			<header class="hero__header">
-				<h1 class="hero__title">LOOP - Tjelovježba za svaku fazu tvoj ciklusa i najzatrpaniji raspored</h1>
+				<h1 class="hero__title">LOOP - Tjelovježba za svaku fazu tvog ciklusa i najzatrpaniji raspored</h1>
 				<div class="hero__desc">
 					<p>Čak i onda kad imaš samo 15 minuta</p>
 				</div>
