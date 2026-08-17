@@ -43,7 +43,9 @@ class MPMLS_MemberPress_Hooks {
 	}
 
 	public function handle_subscription_expired( $subscription, $transaction = null ) {
-		$this->process_deactivation( 'subscription_expired', $subscription, $transaction );
+		// MemberPress passes a MeprEvent here, not the subscription itself.
+		$sub = $this->get_event_data( $subscription );
+		$this->process_deactivation( 'subscription_expired', $sub, $transaction );
 	}
 
 	public function handle_transaction_completed( $event ) {
@@ -70,7 +72,8 @@ class MPMLS_MemberPress_Hooks {
 		$this->process_activation( 'txn_status_complete', $txn );
 	}
 
-	public function handle_txn_transition_fallback( $txn, $old_status, $new_status ) {
+	public function handle_txn_transition_fallback( $old_status, $new_status, $txn ) {
+		// MemberPress fires this as ( $old_status, $new_status, $txn ).
 		if ( $new_status === $this->get_complete_status() ) {
 			$this->process_activation( 'txn_transition_complete', $txn );
 		}
@@ -93,6 +96,23 @@ class MPMLS_MemberPress_Hooks {
 	protected function process_activation( $event_name, $object ) {
 		$context = $this->build_context( $object );
 		if ( ! $context ) {
+			return;
+		}
+
+		// Only push members who are actually active on this membership.
+		// subscription-created fires before payment, so pending/unpaid signups
+		// are skipped here and picked up by the transaction-completed events.
+		if ( ! $this->is_user_active_on_membership( $context['user_id'], $context['membership_id'] ) ) {
+			MPMLS_Logger::log( array(
+				'event'         => $event_name,
+				'email'         => $context['email'],
+				'wp_user_id'    => $context['user_id'],
+				'membership_id' => $context['membership_id'],
+				'group_id'      => $context['group_id'],
+				'action'        => 'skip',
+				'success'       => 1,
+				'message'       => 'Skipped activation: membership not active yet (pending/unpaid).',
+			) );
 			return;
 		}
 
@@ -150,6 +170,23 @@ class MPMLS_MemberPress_Hooks {
 			return;
 		}
 
+		// MemberPress signup creates a short-lived "confirmed" transaction whose
+		// expiry fires transaction-expired a day later even though the member is
+		// still active. Never deactivate someone who is still active on this plan.
+		if ( $this->is_user_active_on_membership( $context['user_id'], $context['membership_id'] ) ) {
+			MPMLS_Logger::log( array(
+				'event'         => $event_name,
+				'email'         => $context['email'],
+				'wp_user_id'    => $context['user_id'],
+				'membership_id' => $context['membership_id'],
+				'group_id'      => $context['group_id'],
+				'action'        => 'skip',
+				'success'       => 1,
+				'message'       => 'Skipped deactivation: membership still active.',
+			) );
+			return;
+		}
+
 		if ( $this->is_debounced( $context['email'], $context['membership_id'], 'deactivate' ) ) {
 			MPMLS_Logger::log( array(
 				'event'         => $event_name,
@@ -181,16 +218,49 @@ class MPMLS_MemberPress_Hooks {
 			}
 		}
 
+		if ( ! $subscriber_id ) {
+			$this->log_error( $event_name, $context, 'deactivate', 'Could not determine subscriber ID for deactivation.' );
+			return;
+		}
+
+		// Remove from mapped plan groups that are no longer active (including the
+		// group of the plan being deactivated). Groups of plans the member is
+		// still active on (e.g. after a plan change) are kept.
+		$this->remove_from_inactive_mapped_groups( $client, $subscriber_id, $context, $event_name, false, false );
+
+		// Only truly churned members belong in the inactive group: nobody with an
+		// active plan (plan changes), and nobody who never completed a payment.
 		$deactivation_group_id = $this->get_deactivation_group_id( $event_name );
 		if ( $deactivation_group_id ) {
-			if ( ! $subscriber_id ) {
-				$this->log_error( $event_name, $context, 'deactivate', 'Could not determine subscriber ID for expired/cancelled group.' );
-				return;
-			}
-			$result = $client->add_to_group( $subscriber_id, $deactivation_group_id, $context['email'] );
-			if ( is_wp_error( $result ) ) {
-				$this->log_error( $event_name, $context, 'deactivate', $result->get_error_message() );
-				return;
+			$active_membership_ids = $this->get_active_membership_ids_for_user( $context['user_id'] );
+			if ( ! empty( $active_membership_ids ) ) {
+				MPMLS_Logger::log( array(
+					'event'         => $event_name,
+					'email'         => $context['email'],
+					'wp_user_id'    => $context['user_id'],
+					'membership_id' => $context['membership_id'],
+					'group_id'      => $deactivation_group_id,
+					'action'        => 'skip',
+					'success'       => 1,
+					'message'       => 'Skipped inactive group: member still active on another plan.',
+				) );
+			} elseif ( ! $this->user_has_paid_transaction( $context['user_id'] ) ) {
+				MPMLS_Logger::log( array(
+					'event'         => $event_name,
+					'email'         => $context['email'],
+					'wp_user_id'    => $context['user_id'],
+					'membership_id' => $context['membership_id'],
+					'group_id'      => $deactivation_group_id,
+					'action'        => 'skip',
+					'success'       => 1,
+					'message'       => 'Skipped inactive group: no completed payment on record (unpaid signup).',
+				) );
+			} else {
+				$result = $client->add_to_group( $subscriber_id, $deactivation_group_id, $context['email'] );
+				if ( is_wp_error( $result ) ) {
+					$this->log_error( $event_name, $context, 'deactivate', $result->get_error_message() );
+					return;
+				}
 			}
 		}
 
@@ -339,6 +409,16 @@ class MPMLS_MemberPress_Hooks {
 			return array();
 		}
 
+		// Prefer MemberPress' own notion of "active" (handles confirmed txns,
+		// lifetimes, trials, fallback txns) over raw SQL.
+		if ( class_exists( 'MeprUser' ) ) {
+			$user = new MeprUser( (int) $user_id );
+			if ( method_exists( $user, 'active_product_subscriptions' ) ) {
+				$ids = (array) $user->active_product_subscriptions( 'ids', true );
+				return array_values( array_unique( array_map( 'intval', $ids ) ) );
+			}
+		}
+
 		$now   = current_time( 'mysql' );
 		$parts = array();
 
@@ -354,7 +434,9 @@ class MPMLS_MemberPress_Hooks {
 				WHERE s.status = 'active'
 				AND s.user_id = %d";
 			if ( $subscriptions_expires ) {
-				$sql .= ' AND (s.expires_at IS NULL OR s.expires_at = \'\' OR s.expires_at = \'0000-00-00 00:00:00\' OR s.expires_at >= %s)';
+				// Note: no comparison against '' — that is an invalid DATETIME
+				// literal on MySQL 8 and silently kills the whole query.
+				$sql .= ' AND (s.expires_at IS NULL OR s.expires_at = \'0000-00-00 00:00:00\' OR s.expires_at >= %s)';
 				$parts[] = $wpdb->prepare( $sql, $user_id, $now );
 			} else {
 				$parts[] = $wpdb->prepare( $sql, $user_id );
@@ -369,7 +451,7 @@ class MPMLS_MemberPress_Hooks {
 		$sql = "SELECT t.product_id
 			FROM {$wpdb->prefix}mepr_transactions t
 			WHERE t.status IN ('complete', 'confirmed')
-			AND (t.expires_at IS NULL OR t.expires_at = '' OR t.expires_at = '0000-00-00 00:00:00' OR t.expires_at >= %s)
+			AND (t.expires_at IS NULL OR t.expires_at = '0000-00-00 00:00:00' OR t.expires_at >= %s)
 			AND t.user_id = %d";
 		if ( $subscription_id_exists ) {
 			$sql .= ' AND (t.subscription_id IS NULL OR t.subscription_id = 0)';
@@ -384,6 +466,23 @@ class MPMLS_MemberPress_Hooks {
 		$ids = $wpdb->get_col( "SELECT DISTINCT product_id FROM ( {$union} ) active_rows" );
 
 		return array_map( 'intval', $ids );
+	}
+
+	protected function is_user_active_on_membership( $user_id, $membership_id ) {
+		return in_array( (int) $membership_id, $this->get_active_membership_ids_for_user( $user_id ), true );
+	}
+
+	protected function user_has_paid_transaction( $user_id ) {
+		global $wpdb;
+
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		return (bool) $wpdb->get_var( $wpdb->prepare(
+			"SELECT 1 FROM {$wpdb->prefix}mepr_transactions WHERE user_id = %d AND status = 'complete' LIMIT 1",
+			$user_id
+		) );
 	}
 
 	protected function get_active_group_ids_for_user( $user_id ) {
@@ -410,18 +509,29 @@ class MPMLS_MemberPress_Hooks {
 		return array_values( array_unique( $active ) );
 	}
 
-	protected function remove_from_inactive_mapped_groups( $client, $subscriber_id, $context, $event_name ) {
+	protected function remove_from_inactive_mapped_groups( $client, $subscriber_id, $context, $event_name, $keep_current = true, $include_expired_group = true ) {
 		$mapping = $this->get_mapping();
-		if ( empty( $mapping ) ) {
-			return;
-		}
 
 		$active_group_ids = $this->get_active_group_ids_for_user( $context['user_id'] );
-		$active_group_ids[] = (string) $context['group_id'];
+		if ( $keep_current ) {
+			$active_group_ids[] = (string) $context['group_id'];
+		}
 		$active_group_ids = array_values( array_unique( $active_group_ids ) );
 
+		$candidate_group_ids = array();
 		foreach ( $mapping as $membership_id => $group_id ) {
-			$group_id = (string) $group_id;
+			$candidate_group_ids[] = (string) $group_id;
+		}
+		// On activation also clean up the inactive/expired group.
+		if ( $include_expired_group ) {
+			$expired_group_id = $this->get_expired_group_id();
+			if ( $expired_group_id !== '' ) {
+				$candidate_group_ids[] = $expired_group_id;
+			}
+		}
+		$candidate_group_ids = array_values( array_unique( $candidate_group_ids ) );
+
+		foreach ( $candidate_group_ids as $group_id ) {
 			if ( $group_id === '' ) {
 				continue;
 			}

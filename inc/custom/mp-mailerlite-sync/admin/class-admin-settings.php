@@ -1222,7 +1222,7 @@ class MPMLS_Admin_Settings {
 				continue;
 			}
 
-			$this->remove_from_inactive_mapped_groups( $client, $subscriber_id, $user_id, $user->user_email, 'bulk_reconcile' );
+			$this->remove_from_inactive_mapped_groups( $client, $subscriber_id, $user_id, $user->user_email, 'bulk_reconcile', true );
 
 			$synced++;
 			MPMLS_Logger::log( array(
@@ -1285,6 +1285,19 @@ class MPMLS_Admin_Settings {
 				continue;
 			}
 
+			// A member with any active plan (e.g. after a plan change) is not
+			// churned — never put them in the inactive group.
+			if ( ! empty( $this->get_active_membership_ids_for_user( $user_id ) ) ) {
+				$skipped++;
+				continue;
+			}
+
+			// Signups that never completed a payment were never customers.
+			if ( ! $this->user_has_paid_transaction( $user_id ) ) {
+				$skipped++;
+				continue;
+			}
+
 			$fields = $this->build_subscriber_fields( $user, $product_id, $expires_at, 'expired' );
 
 			$subscriber_id = $client->upsert_subscriber( $user->user_email, $fields );
@@ -1319,6 +1332,9 @@ class MPMLS_Admin_Settings {
 				continue;
 			}
 
+			// Strip stale plan groups (member is fully churned at this point).
+			$this->remove_from_inactive_mapped_groups( $client, $subscriber_id, $user_id, $user->user_email, 'bulk_expired_sync' );
+
 			$synced++;
 			MPMLS_Logger::log( array(
 				'event'         => 'bulk_expired_sync',
@@ -1328,7 +1344,7 @@ class MPMLS_Admin_Settings {
 				'group_id'      => $inactive_group_id,
 				'action'        => 'deactivate',
 				'success'       => 1,
-				'message'       => 'Bulk sync: added to inactive group.',
+				'message'       => 'Bulk sync: added to inactive group, removed stale plan groups.',
 			) );
 		}
 
@@ -1467,7 +1483,8 @@ class MPMLS_Admin_Settings {
 				FROM {$subscriptions_table} s
 				WHERE s.status = 'active'";
 			if ( $subscriptions_expires ) {
-				$sql .= ' AND (s.expires_at IS NULL OR s.expires_at = \'\' OR s.expires_at = \'0000-00-00 00:00:00\' OR s.expires_at >= %s)';
+				// No '' comparison: invalid DATETIME literal on MySQL 8.
+				$sql .= ' AND (s.expires_at IS NULL OR s.expires_at = \'0000-00-00 00:00:00\' OR s.expires_at >= %s)';
 			}
 			if ( $user_id ) {
 				$sql .= ' AND s.user_id = %d';
@@ -1490,7 +1507,7 @@ class MPMLS_Admin_Settings {
 		$sql = "SELECT t.user_id, t.product_id, t.expires_at
 			FROM {$wpdb->prefix}mepr_transactions t
 			WHERE t.status IN ('complete', 'confirmed')
-			AND (t.expires_at IS NULL OR t.expires_at = '' OR t.expires_at = '0000-00-00 00:00:00' OR t.expires_at >= %s)";
+			AND (t.expires_at IS NULL OR t.expires_at = '0000-00-00 00:00:00' OR t.expires_at >= %s)";
 		if ( $subscription_id_exists ) {
 			$sql .= ' AND (t.subscription_id IS NULL OR t.subscription_id = 0)';
 		}
@@ -1549,6 +1566,19 @@ class MPMLS_Admin_Settings {
 		return array_values( array_unique( $ids ) );
 	}
 
+	protected function user_has_paid_transaction( $user_id ) {
+		global $wpdb;
+
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		return (bool) $wpdb->get_var( $wpdb->prepare(
+			"SELECT 1 FROM {$wpdb->prefix}mepr_transactions WHERE user_id = %d AND status = 'complete' LIMIT 1",
+			$user_id
+		) );
+	}
+
 	protected function get_active_group_ids_for_user( $user_id ) {
 		$mapping = $this->get_mapping();
 		if ( empty( $mapping ) ) {
@@ -1573,9 +1603,9 @@ class MPMLS_Admin_Settings {
 		return array_values( array_unique( $active ) );
 	}
 
-	protected function remove_from_inactive_mapped_groups( $client, $subscriber_id, $user_id, $email, $event_name ) {
+	protected function remove_from_inactive_mapped_groups( $client, $subscriber_id, $user_id, $email, $event_name, $include_expired_group = false ) {
 		$mapping = $this->get_mapping();
-		if ( empty( $mapping ) ) {
+		if ( empty( $mapping ) && ! $include_expired_group ) {
 			return;
 		}
 
@@ -1585,6 +1615,13 @@ class MPMLS_Admin_Settings {
 		$mapped_group_ids = array();
 		foreach ( $mapping as $group_id ) {
 			$mapped_group_ids[] = (string) $group_id;
+		}
+		// When reconciling active members, also pull them out of the inactive group.
+		if ( $include_expired_group ) {
+			$expired_group_id = (string) mpmls_get_setting( 'expired_group_id', '' );
+			if ( $expired_group_id !== '' ) {
+				$mapped_group_ids[] = $expired_group_id;
+			}
 		}
 		$mapped_group_ids = array_values( array_unique( $mapped_group_ids ) );
 
@@ -1671,7 +1708,6 @@ class MPMLS_Admin_Settings {
 		if ( $transactions_expires ) {
 			$conditions[] = "(t.status IN ('complete', 'confirmed')
 				AND t.expires_at IS NOT NULL
-				AND t.expires_at <> ''
 				AND t.expires_at <> '0000-00-00 00:00:00'
 				AND t.expires_at < %s)";
 		}
