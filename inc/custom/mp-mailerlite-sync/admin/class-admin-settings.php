@@ -15,6 +15,7 @@ class MPMLS_Admin_Settings {
 		add_action( 'wp_ajax_mpmls_disconnect_api', array( $this, 'ajax_disconnect_api' ) );
 		add_action( 'wp_ajax_mpmls_reconcile_active_members', array( $this, 'ajax_reconcile_active_members' ) );
 		add_action( 'wp_ajax_mpmls_sync_expired_members', array( $this, 'ajax_sync_expired_members' ) );
+		add_action( 'wp_ajax_mpmls_prune_groups', array( $this, 'ajax_prune_groups' ) );
 		add_action( 'wp_ajax_mpmls_debug_subscriber', array( $this, 'ajax_debug_subscriber' ) );
 		add_action( 'wp_ajax_mpmls_autosave_sync', array( $this, 'ajax_autosave_sync' ) );
 		add_action( 'admin_post_mpmls_clear_logs', array( $this, 'handle_clear_logs' ) );
@@ -438,6 +439,7 @@ class MPMLS_Admin_Settings {
 					<div class="mpmls-steps">
 						<span class="mpmls-step" data-step="1">1. Active members &rarr; plan groups</span>
 						<span class="mpmls-step" data-step="2">2. Churned members &rarr; inactive group</span>
+						<span class="mpmls-step" data-step="3">3. Group cleanup</span>
 					</div>
 					<div class="mpmls-progress-track"><div class="mpmls-progress-bar" id="mpmls-progress-bar"></div></div>
 					<div class="mpmls-progress-meta">
@@ -803,9 +805,10 @@ class MPMLS_Admin_Settings {
 			$('#mpmls-sync-now').on('click', function(){
 				var $btn = $(this);
 				var nonce = $btn.data('nonce');
-				var totals = { activeSynced: 0, inactiveSynced: 0, skipped: 0, errors: 0 };
+				var totals = { activeSynced: 0, inactiveSynced: 0, pruned: 0, skipped: 0, errors: 0 };
+				var notes = [];
 
-				if (!confirm('Run a full sync now? Active members are placed into their plan groups, churned members into the inactive group.')) {
+				if (!confirm('Run a full sync now? Active members are placed into their plan groups, churned members into the inactive group, and contacts that no longer belong are removed from those groups.')) {
 					return;
 				}
 
@@ -832,26 +835,31 @@ class MPMLS_Admin_Settings {
 					stop();
 				}
 
-				function finish(suffix) {
-					setStep(3);
+				function finish() {
+					setStep(4);
 					setBar(1);
 					$label.text('Finished');
 					$dot.attr('class', 'mpmls-dot is-' + (totals.errors ? 'warn' : 'ok'));
+					var extra = '';
+					$.each(notes, function(i, note){
+						extra += '<span class="mpmls-chip is-message">' + note + '</span>';
+					});
 					$result.html(
 						chip('is-synced', 'Active synced', totals.activeSynced) +
 						chip('is-synced', 'Inactive synced', totals.inactiveSynced) +
 						chip('is-skipped', 'Skipped', totals.skipped) +
+						chip('is-skipped', 'Cleaned', totals.pruned) +
 						chip('is-errors', 'Errors', totals.errors) +
-						(suffix ? '<span class="mpmls-chip is-skipped">' + suffix + '</span>' : '')
+						extra
 					);
 					stop();
 				}
 
-				// Each phase fills half of the bar.
+				// Steps 1 and 2 each fill a third of the bar; cleanup fills the rest.
 				function advance(phase, d) {
 					var fraction = d.total ? (d.processed / d.total) : 1;
-					setBar(phase === 1 ? fraction * 0.5 : 0.5 + fraction * 0.5);
-					$label.text('Step ' + phase + '/2 \u2014 ' + (phase === 1 ? 'active' : 'churned') +
+					setBar((phase - 1 + fraction) / 3);
+					$label.text('Step ' + phase + '/3 \u2014 ' + (phase === 1 ? 'active' : 'churned') +
 						' members: ' + d.processed + ' / ' + d.total);
 				}
 
@@ -871,7 +879,9 @@ class MPMLS_Admin_Settings {
 					$.post(ajaxurl, { action: 'mpmls_sync_expired_members', nonce: nonce, offset: offset }, function(response){
 						if (!response.success) {
 							// No inactive group configured is not fatal - step 2 is simply skipped.
-							finish('Step 2 skipped: ' + response.data.message);
+							notes.push('Step 2 skipped: ' + response.data.message);
+							setStep(3);
+							pruneStep(true);
 							return;
 						}
 						var d = response.data;
@@ -879,7 +889,23 @@ class MPMLS_Admin_Settings {
 						totals.skipped += d.skipped;
 						totals.errors += d.errors;
 						advance(2, d);
-						if (!d.done) { inactiveBatch(d.offset); } else { finish(); }
+						if (!d.done) { inactiveBatch(d.offset); } else { setStep(3); pruneStep(true); }
+					}).fail(function(){ fail('Request failed. Check server logs.'); });
+				}
+
+				function pruneStep(reset) {
+					var payload = { action: 'mpmls_prune_groups', nonce: nonce };
+					if (reset) { payload.reset = 1; }
+					$.post(ajaxurl, payload, function(response){
+						if (!response.success) { fail(response.data.message); return; }
+						var d = response.data;
+						totals.pruned += d.removed || 0;
+						totals.errors += d.errors || 0;
+						if (d.skipped && d.message) { notes.push('Cleanup skipped: ' + d.message); }
+						var fraction = d.groups_total ? (d.groups_done / d.groups_total) : 1;
+						setBar((2 + fraction) / 3);
+						$label.text('Step 3/3 \u2014 group cleanup: ' + (d.groups_done || 0) + ' / ' + (d.groups_total || 0) + ' groups');
+						if (!d.done) { pruneStep(false); } else { finish(); }
 					}).fail(function(){ fail('Request failed. Check server logs.'); });
 				}
 
@@ -1042,6 +1068,79 @@ class MPMLS_Admin_Settings {
 		}
 
 		wp_send_json_success( $result );
+	}
+
+	public function ajax_prune_groups() {
+		check_ajax_referer( 'mpmls_test_connection', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => 'Insufficient permissions.' ) );
+		}
+
+		// Cleanup REMOVES people from live groups based on this site's MemberPress
+		// data, so a stale local/staging copy must never run it.
+		$is_production = ! function_exists( 'wp_get_environment_type' ) || 'production' === wp_get_environment_type();
+		if ( ! apply_filters( 'mpmls_allow_manual_prune', $is_production ) ) {
+			wp_send_json_success( array(
+				'done'         => true,
+				'skipped'      => true,
+				'message'      => 'group cleanup only runs on the production site',
+				'checked'      => 0,
+				'removed'      => 0,
+				'errors'       => 0,
+				'groups_done'  => 0,
+				'groups_total' => 0,
+			) );
+		}
+
+		$engine    = MPMLS_Sync_Engine::instance();
+		$state_key = 'mpmls_manual_prune_' . get_current_user_id();
+
+		if ( ! empty( $_POST['reset'] ) ) {
+			$state = $engine->init_prune_state();
+			if ( is_wp_error( $state ) ) {
+				delete_transient( $state_key );
+				if ( in_array( $state->get_error_code(), array( 'mpmls_prune_guard', 'mpmls_prune_nothing' ), true ) ) {
+					wp_send_json_success( array(
+						'done'         => true,
+						'skipped'      => true,
+						'message'      => $state->get_error_message(),
+						'checked'      => 0,
+						'removed'      => 0,
+						'errors'       => 0,
+						'groups_done'  => 0,
+						'groups_total' => 0,
+					) );
+				}
+				wp_send_json_error( array( 'message' => $state->get_error_message() ) );
+			}
+		} else {
+			$state = get_transient( $state_key );
+			if ( ! is_array( $state ) ) {
+				wp_send_json_error( array( 'message' => 'Cleanup state expired — please run the sync again.' ) );
+			}
+		}
+
+		$step = $engine->run_prune_step( $state, 'manual_sync' );
+		if ( is_wp_error( $step ) ) {
+			delete_transient( $state_key );
+			wp_send_json_error( array( 'message' => $step->get_error_message() ) );
+		}
+
+		if ( ! empty( $step['done'] ) ) {
+			delete_transient( $state_key );
+		} else {
+			set_transient( $state_key, $step['state'], 15 * MINUTE_IN_SECONDS );
+		}
+
+		wp_send_json_success( array(
+			'done'         => (bool) $step['done'],
+			'checked'      => (int) $step['checked'],
+			'removed'      => (int) $step['removed'],
+			'errors'       => (int) $step['errors'],
+			'groups_done'  => (int) $step['groups_done'],
+			'groups_total' => (int) $step['groups_total'],
+		) );
 	}
 
 	public function ajax_debug_subscriber() {
@@ -1343,6 +1442,10 @@ class MPMLS_Admin_Settings {
 			return 'warn';
 		}
 
+		if ( ! empty( $last['note'] ) ) {
+			return 'warn';
+		}
+
 		return 'ok';
 	}
 
@@ -1369,17 +1472,23 @@ class MPMLS_Admin_Settings {
 			'active_skipped'   => 0,
 			'inactive_synced'  => 0,
 			'inactive_skipped' => 0,
+			'pruned'           => 0,
 			'errors'           => 0,
 		) );
 
 		$text = sprintf(
-			'Automatic nightly sync — last run %s: %d active synced, %d inactive synced, %d skipped, %d errors.',
+			'Automatic nightly sync — last run %s: %d active synced, %d inactive synced, %d skipped, %d cleaned out of groups, %d errors.',
 			wp_date( 'j.n.Y H:i', (int) $last['finished'] ),
 			$totals['active_synced'],
 			$totals['inactive_synced'],
 			$totals['active_skipped'] + $totals['inactive_skipped'],
+			$totals['pruned'],
 			$totals['errors']
 		);
+
+		if ( ! empty( $last['note'] ) ) {
+			$text .= ' Cleanup note: ' . $last['note'];
+		}
 
 		if ( ! empty( $last['error'] ) ) {
 			$text .= ' Aborted: ' . $last['error'];

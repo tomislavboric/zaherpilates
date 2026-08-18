@@ -96,6 +96,7 @@ class MPMLS_Auto_Sync {
 				'active_skipped'   => 0,
 				'inactive_synced'  => 0,
 				'inactive_skipped' => 0,
+				'pruned'           => 0,
 				'errors'           => 0,
 			),
 		), false );
@@ -116,6 +117,31 @@ class MPMLS_Auto_Sync {
 
 		$engine = MPMLS_Sync_Engine::instance();
 
+		if ( 'prune' === $state['phase'] ) {
+			$step = $engine->run_prune_step( isset( $state['prune'] ) ? $state['prune'] : array(), 'auto_sync' );
+
+			if ( is_wp_error( $step ) ) {
+				// Cleanup failing (e.g. a token without the groups scope) must
+				// not discard the finished sync phases — note it and wrap up.
+				$state['prune_note'] = $step->get_error_message();
+				$this->finish( $state );
+				return;
+			}
+
+			$state['prune'] = $step['state'];
+			$state['totals']['pruned'] += (int) $step['removed'];
+			$state['totals']['errors'] += (int) $step['errors'];
+
+			if ( ! empty( $step['done'] ) ) {
+				$this->finish( $state );
+				return;
+			}
+
+			update_option( self::STATE_KEY, $state, false );
+			wp_schedule_single_event( time() + self::BATCH_INTERVAL, self::BATCH_HOOK );
+			return;
+		}
+
 		$result = ( 'active' === $state['phase'] )
 			? $engine->run_active_batch( (int) $state['offset'], self::BATCH_SIZE, 'auto_sync' )
 			: $engine->run_inactive_batch( (int) $state['offset'], self::BATCH_SIZE, 'auto_sync' );
@@ -123,7 +149,7 @@ class MPMLS_Auto_Sync {
 		if ( is_wp_error( $result ) ) {
 			// No inactive group configured simply skips the second phase.
 			if ( 'inactive' === $state['phase'] && 'mpmls_no_inactive_group' === $result->get_error_code() ) {
-				$this->finish( $state );
+				$this->enter_prune_phase( $state );
 				return;
 			}
 			$this->finish( $state, $result->get_error_message() );
@@ -144,12 +170,28 @@ class MPMLS_Auto_Sync {
 				$state['phase']  = 'inactive';
 				$state['offset'] = 0;
 			} else {
-				$this->finish( $state );
+				$this->enter_prune_phase( $state );
 				return;
 			}
 		} else {
 			$state['offset'] = (int) $result['offset'];
 		}
+
+		update_option( self::STATE_KEY, $state, false );
+		wp_schedule_single_event( time() + self::BATCH_INTERVAL, self::BATCH_HOOK );
+	}
+
+	protected function enter_prune_phase( $state ) {
+		$prune = MPMLS_Sync_Engine::instance()->init_prune_state();
+
+		if ( is_wp_error( $prune ) ) {
+			$state['prune_note'] = $prune->get_error_message();
+			$this->finish( $state );
+			return;
+		}
+
+		$state['phase'] = 'prune';
+		$state['prune'] = $prune;
 
 		update_option( self::STATE_KEY, $state, false );
 		wp_schedule_single_event( time() + self::BATCH_INTERVAL, self::BATCH_HOOK );
@@ -163,13 +205,17 @@ class MPMLS_Auto_Sync {
 			'active_skipped'   => 0,
 			'inactive_synced'  => 0,
 			'inactive_skipped' => 0,
+			'pruned'           => 0,
 			'errors'           => 0,
 		) );
+
+		$note = isset( $state['prune_note'] ) ? (string) $state['prune_note'] : '';
 
 		update_option( self::LAST_RUN_KEY, array(
 			'finished' => time(),
 			'totals'   => $totals,
 			'error'    => $error_message,
+			'note'     => $note,
 		), false );
 
 		MPMLS_Logger::log( array(
@@ -178,12 +224,14 @@ class MPMLS_Auto_Sync {
 			'action'  => 'summary',
 			'success' => ( '' === $error_message && empty( $totals['errors'] ) ) ? 1 : 0,
 			'message' => sprintf(
-				'Nightly sync finished: active %d synced / %d skipped, inactive %d synced / %d skipped, %d errors.%s',
+				'Nightly sync finished: active %d synced / %d skipped, inactive %d synced / %d skipped, %d removed in cleanup, %d errors.%s%s',
 				$totals['active_synced'],
 				$totals['active_skipped'],
 				$totals['inactive_synced'],
 				$totals['inactive_skipped'],
+				$totals['pruned'],
 				$totals['errors'],
+				'' !== $note ? ' Cleanup note: ' . $note : '',
 				'' !== $error_message ? ' Aborted: ' . $error_message : ''
 			),
 		) );

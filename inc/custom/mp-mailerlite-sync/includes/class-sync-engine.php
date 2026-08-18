@@ -16,6 +16,9 @@ class MPMLS_Sync_Engine {
 
 	protected static $instance = null;
 
+	/** Per-request cache for get_desired_group_emails(). */
+	protected $desired_group_cache = null;
+
 	public static function instance() {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
@@ -453,6 +456,222 @@ class MPMLS_Sync_Engine {
 		}
 
 		return $this->batch_result( $offset, $batch_size, $total, $counts );
+	}
+
+	/* ---------------------------------------- group cleanup (pruning) -- */
+
+	/**
+	* Emails that BELONG in each mapped group, straight from MemberPress:
+	* plan groups get their active members, the inactive group gets churned
+	* paying members. Anyone else found in a group is stale — an old email
+	* address, a manual add, a deleted user or leftovers from earlier bugs —
+	* and is unreachable from the MP-side batches above, so cleanup has to
+	* walk the groups from the MailerLite side.
+	*/
+	public function get_desired_group_emails() {
+		if ( null !== $this->desired_group_cache ) {
+			return $this->desired_group_cache;
+		}
+
+		$mapping = $this->get_mapping();
+		$groups  = array();
+		foreach ( $mapping as $group_id ) {
+			$group_id = (string) $group_id;
+			if ( '' !== $group_id ) {
+				$groups[ $group_id ] = array();
+			}
+		}
+		$inactive_group_id = $this->get_inactive_group_id();
+		if ( '' !== $inactive_group_id && ! isset( $groups[ $inactive_group_id ] ) ) {
+			$groups[ $inactive_group_id ] = array();
+		}
+
+		$active_total = 0;
+		foreach ( $this->get_active_members() as $row ) {
+			$product_id = (int) $row['product_id'];
+			$group_id   = isset( $mapping[ $product_id ] ) ? (string) $mapping[ $product_id ] : '';
+			if ( '' === $group_id ) {
+				continue;
+			}
+			$user = get_userdata( (int) $row['user_id'] );
+			if ( ! $user || empty( $user->user_email ) ) {
+				continue;
+			}
+			$groups[ $group_id ][ strtolower( $user->user_email ) ] = 1;
+			$active_total++;
+		}
+
+		if ( '' !== $inactive_group_id ) {
+			$seen = array();
+			foreach ( $this->get_expired_members() as $row ) {
+				$user_id = (int) $row['user_id'];
+				if ( isset( $seen[ $user_id ] ) ) {
+					continue;
+				}
+				$seen[ $user_id ] = 1;
+				// Same guards as sync_inactive_member(), so cleanup and the
+				// churn batch always agree on who belongs in the group.
+				if ( ! empty( $this->get_active_membership_ids_for_user( $user_id ) ) ) {
+					continue;
+				}
+				if ( ! $this->user_has_paid_transaction( $user_id ) ) {
+					continue;
+				}
+				$user = get_userdata( $user_id );
+				if ( ! $user || empty( $user->user_email ) ) {
+					continue;
+				}
+				$groups[ $inactive_group_id ][ strtolower( $user->user_email ) ] = 1;
+			}
+		}
+
+		$this->desired_group_cache = array(
+			'groups'       => $groups,
+			'active_total' => $active_total,
+		);
+
+		return $this->desired_group_cache;
+	}
+
+	public function init_prune_state() {
+		if ( ! $this->is_configured() ) {
+			return new WP_Error( 'mpmls_not_configured', 'API key or mapping is missing.' );
+		}
+
+		$desired = $this->get_desired_group_emails();
+		if ( empty( $desired['groups'] ) ) {
+			return new WP_Error( 'mpmls_prune_nothing', 'No groups to clean.' );
+		}
+		// Zero active members means the data source itself is suspect (DB
+		// failure, empty staging copy) — refuse to empty live groups from it.
+		if ( $desired['active_total'] < 1 ) {
+			return new WP_Error( 'mpmls_prune_guard', 'Cleanup skipped: MemberPress reports zero active members.' );
+		}
+
+		return array(
+			'groups'  => array_keys( $desired['groups'] ),
+			'gi'      => 0,
+			'mode'    => 'collect',
+			'page'    => array(),
+			'pages'   => 0,
+			'victims' => array(),
+			'vi'      => 0,
+		);
+	}
+
+	/**
+	* One resumable unit of group cleanup: fetch a page of group members, or
+	* remove up to $remove_batch collected stale members. Collect-then-remove
+	* keeps pagination stable — removing while paging shifts pages under us.
+	*/
+	public function run_prune_step( $state, $event_name, $client = null, $remove_batch = 10 ) {
+		if ( null === $client ) {
+			$client = $this->get_client();
+		}
+		if ( is_wp_error( $client ) ) {
+			return $client;
+		}
+
+		$state = wp_parse_args( (array) $state, array(
+			'groups'  => array(),
+			'gi'      => 0,
+			'mode'    => 'collect',
+			'page'    => array(),
+			'pages'   => 0,
+			'victims' => array(),
+			'vi'      => 0,
+		) );
+
+		$groups = array_values( (array) $state['groups'] );
+		$totalg = count( $groups );
+		$gi     = (int) $state['gi'];
+		$step   = array( 'checked' => 0, 'removed' => 0, 'errors' => 0 );
+
+		if ( $gi < $totalg && 'collect' === $state['mode'] ) {
+			$group_id = (string) $groups[ $gi ];
+			$page     = $client->get_group_subscribers( $group_id, (array) $state['page'] );
+			if ( is_wp_error( $page ) ) {
+				return $page;
+			}
+
+			$desired = $this->get_desired_group_emails();
+			$want    = isset( $desired['groups'][ $group_id ] ) ? $desired['groups'][ $group_id ] : array();
+			/** Emails that must never be removed by cleanup (manual exceptions). */
+			$keep = array_map( 'strtolower', (array) apply_filters( 'mpmls_prune_keep_emails', array(), $group_id ) );
+
+			foreach ( $page['subscribers'] as $subscriber ) {
+				$step['checked']++;
+				$email = strtolower( trim( (string) $subscriber['email'] ) );
+				if ( '' === $email || isset( $want[ $email ] ) || in_array( $email, $keep, true ) ) {
+					continue;
+				}
+				$state['victims'][] = array( 'id' => (string) $subscriber['id'], 'email' => $email );
+			}
+
+			$state['pages'] = (int) $state['pages'] + 1;
+			if ( ! empty( $page['next'] ) && $state['pages'] < 50 ) {
+				$state['page'] = $page['next'];
+			} elseif ( empty( $state['victims'] ) ) {
+				// Nothing stale in this group — move straight to the next one.
+				$gi++;
+				$state = $this->prune_state_next_group( $state, $gi );
+			} else {
+				$state['mode'] = 'remove';
+				$state['vi']   = 0;
+			}
+		} elseif ( $gi < $totalg ) {
+			$group_id = (string) $groups[ $gi ];
+			$victims  = (array) $state['victims'];
+			$slice    = array_slice( $victims, (int) $state['vi'], max( 1, (int) $remove_batch ) );
+
+			foreach ( $slice as $victim ) {
+				$result  = $client->remove_from_group( $victim['id'], $group_id, $victim['email'] );
+				$wp_user = get_user_by( 'email', $victim['email'] );
+
+				MPMLS_Logger::log( array(
+					'event'         => $event_name,
+					'email'         => $victim['email'],
+					'wp_user_id'    => $wp_user ? (int) $wp_user->ID : 0,
+					'membership_id' => 0,
+					'group_id'      => $group_id,
+					'action'        => 'prune',
+					'success'       => is_wp_error( $result ) ? 0 : 1,
+					'message'       => is_wp_error( $result ) ? $result->get_error_message() : 'Removed from group: does not belong to it per MemberPress.',
+				) );
+
+				if ( is_wp_error( $result ) ) {
+					$step['errors']++;
+				} else {
+					$step['removed']++;
+				}
+			}
+
+			$state['vi'] = (int) $state['vi'] + count( $slice );
+			if ( $state['vi'] >= count( $victims ) ) {
+				$gi++;
+				$state = $this->prune_state_next_group( $state, $gi );
+			}
+		}
+
+		return array(
+			'state'        => $state,
+			'done'         => $gi >= $totalg,
+			'checked'      => $step['checked'],
+			'removed'      => $step['removed'],
+			'errors'       => $step['errors'],
+			'groups_done'  => min( $gi, $totalg ),
+			'groups_total' => $totalg,
+		);
+	}
+
+	protected function prune_state_next_group( $state, $gi ) {
+		$state['gi']      = $gi;
+		$state['mode']    = 'collect';
+		$state['page']    = array();
+		$state['pages']   = 0;
+		$state['victims'] = array();
+		$state['vi']      = 0;
+		return $state;
 	}
 
 	protected function batch_result( $offset, $batch_size, $total, $counts ) {

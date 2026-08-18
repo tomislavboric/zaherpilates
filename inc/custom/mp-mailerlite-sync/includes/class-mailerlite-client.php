@@ -134,6 +134,70 @@ class MPMLS_MailerLite_Client {
 		return $subscriber_id;
 	}
 
+	/**
+	* One page of a group's ACTIVE members (new API only). Only active-status
+	* subscribers inflate the member count MailerLite shows for a group;
+	* unsubscribed and bounced contacts are left untouched so their history
+	* survives.
+	*
+	* $page_args is the opaque 'next' value returned by the previous call
+	* (empty array for the first page). Returns
+	* array( 'subscribers' => array( array( id, email, status ) ), 'next' => array|null ).
+	*/
+	public function get_group_subscribers( $group_id, $page_args = array() ) {
+		if ( $this->is_classic() ) {
+			return new WP_Error( 'mpmls_prune_unsupported', 'Group member listing requires the new MailerLite API.' );
+		}
+
+		$query = array(
+			'limit'          => 100,
+			'filter[status]' => 'active',
+		);
+		if ( ! empty( $page_args['cursor'] ) ) {
+			$query['cursor'] = (string) $page_args['cursor'];
+		} elseif ( ! empty( $page_args['page'] ) ) {
+			$query['page'] = (int) $page_args['page'];
+		}
+
+		$response = $this->request( 'GET', '/groups/' . rawurlencode( (string) $group_id ) . '/subscribers', $query );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$data  = isset( $response['data'] ) && is_array( $response['data'] ) ? $response['data'] : array();
+		$items = isset( $data['data'] ) && is_array( $data['data'] ) ? $data['data'] : array();
+
+		$subscribers = array();
+		foreach ( $items as $item ) {
+			if ( ! is_array( $item ) || ! isset( $item['id'] ) ) {
+				continue;
+			}
+			$subscribers[] = array(
+				'id'     => (string) $item['id'],
+				'email'  => isset( $item['email'] ) ? (string) $item['email'] : '',
+				'status' => isset( $item['status'] ) ? (string) $item['status'] : '',
+			);
+		}
+
+		// MailerLite paginates this endpoint with a cursor or with page numbers
+		// depending on API revision — support both.
+		$next = null;
+		$meta = isset( $data['meta'] ) && is_array( $data['meta'] ) ? $data['meta'] : array();
+		if ( ! empty( $meta['next_cursor'] ) ) {
+			$next = array( 'cursor' => (string) $meta['next_cursor'] );
+		} elseif ( isset( $meta['current_page'], $meta['last_page'] ) && (int) $meta['current_page'] < (int) $meta['last_page'] ) {
+			$next = array( 'page' => (int) $meta['current_page'] + 1 );
+		}
+		if ( empty( $subscribers ) ) {
+			$next = null;
+		}
+
+		return array(
+			'subscribers' => $subscribers,
+			'next'        => $next,
+		);
+	}
+
 	protected function request( $method, $endpoint, $body = null, $retry = 1, $allow_fallback = false ) {
 		if ( empty( $this->api_key ) ) {
 			return new WP_Error( 'mpmls_missing_api_key', 'MailerLite API key is missing.' );
