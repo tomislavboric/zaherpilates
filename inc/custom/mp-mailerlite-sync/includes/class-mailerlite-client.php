@@ -67,9 +67,9 @@ class MPMLS_MailerLite_Client {
 		if ( ! empty( $fields ) ) {
 			$payload['fields'] = $fields;
 		}
-		if ( $this->is_classic() ) {
-			$payload['resubscribe'] = 1;
-		}
+		// Never reactivate a contact who unsubscribed or bounced. MailerLite's
+		// current API preserves the existing status when it is omitted, while
+		// the Classic API's resubscribe flag would override that choice.
 
 		$response = $this->request( 'POST', '/subscribers', $payload );
 		if ( is_wp_error( $response ) ) {
@@ -87,9 +87,9 @@ class MPMLS_MailerLite_Client {
 	public function add_to_group( $subscriber_id, $group_id, $email = '', $fields = array() ) {
 		if ( $this->is_classic() ) {
 			$payload = array(
-				'email' => $email,
-				'fields' => $fields,
-				'resubscribe' => 1,
+				'email'       => $email,
+				'fields'      => $fields,
+				'resubscribe' => 0,
 			);
 			$response = $this->request( 'POST', '/groups/' . rawurlencode( (string) $group_id ) . '/subscribers', $payload );
 		} else {

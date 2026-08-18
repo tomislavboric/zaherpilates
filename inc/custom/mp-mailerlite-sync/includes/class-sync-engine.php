@@ -56,21 +56,60 @@ class MPMLS_Sync_Engine {
 
 	/* --------------------------- member state (MemberPress truth) ----- */
 
+	/**
+	 * Match MeprUser::active_product_subscriptions() and the Members table.
+	 * A bare complete/confirmed status is not sufficient: MemberPress also
+	 * checks the transaction type.
+	 */
+	protected function get_active_transaction_condition( $alias = 't' ) {
+		$alias = preg_replace( '/[^a-zA-Z0-9_]/', '', (string) $alias );
+		if ( '' === $alias ) {
+			$alias = 't';
+		}
+
+		return "(
+			({$alias}.txn_type IN ('payment', 'sub_account', 'wc_transaction', 'fallback') AND {$alias}.status = 'complete')
+			OR ({$alias}.txn_type = 'subscription_confirmation' AND {$alias}.status = 'confirmed')
+		)";
+	}
+
+	/** Completed customer history, including transactions later refunded. */
+	protected function get_customer_history_condition( $alias = 't' ) {
+		$alias = preg_replace( '/[^a-zA-Z0-9_]/', '', (string) $alias );
+		if ( '' === $alias ) {
+			$alias = 't';
+		}
+
+		return "(
+			({$alias}.txn_type IN ('payment', 'sub_account', 'wc_transaction', 'fallback') AND {$alias}.status IN ('complete', 'refunded'))
+			OR ({$alias}.txn_type = 'subscription_confirmation' AND {$alias}.status = 'confirmed')
+		)";
+	}
+
+	/** MemberPress stores and compares transaction dates in UTC. */
+	protected function get_memberpress_db_now() {
+		if ( class_exists( 'MeprUtils' ) && method_exists( 'MeprUtils', 'db_now' ) ) {
+			return MeprUtils::db_now();
+		}
+
+		return gmdate( 'Y-m-d H:i:s' );
+	}
+
 	public function get_active_members_sql( $user_id = 0, $with_order = true ) {
 		global $wpdb;
 
-		$now = current_time( 'mysql' );
+		$now                  = $this->get_memberpress_db_now();
+		$active_txn_condition = $this->get_active_transaction_condition( 't' );
 
 		// MemberPress' own definition of an active member: an unexpired
-		// complete/confirmed transaction for the product. Subscription status
-		// is irrelevant here — a stopped subscription that is paid until the
-		// end of the period still counts as active (matches the MP Members
-		// screen).
+		// eligible transaction for the product. Subscription status is
+		// irrelevant here — a stopped subscription that is paid until the end
+		// of the period still counts as active (matches the MP Members screen).
 		$sql = "SELECT t.user_id, t.product_id, MAX(t.expires_at) AS expires_at
 			FROM {$wpdb->prefix}mepr_transactions t
 			WHERE t.user_id > 0
-			AND t.status IN ('complete', 'confirmed')
-			AND (t.expires_at IS NULL OR t.expires_at = '0000-00-00 00:00:00' OR t.expires_at >= %s)";
+			AND {$active_txn_condition}
+			AND (t.expires_at IS NULL OR t.expires_at = '0000-00-00 00:00:00' OR t.expires_at > %s)";
 		if ( $user_id ) {
 			$sql .= ' AND t.user_id = %d';
 			$sql  = $wpdb->prepare( $sql, $now, $user_id );
@@ -87,20 +126,22 @@ class MPMLS_Sync_Engine {
 	public function get_expired_members_sql( $with_order = true, $user_id = 0 ) {
 		global $wpdb;
 
-		$now = current_time( 'mysql' );
+		$now                        = $this->get_memberpress_db_now();
+		$active_txn_condition       = $this->get_active_transaction_condition( 't' );
+		$customer_history_condition = $this->get_customer_history_condition( 't' );
 
 		// Complement of get_active_members_sql(): paid (or refunded) history
 		// on the product, but no currently valid transaction for it.
 		$sql = "SELECT t.user_id, t.product_id, MAX(t.expires_at) AS expires_at
 			FROM {$wpdb->prefix}mepr_transactions t
 			WHERE t.user_id > 0
-			AND t.status IN ('complete', 'confirmed', 'refunded')";
+			AND {$customer_history_condition}";
 		if ( $user_id ) {
 			$sql .= $wpdb->prepare( ' AND t.user_id = %d', $user_id );
 		}
 		$sql .= " GROUP BY t.user_id, t.product_id
-			HAVING SUM( CASE WHEN t.status IN ('complete', 'confirmed')
-				AND ( t.expires_at IS NULL OR t.expires_at = '0000-00-00 00:00:00' OR t.expires_at >= " . $wpdb->prepare( '%s', $now ) . ' )
+			HAVING SUM( CASE WHEN {$active_txn_condition}
+				AND ( t.expires_at IS NULL OR t.expires_at = '0000-00-00 00:00:00' OR t.expires_at > " . $wpdb->prepare( '%s', $now ) . ' )
 				THEN 1 ELSE 0 END ) = 0';
 		if ( $with_order ) {
 			$sql .= ' ORDER BY t.user_id, t.product_id';
@@ -138,10 +179,10 @@ class MPMLS_Sync_Engine {
 		$ids = $wpdb->get_col( $wpdb->prepare(
 			"SELECT DISTINCT t.product_id
 			FROM {$wpdb->prefix}mepr_transactions t
-			WHERE t.status IN ('complete', 'confirmed')
-			AND (t.expires_at IS NULL OR t.expires_at = '0000-00-00 00:00:00' OR t.expires_at >= %s)
+			WHERE " . $this->get_active_transaction_condition( 't' ) . "
+			AND (t.expires_at IS NULL OR t.expires_at = '0000-00-00 00:00:00' OR t.expires_at > %s)
 			AND t.user_id = %d",
-			current_time( 'mysql' ),
+			$this->get_memberpress_db_now(),
 			$user_id
 		) );
 
@@ -180,7 +221,12 @@ class MPMLS_Sync_Engine {
 		}
 
 		return (bool) $wpdb->get_var( $wpdb->prepare(
-			"SELECT 1 FROM {$wpdb->prefix}mepr_transactions WHERE user_id = %d AND status = 'complete' LIMIT 1",
+			"SELECT 1
+			FROM {$wpdb->prefix}mepr_transactions t
+			WHERE t.user_id = %d
+			AND t.txn_type IN ('payment', 'sub_account', 'wc_transaction', 'fallback')
+			AND t.status IN ('complete', 'refunded')
+			LIMIT 1",
 			$user_id
 		) );
 	}
