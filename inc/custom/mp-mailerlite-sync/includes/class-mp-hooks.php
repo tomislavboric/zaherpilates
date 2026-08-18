@@ -395,43 +395,11 @@ class MPMLS_MemberPress_Hooks {
 	}
 
 	protected function get_mapping() {
-		$settings = get_option( MPMLS_OPTION_KEY, array() );
-		if ( empty( $settings['mapping'] ) || ! is_array( $settings['mapping'] ) ) {
-			return array();
-		}
-		return $settings['mapping'];
+		return MPMLS_Sync_Engine::instance()->get_mapping();
 	}
 
 	protected function get_active_membership_ids_for_user( $user_id ) {
-		global $wpdb;
-
-		if ( ! $user_id ) {
-			return array();
-		}
-
-		// Prefer MemberPress' own notion of "active" (handles confirmed txns,
-		// lifetimes, trials, fallback txns) over raw SQL.
-		if ( class_exists( 'MeprUser' ) ) {
-			$user = new MeprUser( (int) $user_id );
-			if ( method_exists( $user, 'active_product_subscriptions' ) ) {
-				$ids = (array) $user->active_product_subscriptions( 'ids', true );
-				return array_values( array_unique( array_map( 'intval', $ids ) ) );
-			}
-		}
-
-		// Fallback: the same definition in SQL — an unexpired complete/confirmed
-		// transaction, regardless of subscription status.
-		$ids = $wpdb->get_col( $wpdb->prepare(
-			"SELECT DISTINCT t.product_id
-			FROM {$wpdb->prefix}mepr_transactions t
-			WHERE t.status IN ('complete', 'confirmed')
-			AND (t.expires_at IS NULL OR t.expires_at = '0000-00-00 00:00:00' OR t.expires_at >= %s)
-			AND t.user_id = %d",
-			current_time( 'mysql' ),
-			$user_id
-		) );
-
-		return array_map( 'intval', $ids );
+		return MPMLS_Sync_Engine::instance()->get_active_membership_ids_for_user( $user_id );
 	}
 
 	protected function is_user_active_on_membership( $user_id, $membership_id ) {
@@ -439,40 +407,11 @@ class MPMLS_MemberPress_Hooks {
 	}
 
 	protected function user_has_paid_transaction( $user_id ) {
-		global $wpdb;
-
-		if ( ! $user_id ) {
-			return false;
-		}
-
-		return (bool) $wpdb->get_var( $wpdb->prepare(
-			"SELECT 1 FROM {$wpdb->prefix}mepr_transactions WHERE user_id = %d AND status = 'complete' LIMIT 1",
-			$user_id
-		) );
+		return MPMLS_Sync_Engine::instance()->user_has_paid_transaction( $user_id );
 	}
 
 	protected function get_active_group_ids_for_user( $user_id ) {
-		$mapping = $this->get_mapping();
-		if ( empty( $mapping ) ) {
-			return array();
-		}
-
-		$membership_ids = $this->get_active_membership_ids_for_user( $user_id );
-		if ( empty( $membership_ids ) ) {
-			return array();
-		}
-
-		$active = array();
-		foreach ( $membership_ids as $membership_id ) {
-			if ( isset( $mapping[ $membership_id ] ) ) {
-				$group_id = (string) $mapping[ $membership_id ];
-				if ( $group_id !== '' ) {
-					$active[] = $group_id;
-				}
-			}
-		}
-
-		return array_values( array_unique( $active ) );
+		return MPMLS_Sync_Engine::instance()->get_active_group_ids_for_user( $user_id );
 	}
 
 	protected function remove_from_inactive_mapped_groups( $client, $subscriber_id, $context, $event_name, $keep_current = true, $include_expired_group = true ) {
