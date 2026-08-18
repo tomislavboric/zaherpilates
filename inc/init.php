@@ -75,6 +75,7 @@ require_once( 'custom/body-classes.php' );
 require_once( 'custom/query-tweaks.php' );
 require_once( 'custom/admin-ui.php' );
 require_once( 'custom/gtm.php' );
+require_once( 'custom/cache-control.php' );
 
 // MemberPress integration
 require_once( 'custom/memberpress/core.php' );
