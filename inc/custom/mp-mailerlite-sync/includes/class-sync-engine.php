@@ -14,6 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class MPMLS_Sync_Engine {
 
+	const DESIRED_COUNTS_KEY = 'mpmls_desired_counts';
+
 	protected static $instance = null;
 
 	/** Per-request cache for get_desired_group_emails(). */
@@ -532,8 +534,24 @@ class MPMLS_Sync_Engine {
 			$groups[ $inactive_group_id ] = array();
 		}
 
+		$active_rows  = $this->get_active_members();
+		$expired_rows = ( '' !== $inactive_group_id ) ? $this->get_expired_members() : array();
+
+		// One bulk user query instead of one per member.
+		$user_ids = array();
+		foreach ( $active_rows as $row ) {
+			$user_ids[] = (int) $row['user_id'];
+		}
+		foreach ( $expired_rows as $row ) {
+			$user_ids[] = (int) $row['user_id'];
+		}
+		$user_ids = array_values( array_unique( array_filter( $user_ids ) ) );
+		if ( ! empty( $user_ids ) && function_exists( 'cache_users' ) ) {
+			cache_users( $user_ids );
+		}
+
 		$active_total = 0;
-		foreach ( $this->get_active_members() as $row ) {
+		foreach ( $active_rows as $row ) {
 			$product_id = (int) $row['product_id'];
 			$group_id   = isset( $mapping[ $product_id ] ) ? (string) $mapping[ $product_id ] : '';
 			if ( '' === $group_id ) {
@@ -549,7 +567,7 @@ class MPMLS_Sync_Engine {
 
 		if ( '' !== $inactive_group_id ) {
 			$seen = array();
-			foreach ( $this->get_expired_members() as $row ) {
+			foreach ( $expired_rows as $row ) {
 				$user_id = (int) $row['user_id'];
 				if ( isset( $seen[ $user_id ] ) ) {
 					continue;
@@ -577,6 +595,31 @@ class MPMLS_Sync_Engine {
 		);
 
 		return $this->desired_group_cache;
+	}
+
+	/**
+	* How many members each group SHOULD have per MemberPress, cached for the
+	* admin comparison table — the uncached walk hits one query per member.
+	*/
+	public function get_desired_group_counts( $ttl = 300 ) {
+		$cached = get_transient( self::DESIRED_COUNTS_KEY );
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+
+		$desired = $this->get_desired_group_emails();
+		$counts  = array();
+		foreach ( $desired['groups'] as $group_id => $emails ) {
+			$counts[ (string) $group_id ] = count( $emails );
+		}
+
+		set_transient( self::DESIRED_COUNTS_KEY, $counts, (int) $ttl );
+
+		return $counts;
+	}
+
+	public static function flush_desired_group_counts() {
+		delete_transient( self::DESIRED_COUNTS_KEY );
 	}
 
 	public function init_prune_state() {

@@ -132,6 +132,121 @@ class MPMLS_Admin_Settings {
 	}
 
 	/* ------------------------------------------------------------------ */
+	/*  Shared admin styling                                              */
+	/* ------------------------------------------------------------------ */
+
+	protected function render_styles() {
+		?>
+		<style>
+				.mpmls-wrap { max-width: 1180px; }
+				.mpmls-wrap h1 { margin-bottom: 4px; }
+				.mpmls-wrap .mpmls-subtitle { margin: 0 0 4px; color: #646970; font-size: 14px; }
+
+				/* ---- status strip ------------------------------------- */
+				.mpmls-wrap .mpmls-statusbar { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0 22px; }
+				.mpmls-wrap .mpmls-pill { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; line-height: 1.6; padding: 4px 13px; border-radius: 999px; border: 1px solid #dcdcde; background: #fff; color: #50575e; }
+				.mpmls-wrap .mpmls-pill.is-ok { background: #edfaef; color: #00733f; border-color: #a7e3b8; }
+				.mpmls-wrap .mpmls-pill.is-warn { background: #fcf9e8; color: #7a5c00; border-color: #f0d47a; }
+				.mpmls-wrap .mpmls-pill.is-err { background: #fcf0f1; color: #b32d2e; border-color: #f0b4b6; }
+
+				/* ---- cards -------------------------------------------- */
+				.mpmls-wrap .mpmls-card { background: #fff; border: 1px solid #dcdcde; border-radius: 10px; box-shadow: 0 1px 2px rgba(0,0,0,.04); margin-bottom: 20px; overflow: hidden; }
+				.mpmls-wrap .mpmls-card__head { display: flex; align-items: flex-start; gap: 12px; padding: 16px 20px; border-bottom: 1px solid #f0f0f1; flex-wrap: wrap; }
+				.mpmls-wrap .mpmls-card__head h2 { margin: 0; font-size: 15px; line-height: 1.5; }
+				.mpmls-wrap .mpmls-card__head .description { margin: 2px 0 0; }
+				.mpmls-wrap .mpmls-card__title { flex: 1 1 320px; min-width: 240px; }
+				.mpmls-wrap .mpmls-card__icon { flex: 0 0 auto; width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; background: #f0f6fc; }
+				.mpmls-wrap .mpmls-card__body { padding: 18px 20px; }
+				.mpmls-wrap .mpmls-card__body > :first-child { margin-top: 0; }
+				.mpmls-wrap .mpmls-card--accent { border-left: 4px solid #2271b1; }
+
+				/* ---- forms inside cards ------------------------------- */
+				.mpmls-wrap .mpmls-card .form-table { margin-top: 0; }
+				.mpmls-wrap .mpmls-card .form-table th { width: 220px; padding-left: 0; font-weight: 600; }
+				.mpmls-wrap .mpmls-card .form-table td { padding-top: 14px; padding-bottom: 14px; }
+				.mpmls-wrap .mpmls-card .form-table .description { margin-top: 6px; }
+				.mpmls-wrap .mpmls-inline-actions { display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+				.mpmls-wrap .mpmls-table-wrap { overflow-x: auto; }
+				.mpmls-wrap .widefat { border-radius: 8px; overflow: hidden; border-color: #e0e0e1; }
+				.mpmls-wrap .widefat thead th { background: #f6f7f7; font-weight: 600; }
+				.mpmls-wrap .widefat th,
+				.mpmls-wrap .widefat td { padding: 10px 12px; }
+				.mpmls-wrap #mpmls-mapping-table td { vertical-align: middle; }
+				.mpmls-wrap #mpmls-mapping-table th:nth-child(3),
+				.mpmls-wrap #mpmls-mapping-table td:nth-child(3) { width: 1%; white-space: nowrap; }
+				.mpmls-wrap #mpmls-mapping-table select,
+				.mpmls-wrap #mpmls-mapping-table input { width: 100%; max-width: 300px; height: 32px; }
+				.mpmls-wrap .mpmls-arrow { color: #8c8f94; padding: 0 2px; }
+				.mpmls-wrap .mpmls-save-status { margin-left: 10px; font-size: 12px; color: #646970; }
+
+				/* ---- number tiles ------------------------------------- */
+				.mpmls-wrap .mpmls-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+				.mpmls-wrap .mpmls-stat { padding: 14px 16px; border-radius: 8px; background: #f6f7f7; border: 1px solid #e6e7e8; }
+				.mpmls-wrap .mpmls-stat__value { display: block; font-size: 26px; font-weight: 600; line-height: 1.2; color: #1d2327; font-variant-numeric: tabular-nums; }
+				.mpmls-wrap .mpmls-stat__label { display: block; margin-top: 2px; font-size: 12px; color: #646970; }
+				.mpmls-wrap .mpmls-stat.is-primary { background: #f0f6fc; border-color: #cfe3f5; }
+				.mpmls-wrap .mpmls-stat.is-primary .mpmls-stat__value { color: #0a4b78; }
+
+				/* ---- comparison table --------------------------------- */
+				.mpmls-wrap .mpmls-num { text-align: right; font-variant-numeric: tabular-nums; }
+				.mpmls-wrap .mpmls-muted { color: #8c8f94; }
+				.mpmls-wrap .mpmls-tag { display: inline-block; font-size: 11px; line-height: 1.7; padding: 1px 9px; border-radius: 999px; border: 1px solid #dcdcde; background: #f6f7f7; color: #50575e; }
+				.mpmls-wrap .mpmls-tag.is-ok { background: #edfaef; color: #00733f; border-color: #a7e3b8; }
+				.mpmls-wrap .mpmls-tag.is-err { background: #fcf0f1; color: #b32d2e; border-color: #f0b4b6; }
+				.mpmls-wrap .mpmls-legend { margin: 12px 0 0; font-size: 12px; color: #646970; line-height: 1.7; }
+
+				/* ---- sync panel (kept as the design reference) --------- */
+				.mpmls-wrap .mpmls-sync-head { display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+				.mpmls-wrap .mpmls-sync-head__text { flex: 1 1 320px; min-width: 260px; }
+				.mpmls-wrap .mpmls-sync-head__text strong { display: block; margin-bottom: 2px; }
+				.mpmls-wrap .mpmls-sync-head .description { margin: 0; }
+				.mpmls-wrap .mpmls-dot { flex: 0 0 auto; width: 10px; height: 10px; margin-top: 5px; border-radius: 50%; background: #8c8f94; }
+				.mpmls-wrap .mpmls-dot.is-ok { background: #00a32a; }
+				.mpmls-wrap .mpmls-dot.is-idle { background: #2271b1; }
+				.mpmls-wrap .mpmls-dot.is-warn { background: #d63638; }
+				.mpmls-wrap .mpmls-dot.is-off { background: #8c8f94; }
+				.mpmls-wrap .mpmls-dot.is-running { background: #2271b1; animation: mpmls-pulse 1.4s ease-in-out infinite; }
+				@keyframes mpmls-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(34,113,177,.5); } 50% { box-shadow: 0 0 0 6px rgba(34,113,177,0); } }
+				.mpmls-wrap .mpmls-progress { margin-top: 18px; }
+				.mpmls-wrap .mpmls-steps { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+				.mpmls-wrap .mpmls-step { font-size: 12px; line-height: 1.6; padding: 3px 12px; border-radius: 999px; background: #f0f0f1; color: #646970; border: 1px solid #dcdcde; }
+				.mpmls-wrap .mpmls-step.is-active { background: #f0f6fc; color: #0a4b78; border-color: #a7cced; font-weight: 600; }
+				.mpmls-wrap .mpmls-step.is-done { background: #edfaef; color: #00733f; border-color: #a7e3b8; }
+				.mpmls-wrap .mpmls-step.is-done::before { content: '\2713\00a0'; }
+				.mpmls-wrap .mpmls-progress-track { height: 10px; background: #f0f0f1; border-radius: 999px; overflow: hidden; }
+				.mpmls-wrap .mpmls-progress-bar { height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, #2271b1, #00a32a); transition: width .35s ease; }
+				.mpmls-wrap .mpmls-progress-meta { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: 12px; color: #646970; }
+				.mpmls-wrap .mpmls-progress-meta strong { color: #1d2327; font-variant-numeric: tabular-nums; }
+				.mpmls-wrap .mpmls-result { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+				.mpmls-wrap .mpmls-result:empty { display: none; }
+				.mpmls-wrap .mpmls-chip { font-size: 12px; line-height: 1.6; padding: 3px 12px; border-radius: 999px; border: 1px solid; }
+				.mpmls-wrap .mpmls-chip.is-synced { background: #edfaef; color: #00733f; border-color: #a7e3b8; }
+				.mpmls-wrap .mpmls-chip.is-skipped { background: #f6f7f7; color: #50575e; border-color: #dcdcde; }
+				.mpmls-wrap .mpmls-chip.is-errors { background: #fcf0f1; color: #b32d2e; border-color: #f0b4b6; }
+				.mpmls-wrap .mpmls-chip.is-errors.is-zero { background: #f6f7f7; color: #50575e; border-color: #dcdcde; }
+				.mpmls-wrap .mpmls-chip.is-message { background: #fcf0f1; color: #b32d2e; border-color: #f0b4b6; }
+				.mpmls-wrap .mpmls-note { margin: 14px 0 0; padding: 9px 14px; border-radius: 6px; font-size: 13px; line-height: 1.6; background: #f6f7f7; border-left: 4px solid #8c8f94; color: #50575e; }
+				.mpmls-wrap .mpmls-note.is-live { background: #fcf9e8; border-left-color: #dba617; color: #614f18; }
+				.mpmls-wrap .mpmls-note.is-warn { background: #fcf9e8; border-left-color: #dba617; color: #614f18; }
+
+				/* ---- collapsible + logs ------------------------------- */
+				.mpmls-wrap .mpmls-details > summary { cursor: pointer; padding: 16px 20px; font-size: 15px; font-weight: 600; list-style: none; display: flex; align-items: center; gap: 10px; }
+				.mpmls-wrap .mpmls-details > summary::-webkit-details-marker { display: none; }
+				.mpmls-wrap .mpmls-details > summary::after { content: '\25be'; color: #8c8f94; font-weight: 400; }
+				.mpmls-wrap .mpmls-details[open] > summary { border-bottom: 1px solid #f0f0f1; }
+				.mpmls-wrap .mpmls-details[open] > summary::after { content: '\25b4'; }
+				.mpmls-wrap .mpmls-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+				.mpmls-wrap .mpmls-toolbar form { display: flex; align-items: center; gap: 8px; margin: 0; }
+				.mpmls-wrap .mpmls-toolbar .mpmls-spacer { flex: 1 1 auto; }
+				.mpmls-wrap .mpmls-logs td { font-size: 12px; }
+				.mpmls-wrap .mpmls-logs .mpmls-msg { max-width: 380px; }
+				.mpmls-wrap .mpmls-pre { background: #f6f7f7; border: 1px solid #e0e0e1; border-radius: 8px; padding: 12px; max-height: 240px; overflow: auto; margin: 12px 0 0; font-size: 12px; }
+				.mpmls-wrap .mpmls-pre:empty { display: none; }
+		</style>
+		<?php
+	}
+
+	/* ------------------------------------------------------------------ */
 	/*  Settings page (API key)                                           */
 	/* ------------------------------------------------------------------ */
 
@@ -150,43 +265,52 @@ class MPMLS_Admin_Settings {
 
 		?>
 		<div class="wrap mpmls-wrap">
-			<style>
-				.mpmls-wrap .form-table th { width: 260px; }
-				.mpmls-wrap .form-table td { padding-top: 14px; padding-bottom: 14px; }
-				.mpmls-wrap .mpmls-inline-actions { display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
-				.mpmls-wrap .mpmls-badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; line-height: 1.6; vertical-align: middle; margin-left: 8px; }
-				.mpmls-wrap .mpmls-badge--ok { background: #d4edda; color: #155724; }
-				.mpmls-wrap .mpmls-badge--fail { background: #f8d7da; color: #721c24; }
-			</style>
-			<h1>MP - MailerLite &mdash; Settings</h1>
+			<?php $this->render_styles(); ?>
 
-			<table class="form-table" role="presentation">
-				<tr>
-					<th scope="row">
-						<label for="mpmls_api_key">MailerLite API key</label>
-						<?php if ( $connection_ok ) : ?>
-							<span class="mpmls-badge mpmls-badge--ok">Connected</span>
-						<?php elseif ( $api_key !== '' ) : ?>
-							<span class="mpmls-badge mpmls-badge--fail">Not connected</span>
-						<?php endif; ?>
-					</th>
-					<td>
-						<?php if ( $connection_ok ) : ?>
-							<input type="password" id="mpmls_api_key" value="<?php echo esc_attr( $api_key ); ?>" class="regular-text" disabled />
-							<div class="mpmls-inline-actions">
-								<button type="button" class="button" id="mpmls-disconnect-api" data-nonce="<?php echo esc_attr( $nonce ); ?>">Disconnect</button>
-								<span id="mpmls-test-result"></span>
-							</div>
-						<?php else : ?>
-							<input type="password" id="mpmls_api_key" value="<?php echo esc_attr( $api_key ); ?>" class="regular-text" autocomplete="new-password" />
-							<div class="mpmls-inline-actions">
-								<button type="button" class="button button-primary" id="mpmls-test-connection" data-nonce="<?php echo esc_attr( $nonce ); ?>">Test connection</button>
-								<span id="mpmls-test-result"></span>
-							</div>
-						<?php endif; ?>
-					</td>
-				</tr>
-			</table>
+			<h1>MP &ndash; MailerLite</h1>
+			<p class="mpmls-subtitle">Connect the MailerLite account this site syncs its members to.</p>
+
+			<div class="mpmls-statusbar">
+				<span class="mpmls-pill <?php echo $connection_ok ? 'is-ok' : ( $api_key !== '' ? 'is-err' : '' ); ?>">
+					<?php echo $connection_ok ? 'API connected' : ( $api_key !== '' ? 'API not connected' : 'No API key yet' ); ?>
+				</span>
+			</div>
+
+			<div class="mpmls-card mpmls-card--accent">
+				<div class="mpmls-card__head">
+					<span class="mpmls-card__icon">&#128273;</span>
+					<div class="mpmls-card__title">
+						<h2>MailerLite connection</h2>
+						<p class="description">Create a key in MailerLite under Integrations &rarr; API. It needs access to subscribers and groups.</p>
+					</div>
+				</div>
+				<div class="mpmls-card__body">
+					<table class="form-table" role="presentation">
+						<tr>
+							<th scope="row"><label for="mpmls_api_key">API key</label></th>
+							<td>
+								<?php if ( $connection_ok ) : ?>
+									<input type="password" id="mpmls_api_key" value="<?php echo esc_attr( $api_key ); ?>" class="regular-text" disabled />
+									<div class="mpmls-inline-actions">
+										<button type="button" class="button" id="mpmls-disconnect-api" data-nonce="<?php echo esc_attr( $nonce ); ?>">Disconnect</button>
+										<span id="mpmls-test-result"></span>
+									</div>
+								<?php else : ?>
+									<input type="password" id="mpmls_api_key" value="<?php echo esc_attr( $api_key ); ?>" class="regular-text" autocomplete="new-password" />
+									<div class="mpmls-inline-actions">
+										<button type="button" class="button button-primary" id="mpmls-test-connection" data-nonce="<?php echo esc_attr( $nonce ); ?>">Test connection</button>
+										<span id="mpmls-test-result"></span>
+									</div>
+								<?php endif; ?>
+							</td>
+						</tr>
+					</table>
+
+					<?php if ( $connection_ok ) : ?>
+						<p class="mpmls-note">Connected. Set up which plan feeds which group on the <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . self::SYNC_PAGE_SLUG ) ); ?>">Sync</a> page.</p>
+					<?php endif; ?>
+				</div>
+			</div>
 		</div>
 
 		<script>
@@ -286,415 +410,473 @@ class MPMLS_Admin_Settings {
 		$active_breakdown = $this->get_membership_breakdown( $this->get_active_members_sql( 0, false ) );
 		$diagnostics      = $this->get_diagnostics();
 
+		$auto_state     = $this->get_auto_sync_status_state();
+		$auto_text      = $this->get_auto_sync_status_text();
+		$comparison     = $this->get_group_comparison( $mapping, $groups, $expired_group_id );
+		$comparison_off = 0;
+		foreach ( $comparison as $c_row ) {
+			if ( null !== $c_row['ml'] && $c_row['ml'] > $c_row['mp'] ) {
+				$comparison_off++;
+			}
+		}
+
 		?>
 		<div class="wrap mpmls-wrap">
-			<style>
-				.mpmls-wrap .form-table th { width: 260px; }
-				.mpmls-wrap .form-table td { padding-top: 14px; padding-bottom: 14px; }
-				.mpmls-wrap .form-table .description { margin-top: 6px; }
-				.mpmls-wrap .mpmls-inline-actions { display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
-				.mpmls-wrap .mpmls-table-wrap { overflow-x: auto; margin-top: 8px; }
-				.mpmls-wrap .widefat { border-radius: 6px; overflow: hidden; }
-				.mpmls-wrap .widefat thead th { background: #f6f7f7; }
-				.mpmls-wrap .widefat th,
-				.mpmls-wrap .widefat td { padding: 10px 12px; }
-				.mpmls-wrap #mpmls-mapping-table td { vertical-align: middle; }
-				.mpmls-wrap #mpmls-mapping-table th:nth-child(1),
-				.mpmls-wrap #mpmls-mapping-table td:nth-child(1) { width: 240px; }
-				.mpmls-wrap #mpmls-mapping-table th:nth-child(2),
-				.mpmls-wrap #mpmls-mapping-table td:nth-child(2) { width: 240px; }
-				.mpmls-wrap #mpmls-mapping-table th:nth-child(3),
-				.mpmls-wrap #mpmls-mapping-table td:nth-child(3) { width: 1%; white-space: nowrap; }
-				.mpmls-wrap #mpmls-mapping-table input,
-				.mpmls-wrap #mpmls-mapping-table select { width: 100%; max-width: 260px; height: 32px; }
-				.mpmls-wrap .mpmls-section-spacer { margin-top: 24px; }
-				.mpmls-wrap .mpmls-logs-actions { display: flex; align-items: center; gap: 10px; margin: 10px 0 16px; }
-				.mpmls-wrap .mpmls-quick-actions { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
 
-				/* Sync panel */
-				.mpmls-wrap .mpmls-sync-panel { margin-top: 8px; padding: 16px 18px; background: #fff; border: 1px solid #dcdcde; border-left: 4px solid #2271b1; border-radius: 8px; max-width: 860px; }
-				.mpmls-wrap .mpmls-sync-head { display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
-				.mpmls-wrap .mpmls-sync-head__text { flex: 1 1 320px; min-width: 260px; }
-				.mpmls-wrap .mpmls-sync-head__text strong { display: block; margin-bottom: 2px; }
-				.mpmls-wrap .mpmls-sync-head .description { margin: 0; }
-				.mpmls-wrap .mpmls-dot { flex: 0 0 auto; width: 10px; height: 10px; margin-top: 5px; border-radius: 50%; background: #8c8f94; }
-				.mpmls-wrap .mpmls-dot.is-ok { background: #00a32a; }
-				.mpmls-wrap .mpmls-dot.is-idle { background: #2271b1; }
-				.mpmls-wrap .mpmls-dot.is-warn { background: #d63638; }
-				.mpmls-wrap .mpmls-dot.is-off { background: #8c8f94; }
-				.mpmls-wrap .mpmls-dot.is-running { background: #2271b1; animation: mpmls-pulse 1.4s ease-in-out infinite; }
-				@keyframes mpmls-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(34,113,177,.5); } 50% { box-shadow: 0 0 0 6px rgba(34,113,177,0); } }
+			<?php $this->render_styles(); ?>
 
-				/* Progress */
-				.mpmls-wrap .mpmls-progress { margin-top: 16px; }
-				.mpmls-wrap .mpmls-steps { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
-				.mpmls-wrap .mpmls-step { font-size: 12px; line-height: 1.6; padding: 3px 12px; border-radius: 999px; background: #f0f0f1; color: #646970; border: 1px solid #dcdcde; }
-				.mpmls-wrap .mpmls-step.is-active { background: #f0f6fc; color: #0a4b78; border-color: #a7cced; font-weight: 600; }
-				.mpmls-wrap .mpmls-step.is-done { background: #edfaef; color: #00733f; border-color: #a7e3b8; }
-				.mpmls-wrap .mpmls-step.is-done::before { content: '\2713\00a0'; }
-				.mpmls-wrap .mpmls-progress-track { height: 10px; background: #f0f0f1; border-radius: 999px; overflow: hidden; }
-				.mpmls-wrap .mpmls-progress-bar { height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, #2271b1, #00a32a); transition: width .35s ease; }
-				.mpmls-wrap .mpmls-progress-meta { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: 12px; color: #646970; }
-				.mpmls-wrap .mpmls-progress-meta strong { color: #1d2327; font-variant-numeric: tabular-nums; }
+			<h1>MP &ndash; MailerLite</h1>
+			<p class="mpmls-subtitle">MemberPress subscriptions kept in sync with MailerLite groups.</p>
 
-				/* Result chips */
-				.mpmls-wrap .mpmls-result { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-				.mpmls-wrap .mpmls-chip { font-size: 12px; line-height: 1.6; padding: 3px 12px; border-radius: 999px; border: 1px solid; }
-				.mpmls-wrap .mpmls-chip.is-synced { background: #edfaef; color: #00733f; border-color: #a7e3b8; }
-				.mpmls-wrap .mpmls-chip.is-skipped { background: #f6f7f7; color: #50575e; border-color: #dcdcde; }
-				.mpmls-wrap .mpmls-chip.is-errors { background: #fcf0f1; color: #b32d2e; border-color: #f0b4b6; }
-				.mpmls-wrap .mpmls-chip.is-errors.is-zero { background: #f6f7f7; color: #50575e; border-color: #dcdcde; }
-				.mpmls-wrap .mpmls-chip.is-message { background: #fcf0f1; color: #b32d2e; border-color: #f0b4b6; }
-
-				/* Keep-open notice */
-				.mpmls-wrap .mpmls-note { margin-top: 14px; padding: 9px 14px; border-radius: 4px; font-size: 13px; line-height: 1.6; background: #f6f7f7; border-left: 4px solid #8c8f94; color: #50575e; }
-				.mpmls-wrap .mpmls-note.is-live { background: #fcf9e8; border-left-color: #dba617; color: #614f18; }
-				.mpmls-wrap .mpmls-save-status { margin-left: 10px; font-size: 12px; color: #646970; }
-			</style>
-			<h1>MP - MailerLite &mdash; Sync</h1>
+			<div class="mpmls-statusbar">
+				<span class="mpmls-pill <?php echo $connection_ok ? 'is-ok' : 'is-err'; ?>">
+					<?php echo $connection_ok ? 'API connected' : 'API not connected'; ?>
+				</span>
+				<span class="mpmls-pill <?php echo ( 'off' === $auto_state || 'warn' === $auto_state ) ? 'is-warn' : 'is-ok'; ?>">
+					<?php
+					$auto_labels = array(
+						'off'     => 'Automatic sync off',
+						'running' => 'Automatic sync running',
+						'idle'    => 'Automatic sync scheduled',
+						'warn'    => 'Last sync had issues',
+						'ok'      => 'Automatic sync healthy',
+					);
+					echo esc_html( isset( $auto_labels[ $auto_state ] ) ? $auto_labels[ $auto_state ] : 'Automatic sync' );
+					?>
+				</span>
+				<span class="mpmls-pill"><?php echo esc_html( count( $mapping ) ); ?> mapped <?php echo 1 === count( $mapping ) ? 'group' : 'groups'; ?></span>
+				<?php if ( $comparison_off ) : ?>
+					<span class="mpmls-pill is-err"><?php echo esc_html( (string) $comparison_off ); ?> group<?php echo 1 === $comparison_off ? '' : 's'; ?> above the MemberPress count</span>
+				<?php endif; ?>
+				<span class="mpmls-pill <?php echo $logging_enabled ? '' : 'is-warn'; ?>"><?php echo $logging_enabled ? 'Logging on' : 'Logging off'; ?></span>
+			</div>
 
 			<?php if ( ! $connection_ok ) : ?>
 				<div class="notice notice-warning"><p>MailerLite API is not connected. <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . self::PAGE_SLUG ) ); ?>">Go to Settings</a> to connect.</p></div>
 			<?php endif; ?>
 
-			<div class="notice notice-info"><p>Custom fields synced to MailerLite: <strong>name</strong>, <strong>last_name</strong>, <strong>membership_name</strong>, <strong>membership_expiry</strong>, <strong>signup_date</strong>, <strong>membership_status</strong>. Create these as custom fields in your MailerLite account (Subscribers &rarr; Fields) for full functionality.</p></div>
-
-			<table class="form-table" role="presentation">
-					<tr>
-						<th scope="row">Membership - Group mapping</th>
-						<td>
-							<div class="mpmls-table-wrap">
-								<table class="widefat striped" id="mpmls-mapping-table">
-								<thead>
-									<tr>
-										<th>MemberPress product ID</th>
-										<th>MailerLite group ID</th>
-										<th></th>
-									</tr>
-								</thead>
-								<tbody>
-									<?php foreach ( $rows as $index => $row ) : ?>
-										<tr>
-											<td>
-												<?php if ( ! empty( $products ) ) : ?>
-													<select name="<?php echo esc_attr( MPMLS_OPTION_KEY ); ?>[mapping][<?php echo esc_attr( $index ); ?>][membership_id]">
-														<?php echo $this->render_product_options( $products, $row['membership_id'] ); ?>
-													</select>
-												<?php else : ?>
-													<input type="number" name="<?php echo esc_attr( MPMLS_OPTION_KEY ); ?>[mapping][<?php echo esc_attr( $index ); ?>][membership_id]" value="<?php echo esc_attr( $row['membership_id'] ); ?>" />
-												<?php endif; ?>
-											</td>
-											<td>
-												<?php if ( ! empty( $groups ) ) : ?>
-													<select name="<?php echo esc_attr( MPMLS_OPTION_KEY ); ?>[mapping][<?php echo esc_attr( $index ); ?>][group_id]">
-														<?php echo $this->render_group_options( $groups, $row['group_id'] ); ?>
-													</select>
-												<?php else : ?>
-													<input type="text" name="<?php echo esc_attr( MPMLS_OPTION_KEY ); ?>[mapping][<?php echo esc_attr( $index ); ?>][group_id]" value="<?php echo esc_attr( $row['group_id'] ); ?>" />
-												<?php endif; ?>
-											</td>
-											<td><button type="button" class="button mpmls-remove-row">Remove</button></td>
-										</tr>
-									<?php endforeach; ?>
-								</tbody>
-								</table>
-							</div>
-							<?php if ( $groups_error ) : ?>
-								<p class="description">Could not load MailerLite groups: <?php echo esc_html( $groups_error ); ?></p>
-							<?php endif; ?>
-							<p><button type="button" class="button" id="mpmls-add-row">Add mapping</button><span class="mpmls-save-status" id="mpmls-save-status"></span></p>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="mpmls-expired-group">Inactive group ID</label></th>
-						<td>
-							<?php if ( ! empty( $groups ) ) : ?>
-								<select id="mpmls-expired-group" name="<?php echo esc_attr( MPMLS_OPTION_KEY ); ?>[expired_group_id]" class="regular-text">
-									<?php echo $this->render_group_options( $groups, $expired_group_id, true ); ?>
-								</select>
-							<?php else : ?>
-								<input type="text" id="mpmls-expired-group" name="<?php echo esc_attr( MPMLS_OPTION_KEY ); ?>[expired_group_id]" value="<?php echo esc_attr( $expired_group_id ); ?>" class="regular-text" />
-							<?php endif; ?>
-							<p class="description">Optional group ID for users whose subscription expires or is cancelled.</p>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row">Logging</th>
-						<td>
-							<label><input type="checkbox" name="<?php echo esc_attr( MPMLS_OPTION_KEY ); ?>[logging_enabled]" value="1" <?php checked( $logging_enabled ); ?> /> Enable logging</label>
-						</td>
-					</tr>
-				</table>
-			<div class="mpmls-sync-panel">
-				<div class="mpmls-sync-head">
-					<span class="mpmls-dot is-<?php echo esc_attr( $this->get_auto_sync_status_state() ); ?>"></span>
-					<div class="mpmls-sync-head__text">
-						<strong>Automatic sync</strong>
-						<p class="description"><?php echo esc_html( $this->get_auto_sync_status_text() ); ?></p>
+			<!-- ============================================ sync ==== -->
+			<div class="mpmls-card mpmls-card--accent">
+				<div class="mpmls-card__head">
+					<span class="mpmls-card__icon">&#8646;</span>
+					<div class="mpmls-card__title">
+						<h2>Sync</h2>
+						<p class="description">Runs automatically on membership changes and every night at 03:30.</p>
 					</div>
 					<button type="button" class="button button-primary" id="mpmls-sync-now" data-nonce="<?php echo esc_attr( $nonce ); ?>">Sync now</button>
 				</div>
-
-				<div class="mpmls-progress" id="mpmls-progress" style="display:none;">
-					<div class="mpmls-steps">
-						<span class="mpmls-step" data-step="1">1. Active members &rarr; plan groups</span>
-						<span class="mpmls-step" data-step="2">2. Churned members &rarr; inactive group</span>
-						<span class="mpmls-step" data-step="3">3. Group cleanup</span>
+				<div class="mpmls-card__body">
+					<div class="mpmls-sync-head">
+						<span class="mpmls-dot is-<?php echo esc_attr( $auto_state ); ?>"></span>
+						<div class="mpmls-sync-head__text">
+							<strong>Automatic sync</strong>
+							<p class="description"><?php echo esc_html( $auto_text ); ?></p>
+						</div>
 					</div>
-					<div class="mpmls-progress-track"><div class="mpmls-progress-bar" id="mpmls-progress-bar"></div></div>
-					<div class="mpmls-progress-meta">
-						<span id="mpmls-progress-label">Starting&hellip;</span>
-						<strong id="mpmls-progress-pct">0%</strong>
+
+					<div class="mpmls-progress" id="mpmls-progress" style="display:none;">
+						<div class="mpmls-steps">
+							<span class="mpmls-step" data-step="1">1. Active members &rarr; plan groups</span>
+							<span class="mpmls-step" data-step="2">2. Churned members &rarr; inactive group</span>
+							<span class="mpmls-step" data-step="3">3. Group cleanup</span>
+						</div>
+						<div class="mpmls-progress-track"><div class="mpmls-progress-bar" id="mpmls-progress-bar"></div></div>
+						<div class="mpmls-progress-meta">
+							<span id="mpmls-progress-label">Starting&hellip;</span>
+							<strong id="mpmls-progress-pct">0%</strong>
+						</div>
+					</div>
+
+					<div class="mpmls-result" id="mpmls-sync-result"></div>
+
+					<p class="mpmls-note" id="mpmls-sync-note">Everything syncs automatically on membership changes and every night at 03:30 &mdash; that runs on the server, so no browser window needs to stay open. &ldquo;Sync now&rdquo; instead runs in this tab: <strong>keep it open until it finishes.</strong> Closing it early only stops the run &mdash; nothing breaks, and you can safely start it again.</p>
+				</div>
+			</div>
+
+			<!-- ====================================== comparison ==== -->
+			<div class="mpmls-card">
+				<div class="mpmls-card__head">
+					<span class="mpmls-card__icon">&#9878;</span>
+					<div class="mpmls-card__title">
+						<h2>MemberPress vs MailerLite</h2>
+						<p class="description">What each group should contain, next to what MailerLite actually counts.</p>
 					</div>
 				</div>
+				<div class="mpmls-card__body">
+					<div class="mpmls-stats">
+						<div class="mpmls-stat is-primary">
+							<span class="mpmls-stat__value"><?php echo esc_html( (string) $active_counts['users'] ); ?></span>
+							<span class="mpmls-stat__label">Active members</span>
+						</div>
+						<div class="mpmls-stat">
+							<span class="mpmls-stat__value"><?php echo esc_html( (string) $active_counts['memberships'] ); ?></span>
+							<span class="mpmls-stat__label">Active memberships</span>
+						</div>
+						<div class="mpmls-stat">
+							<span class="mpmls-stat__value"><?php echo esc_html( (string) $inactive_counts['users'] ); ?></span>
+							<span class="mpmls-stat__label">Churned members</span>
+						</div>
+						<div class="mpmls-stat">
+							<span class="mpmls-stat__value"><?php echo esc_html( (string) count( $mapping ) ); ?></span>
+							<span class="mpmls-stat__label">Mapped plans</span>
+						</div>
+					</div>
 
-				<div class="mpmls-result" id="mpmls-sync-result"></div>
+					<div class="mpmls-table-wrap" style="margin-top:18px;">
+						<table class="widefat striped">
+							<thead>
+								<tr>
+									<th>Plan</th>
+									<th>MailerLite group</th>
+									<th class="mpmls-num">Should be</th>
+									<th class="mpmls-num">MailerLite shows</th>
+									<th>Difference</th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php if ( empty( $comparison ) ) : ?>
+									<tr><td colspan="5">No mapped groups yet.</td></tr>
+								<?php else : ?>
+									<?php foreach ( $comparison as $row ) : ?>
+										<tr>
+											<td><strong><?php echo esc_html( $row['label'] ); ?></strong></td>
+											<td><?php echo $row['group_name'] !== '' ? esc_html( $row['group_name'] ) : '<span class="mpmls-muted">&mdash;</span>'; ?></td>
+											<td class="mpmls-num"><?php echo esc_html( (string) $row['mp'] ); ?></td>
+											<td class="mpmls-num"><?php echo null === $row['ml'] ? '<span class="mpmls-muted">&mdash;</span>' : esc_html( (string) $row['ml'] ); ?></td>
+											<td>
+												<?php
+												if ( null === $row['ml'] ) {
+													echo '<span class="mpmls-muted">not reported</span>';
+												} elseif ( $row['ml'] > $row['mp'] ) {
+													printf(
+														'<span class="mpmls-tag is-err">%d too many</span> <span class="mpmls-muted">cleanup will remove them</span>',
+														(int) ( $row['ml'] - $row['mp'] )
+													);
+												} elseif ( $row['ml'] < $row['mp'] ) {
+													printf(
+														'<span class="mpmls-tag">%d not mailable</span> <span class="mpmls-muted">unsubscribed or bounced</span>',
+														(int) ( $row['mp'] - $row['ml'] )
+													);
+												} else {
+													echo '<span class="mpmls-tag is-ok">match</span>';
+												}
+												?>
+											</td>
+										</tr>
+									<?php endforeach; ?>
+								<?php endif; ?>
+							</tbody>
+						</table>
+					</div>
 
-				<p class="mpmls-note" id="mpmls-sync-note">Everything syncs automatically on membership changes and every night at 03:30 &mdash; that runs on the server, so no browser window needs to stay open. &ldquo;Sync now&rdquo; instead runs in this tab: <strong>keep it open until it finishes.</strong> Closing it early only stops the run &mdash; nothing breaks, and you can safely start it again.</p>
+					<p class="mpmls-legend">
+						MailerLite only counts contacts it may email, so <strong>fewer</strong> there than in MemberPress is normal &mdash; those people unsubscribed or their address bounced, and they stay in the group.
+						<strong>More</strong> is not: those contacts no longer belong, and step&nbsp;3 of the sync removes them.
+					</p>
+				</div>
 			</div>
 
-			<hr class="mpmls-section-spacer" />
-			<h2>Debug Subscriber</h2>
-			<p class="description">Enter an email and optional membership ID to see the exact fields we send to MailerLite.</p>
-			<table class="form-table" role="presentation">
-				<tr>
-					<th scope="row"><label for="mpmls-debug-email">Email</label></th>
-					<td>
-						<input type="email" id="mpmls-debug-email" class="regular-text" placeholder="user@example.com" />
-					</td>
-				</tr>
-				<tr>
-					<th scope="row"><label for="mpmls-debug-status">Status</label></th>
-					<td>
-						<select id="mpmls-debug-status">
-							<option value="active">Active</option>
-							<option value="inactive">Inactive (expired/cancelled)</option>
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row"><label for="mpmls-debug-membership">Membership (optional)</label></th>
-					<td>
-						<?php if ( ! empty( $products ) ) : ?>
-							<select id="mpmls-debug-membership">
-								<option value="">Auto-detect</option>
-								<?php echo $this->render_product_options( $products, '' ); ?>
+			<!-- =================================== configuration ==== -->
+			<div class="mpmls-card">
+				<div class="mpmls-card__head">
+					<span class="mpmls-card__icon">&#9881;</span>
+					<div class="mpmls-card__title">
+						<h2>Configuration</h2>
+						<p class="description">Which MemberPress plan feeds which MailerLite group. Changes save automatically.</p>
+					</div>
+				</div>
+				<div class="mpmls-card__body">
+					<table class="form-table" role="presentation">
+						<tr>
+							<th scope="row">Plan &rarr; group</th>
+							<td>
+								<div class="mpmls-table-wrap">
+									<table class="widefat striped" id="mpmls-mapping-table">
+									<thead>
+										<tr>
+											<th>MemberPress plan</th>
+											<th>MailerLite group</th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										<?php foreach ( $rows as $index => $row ) : ?>
+											<tr>
+												<td>
+													<?php if ( ! empty( $products ) ) : ?>
+														<select name="<?php echo esc_attr( MPMLS_OPTION_KEY ); ?>[mapping][<?php echo esc_attr( $index ); ?>][membership_id]">
+															<?php echo $this->render_product_options( $products, $row['membership_id'] ); ?>
+														</select>
+													<?php else : ?>
+														<input type="number" name="<?php echo esc_attr( MPMLS_OPTION_KEY ); ?>[mapping][<?php echo esc_attr( $index ); ?>][membership_id]" value="<?php echo esc_attr( $row['membership_id'] ); ?>" />
+													<?php endif; ?>
+												</td>
+												<td>
+													<?php if ( ! empty( $groups ) ) : ?>
+														<select name="<?php echo esc_attr( MPMLS_OPTION_KEY ); ?>[mapping][<?php echo esc_attr( $index ); ?>][group_id]">
+															<?php echo $this->render_group_options( $groups, $row['group_id'] ); ?>
+														</select>
+													<?php else : ?>
+														<input type="text" name="<?php echo esc_attr( MPMLS_OPTION_KEY ); ?>[mapping][<?php echo esc_attr( $index ); ?>][group_id]" value="<?php echo esc_attr( $row['group_id'] ); ?>" />
+													<?php endif; ?>
+												</td>
+												<td><button type="button" class="button mpmls-remove-row">Remove</button></td>
+											</tr>
+										<?php endforeach; ?>
+									</tbody>
+									</table>
+								</div>
+								<?php if ( $groups_error ) : ?>
+									<p class="description">Could not load MailerLite groups: <?php echo esc_html( $groups_error ); ?></p>
+								<?php endif; ?>
+								<p><button type="button" class="button" id="mpmls-add-row">Add mapping</button><span class="mpmls-save-status" id="mpmls-save-status"></span></p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="mpmls-expired-group">Inactive group</label></th>
+							<td>
+								<?php if ( ! empty( $groups ) ) : ?>
+									<select id="mpmls-expired-group" name="<?php echo esc_attr( MPMLS_OPTION_KEY ); ?>[expired_group_id]" class="regular-text">
+										<?php echo $this->render_group_options( $groups, $expired_group_id, true ); ?>
+									</select>
+								<?php else : ?>
+									<input type="text" id="mpmls-expired-group" name="<?php echo esc_attr( MPMLS_OPTION_KEY ); ?>[expired_group_id]" value="<?php echo esc_attr( $expired_group_id ); ?>" class="regular-text" />
+								<?php endif; ?>
+								<p class="description">Where members go once their subscription expires or is cancelled. Optional.</p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">Logging</th>
+							<td>
+								<label><input type="checkbox" name="<?php echo esc_attr( MPMLS_OPTION_KEY ); ?>[logging_enabled]" value="1" <?php checked( $logging_enabled ); ?> /> Record every sync action</label>
+								<p class="description">Needed to see which contacts were added, moved or removed &mdash; including who group cleanup took out.</p>
+							</td>
+						</tr>
+					</table>
+
+					<p class="mpmls-note">Custom fields sent to MailerLite: <strong>name</strong>, <strong>last_name</strong>, <strong>membership_name</strong>, <strong>membership_expiry</strong>, <strong>signup_date</strong>, <strong>membership_status</strong>. Create them under Subscribers &rarr; Fields in MailerLite for full functionality.</p>
+				</div>
+			</div>
+
+			<!-- ========================================= per plan ==== -->
+			<div class="mpmls-card">
+				<div class="mpmls-card__head">
+					<span class="mpmls-card__icon">&#128100;</span>
+					<div class="mpmls-card__title">
+						<h2>Active members by plan</h2>
+						<p class="description">Straight from MemberPress &mdash; the same definition the Members screen uses.</p>
+					</div>
+				</div>
+				<div class="mpmls-card__body">
+					<div class="mpmls-table-wrap">
+						<table class="widefat striped">
+						<thead>
+							<tr>
+								<th>Plan</th>
+								<th>Product ID</th>
+								<th class="mpmls-num">Members</th>
+								<th class="mpmls-num">Memberships</th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php if ( empty( $active_breakdown ) ) : ?>
+								<tr><td colspan="4">No active membership rows found.</td></tr>
+							<?php else : ?>
+								<?php foreach ( $active_breakdown as $row ) : ?>
+									<tr>
+										<td><?php echo esc_html( $row['title'] ); ?></td>
+										<td class="mpmls-muted">#<?php echo esc_html( (string) $row['product_id'] ); ?></td>
+										<td class="mpmls-num"><?php echo esc_html( (string) $row['users'] ); ?></td>
+										<td class="mpmls-num"><?php echo esc_html( (string) $row['memberships'] ); ?></td>
+									</tr>
+								<?php endforeach; ?>
+							<?php endif; ?>
+						</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<!-- ============================================ logs ==== -->
+			<div class="mpmls-card">
+				<div class="mpmls-card__head">
+					<span class="mpmls-card__icon">&#128220;</span>
+					<div class="mpmls-card__title">
+						<h2>Activity log</h2>
+						<p class="description">Every add, move and removal, newest first.</p>
+					</div>
+				</div>
+				<div class="mpmls-card__body">
+					<?php if ( ! $logging_enabled ) : ?>
+						<p class="mpmls-note is-warn">Logging is currently off, so nothing new is being recorded. Turn it on under Configuration to see which contacts the sync touches.</p>
+					<?php endif; ?>
+
+					<div class="mpmls-toolbar">
+						<form method="get">
+							<input type="hidden" name="page" value="<?php echo esc_attr( self::SYNC_PAGE_SLUG ); ?>" />
+							<label for="mpmls_event">Event:</label>
+							<select name="mpmls_event" id="mpmls_event">
+								<option value="">All</option>
+								<?php foreach ( $events as $event ) : ?>
+									<option value="<?php echo esc_attr( $event ); ?>" <?php selected( $event_filter, $event ); ?>><?php echo esc_html( $event ); ?></option>
+								<?php endforeach; ?>
 							</select>
-						<?php else : ?>
-							<input type="number" id="mpmls-debug-membership" class="regular-text" placeholder="Membership ID (optional)" />
-						<?php endif; ?>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row"></th>
-					<td>
-						<button type="button" class="button" id="mpmls-debug-run" data-nonce="<?php echo esc_attr( $nonce ); ?>">Debug subscriber</button>
-					</td>
-				</tr>
-			</table>
-			<pre id="mpmls-debug-result" style="background:#fff;border:1px solid #ccd0d4;padding:10px;max-height:240px;overflow:auto;"></pre>
+							<button class="button">Filter</button>
+						</form>
+						<span class="mpmls-spacer"></span>
+						<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+							<input type="hidden" name="action" value="mpmls_clear_logs" />
+							<?php wp_nonce_field( 'mpmls_clear_logs' ); ?>
+							<button class="button">Clear log</button>
+						</form>
+					</div>
 
-			<hr class="mpmls-section-spacer" />
-			<h2>MemberPress Counts</h2>
-			<p class="description">Memberships count unique user + membership pairs. Users count unique subscribers. MailerLite groups always show unique subscribers.</p>
-			<div class="mpmls-table-wrap">
-				<table class="widefat striped">
-				<thead>
-					<tr>
-						<th>Status</th>
-						<th>Memberships</th>
-						<th>Users</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>Active</td>
-						<td><?php echo esc_html( (string) $active_counts['memberships'] ); ?></td>
-						<td><?php echo esc_html( (string) $active_counts['users'] ); ?></td>
-					</tr>
-					<tr>
-						<td>Inactive</td>
-						<td><?php echo esc_html( (string) $inactive_counts['memberships'] ); ?></td>
-						<td><?php echo esc_html( (string) $inactive_counts['users'] ); ?></td>
-					</tr>
-				</tbody>
-				</table>
-			</div>
-
-			<hr class="mpmls-section-spacer" />
-			<h2>Active By Membership</h2>
-			<p class="description">Counts of active users per MemberPress product.</p>
-			<div class="mpmls-table-wrap">
-				<table class="widefat striped">
-				<thead>
-					<tr>
-						<th>Membership</th>
-						<th>Product ID</th>
-						<th>Users</th>
-						<th>Memberships</th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php if ( empty( $active_breakdown ) ) : ?>
-						<tr><td colspan="4">No active membership rows found.</td></tr>
-					<?php else : ?>
-						<?php foreach ( $active_breakdown as $row ) : ?>
+					<div class="mpmls-table-wrap">
+						<table class="widefat striped mpmls-logs">
+						<thead>
 							<tr>
-								<td><?php echo esc_html( $row['title'] ); ?></td>
-								<td><?php echo esc_html( (string) $row['product_id'] ); ?></td>
-								<td><?php echo esc_html( (string) $row['users'] ); ?></td>
-								<td><?php echo esc_html( (string) $row['memberships'] ); ?></td>
+								<th>Time</th>
+								<th>Event</th>
+								<th>Email</th>
+								<th>Membership</th>
+								<th>Group</th>
+								<th>Action</th>
+								<th>Result</th>
+								<th>Message</th>
 							</tr>
-						<?php endforeach; ?>
-					<?php endif; ?>
-				</tbody>
-				</table>
+						</thead>
+						<tbody>
+							<?php if ( empty( $logs ) ) : ?>
+								<tr><td colspan="8">No log entries yet.</td></tr>
+							<?php else : ?>
+								<?php foreach ( $logs as $log ) : ?>
+									<tr>
+										<td><?php echo esc_html( $log['created_at'] ); ?></td>
+										<td><span class="mpmls-tag"><?php echo esc_html( $log['event'] ); ?></span></td>
+										<td><?php echo esc_html( $log['email'] ); ?></td>
+										<td class="mpmls-muted"><?php echo $log['membership_id'] ? esc_html( '#' . $log['membership_id'] ) : '&mdash;'; ?></td>
+										<td class="mpmls-muted"><?php echo $log['group_id'] ? esc_html( (string) $log['group_id'] ) : '&mdash;'; ?></td>
+										<td><?php echo esc_html( $log['action'] ); ?></td>
+										<td><span class="mpmls-tag <?php echo $log['success'] ? 'is-ok' : 'is-err'; ?>"><?php echo $log['success'] ? 'OK' : 'Failed'; ?></span></td>
+										<td class="mpmls-msg"><?php echo esc_html( $log['message'] ); ?></td>
+									</tr>
+								<?php endforeach; ?>
+							<?php endif; ?>
+						</tbody>
+						</table>
+					</div>
+				</div>
 			</div>
 
-			<hr class="mpmls-section-spacer" />
-			<h2>Diagnostics</h2>
-			<p class="description">Use this to verify MemberPress table availability and statuses. Share this section if counts look wrong.</p>
-			<div class="mpmls-table-wrap">
-				<table class="widefat striped">
-				<thead>
-					<tr>
-						<th>Check</th>
-						<th>Result</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>mepr_subscriptions table</td>
-						<td><?php echo $diagnostics['subscriptions_table'] ? 'Exists' : 'Missing'; ?></td>
-					</tr>
-					<tr>
-						<td>mepr_transactions table</td>
-						<td><?php echo $diagnostics['transactions_table'] ? 'Exists' : 'Missing'; ?></td>
-					</tr>
-					<tr>
-						<td>subscriptions.expires_at column</td>
-						<td><?php echo $diagnostics['subscriptions_expires_column'] ? 'Exists' : 'Missing'; ?></td>
-					</tr>
-					<tr>
-						<td>transactions.expires_at column</td>
-						<td><?php echo $diagnostics['transactions_expires_column'] ? 'Exists' : 'Missing'; ?></td>
-					</tr>
-					<tr>
-						<td>transactions.subscription_id column</td>
-						<td><?php echo $diagnostics['transactions_subscription_column'] ? 'Exists' : 'Missing'; ?></td>
-					</tr>
-					<tr>
-						<td>Active memberships (SQL)</td>
-						<td><?php echo esc_html( (string) $diagnostics['active_memberships'] ); ?></td>
-					</tr>
-					<tr>
-						<td>Inactive memberships (SQL)</td>
-						<td><?php echo esc_html( (string) $diagnostics['expired_memberships'] ); ?></td>
-					</tr>
-				</tbody>
-				</table>
-			</div>
-			<div class="mpmls-table-wrap mpmls-section-spacer">
-				<table class="widefat striped">
-				<thead>
-					<tr>
-						<th>Subscription statuses</th>
-						<th>Count</th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php if ( empty( $diagnostics['subscription_statuses'] ) ) : ?>
-						<tr><td colspan="2">No subscription status rows found.</td></tr>
-					<?php else : ?>
-						<?php foreach ( $diagnostics['subscription_statuses'] as $row ) : ?>
+			<!-- ================================ tools (collapsed) ==== -->
+			<details class="mpmls-card mpmls-details">
+				<summary>Troubleshooting tools</summary>
+				<div class="mpmls-card__body">
+					<h3 style="margin-top:0;">Debug subscriber</h3>
+					<p class="description">See the exact fields we would send to MailerLite for one member.</p>
+					<table class="form-table" role="presentation">
+						<tr>
+							<th scope="row"><label for="mpmls-debug-email">Email</label></th>
+							<td><input type="email" id="mpmls-debug-email" class="regular-text" placeholder="user@example.com" /></td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="mpmls-debug-status">Status</label></th>
+							<td>
+								<select id="mpmls-debug-status">
+									<option value="active">Active</option>
+									<option value="inactive">Inactive (expired/cancelled)</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="mpmls-debug-membership">Membership</label></th>
+							<td>
+								<?php if ( ! empty( $products ) ) : ?>
+									<select id="mpmls-debug-membership">
+										<option value="">All memberships</option>
+										<?php echo $this->render_product_options( $products, '' ); ?>
+									</select>
+								<?php else : ?>
+									<input type="number" id="mpmls-debug-membership" class="regular-text" placeholder="Membership ID (optional)" />
+								<?php endif; ?>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"></th>
+							<td><button type="button" class="button" id="mpmls-debug-run" data-nonce="<?php echo esc_attr( $nonce ); ?>">Run debug</button></td>
+						</tr>
+					</table>
+					<pre id="mpmls-debug-result" class="mpmls-pre"></pre>
+
+					<h3>Diagnostics</h3>
+					<p class="description">Verifies the MemberPress tables this sync reads. Share this if the numbers look wrong.</p>
+					<div class="mpmls-table-wrap">
+						<table class="widefat striped">
+						<tbody>
+							<?php
+							$checks = array(
+								'mepr_subscriptions table'          => $diagnostics['subscriptions_table'],
+								'mepr_transactions table'           => $diagnostics['transactions_table'],
+								'subscriptions.expires_at column'   => $diagnostics['subscriptions_expires_column'],
+								'transactions.expires_at column'    => $diagnostics['transactions_expires_column'],
+								'transactions.subscription_id column' => $diagnostics['transactions_subscription_column'],
+							);
+							foreach ( $checks as $label => $ok ) :
+								?>
+								<tr>
+									<td><?php echo esc_html( $label ); ?></td>
+									<td><span class="mpmls-tag <?php echo $ok ? 'is-ok' : 'is-err'; ?>"><?php echo $ok ? 'Exists' : 'Missing'; ?></span></td>
+								</tr>
+							<?php endforeach; ?>
 							<tr>
-								<td><?php echo esc_html( (string) $row['status'] ); ?></td>
-								<td><?php echo esc_html( (string) $row['count'] ); ?></td>
+								<td>Active memberships (SQL)</td>
+								<td><?php echo esc_html( (string) $diagnostics['active_memberships'] ); ?></td>
 							</tr>
-						<?php endforeach; ?>
-					<?php endif; ?>
-				</tbody>
-				</table>
-			</div>
-			<div class="mpmls-table-wrap mpmls-section-spacer">
-				<table class="widefat striped">
-				<thead>
-					<tr>
-						<th>Transaction statuses</th>
-						<th>Count</th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php if ( empty( $diagnostics['transaction_statuses'] ) ) : ?>
-						<tr><td colspan="2">No transaction status rows found.</td></tr>
-					<?php else : ?>
-						<?php foreach ( $diagnostics['transaction_statuses'] as $row ) : ?>
 							<tr>
-								<td><?php echo esc_html( (string) $row['status'] ); ?></td>
-								<td><?php echo esc_html( (string) $row['count'] ); ?></td>
+								<td>Inactive memberships (SQL)</td>
+								<td><?php echo esc_html( (string) $diagnostics['expired_memberships'] ); ?></td>
 							</tr>
-						<?php endforeach; ?>
-					<?php endif; ?>
-				</tbody>
-				</table>
-			</div>
+						</tbody>
+						</table>
+					</div>
 
-			<hr class="mpmls-section-spacer" />
-			<h2>Logs</h2>
-			<form method="get" class="mpmls-logs-actions">
-				<input type="hidden" name="page" value="<?php echo esc_attr( self::SYNC_PAGE_SLUG ); ?>" />
-				<label for="mpmls_event">Filter by event:</label>
-				<select name="mpmls_event" id="mpmls_event">
-					<option value="">All</option>
-					<?php foreach ( $events as $event ) : ?>
-						<option value="<?php echo esc_attr( $event ); ?>" <?php selected( $event_filter, $event ); ?>><?php echo esc_html( $event ); ?></option>
-					<?php endforeach; ?>
-				</select>
-				<button class="button">Filter</button>
-			</form>
+					<div class="mpmls-table-wrap" style="margin-top:16px;">
+						<table class="widefat striped">
+						<thead><tr><th>Subscription status</th><th class="mpmls-num">Count</th></tr></thead>
+						<tbody>
+							<?php if ( empty( $diagnostics['subscription_statuses'] ) ) : ?>
+								<tr><td colspan="2">No subscription status rows found.</td></tr>
+							<?php else : ?>
+								<?php foreach ( $diagnostics['subscription_statuses'] as $row ) : ?>
+									<tr>
+										<td><?php echo esc_html( (string) $row['status'] ); ?></td>
+										<td class="mpmls-num"><?php echo esc_html( (string) $row['count'] ); ?></td>
+									</tr>
+								<?php endforeach; ?>
+							<?php endif; ?>
+						</tbody>
+						</table>
+					</div>
 
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="mpmls-logs-actions">
-				<input type="hidden" name="action" value="mpmls_clear_logs" />
-				<?php wp_nonce_field( 'mpmls_clear_logs' ); ?>
-				<button class="button">Clear logs</button>
-			</form>
-
-			<div class="mpmls-table-wrap">
-				<table class="widefat striped">
-				<thead>
-					<tr>
-						<th>Time</th>
-						<th>Event</th>
-						<th>Email</th>
-						<th>User ID</th>
-						<th>Membership ID</th>
-						<th>Group ID</th>
-						<th>Action</th>
-						<th>Success</th>
-						<th>Message</th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php if ( empty( $logs ) ) : ?>
-						<tr><td colspan="9">No logs found.</td></tr>
-					<?php else : ?>
-						<?php foreach ( $logs as $log ) : ?>
-							<tr>
-								<td><?php echo esc_html( $log['created_at'] ); ?></td>
-								<td><?php echo esc_html( $log['event'] ); ?></td>
-								<td><?php echo esc_html( $log['email'] ); ?></td>
-								<td><?php echo esc_html( $log['wp_user_id'] ); ?></td>
-								<td><?php echo esc_html( $log['membership_id'] ); ?></td>
-								<td><?php echo esc_html( $log['group_id'] ); ?></td>
-								<td><?php echo esc_html( $log['action'] ); ?></td>
-								<td><?php echo $log['success'] ? 'Yes' : 'No'; ?></td>
-								<td><?php echo esc_html( $log['message'] ); ?></td>
-							</tr>
-						<?php endforeach; ?>
-					<?php endif; ?>
-				</tbody>
-				</table>
-			</div>
+					<div class="mpmls-table-wrap" style="margin-top:16px;">
+						<table class="widefat striped">
+						<thead><tr><th>Transaction status</th><th class="mpmls-num">Count</th></tr></thead>
+						<tbody>
+							<?php if ( empty( $diagnostics['transaction_statuses'] ) ) : ?>
+								<tr><td colspan="2">No transaction status rows found.</td></tr>
+							<?php else : ?>
+								<?php foreach ( $diagnostics['transaction_statuses'] as $row ) : ?>
+									<tr>
+										<td><?php echo esc_html( (string) $row['status'] ); ?></td>
+										<td class="mpmls-num"><?php echo esc_html( (string) $row['count'] ); ?></td>
+									</tr>
+								<?php endforeach; ?>
+							<?php endif; ?>
+						</tbody>
+						</table>
+					</div>
+				</div>
+			</details>
 		</div>
 
 		<script>
@@ -1032,6 +1214,7 @@ class MPMLS_Admin_Settings {
 		$sanitized['api_key'] = isset( $settings['api_key'] ) ? $settings['api_key'] : '';
 
 		update_option( MPMLS_OPTION_KEY, $sanitized );
+		MPMLS_Sync_Engine::flush_desired_group_counts();
 
 		wp_send_json_success( array( 'message' => 'Saved.' ) );
 	}
@@ -1044,6 +1227,7 @@ class MPMLS_Admin_Settings {
 		}
 
 		$offset = isset( $_POST['offset'] ) ? absint( $_POST['offset'] ) : 0;
+		MPMLS_Sync_Engine::flush_desired_group_counts();
 		$result = MPMLS_Sync_Engine::instance()->run_active_batch( $offset, 10, 'bulk_reconcile' );
 
 		if ( is_wp_error( $result ) ) {
@@ -1308,6 +1492,59 @@ class MPMLS_Admin_Settings {
 		}
 
 		return $wpdb->get_results( $sql, ARRAY_A );
+	}
+
+	/**
+	 * Side-by-side member counts per mapped group: what MemberPress says the
+	 * group should hold versus what MailerLite reports. MailerLite only counts
+	 * mailable contacts, so fewer is expected; more means stale members that
+	 * the sync's cleanup phase removes.
+	 */
+	protected function get_group_comparison( $mapping, $groups, $inactive_group_id ) {
+		if ( ! class_exists( 'MPMLS_Sync_Engine' ) ) {
+			return array();
+		}
+
+		$lookup = array();
+		foreach ( (array) $groups as $group ) {
+			$lookup[ (string) $group['id'] ] = $group;
+		}
+
+		$desired = MPMLS_Sync_Engine::instance()->get_desired_group_counts();
+		$rows    = array();
+
+		foreach ( (array) $mapping as $product_id => $group_id ) {
+			$group_id = (string) $group_id;
+			if ( '' === $group_id ) {
+				continue;
+			}
+			$title = $product_id ? (string) get_the_title( (int) $product_id ) : '';
+			$rows[] = $this->build_comparison_row(
+				'' !== $title ? $title : 'Plan #' . $product_id,
+				$group_id,
+				$lookup,
+				$desired
+			);
+		}
+
+		$inactive_group_id = (string) $inactive_group_id;
+		if ( '' !== $inactive_group_id ) {
+			$rows[] = $this->build_comparison_row( 'Churned members', $inactive_group_id, $lookup, $desired );
+		}
+
+		return $rows;
+	}
+
+	protected function build_comparison_row( $label, $group_id, $lookup, $desired ) {
+		$group = isset( $lookup[ $group_id ] ) ? $lookup[ $group_id ] : null;
+
+		return array(
+			'label'      => $label,
+			'group_id'   => $group_id,
+			'group_name' => $group ? (string) $group['name'] : '',
+			'mp'         => isset( $desired[ $group_id ] ) ? (int) $desired[ $group_id ] : 0,
+			'ml'         => ( $group && isset( $group['active_count'] ) && null !== $group['active_count'] ) ? (int) $group['active_count'] : null,
+		);
 	}
 
 	protected function get_membership_breakdown( $sql ) {

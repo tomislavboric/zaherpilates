@@ -199,6 +199,7 @@ class MPMLS_Auto_Sync {
 
 	protected function finish( $state, $error_message = '' ) {
 		delete_option( self::STATE_KEY );
+		MPMLS_Sync_Engine::flush_desired_group_counts();
 
 		$totals = wp_parse_args( isset( $state['totals'] ) ? $state['totals'] : array(), array(
 			'active_synced'    => 0,

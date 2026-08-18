@@ -37,13 +37,17 @@ class MPMLS_MailerLite_Client {
 		$data = $response['data'];
 		$groups = array();
 
+		// active_count is what MailerLite shows as the group's subscriber
+		// number: mailable contacts only, so unsubscribed and bounced members
+		// are excluded. Null when the API does not report it.
 		if ( $this->is_classic() ) {
 			$items = is_array( $data ) ? $data : array();
 			foreach ( $items as $item ) {
 				if ( is_array( $item ) && isset( $item['id'] ) ) {
 					$groups[] = array(
-						'id'   => (string) $item['id'],
-						'name' => isset( $item['name'] ) ? (string) $item['name'] : (string) $item['id'],
+						'id'           => (string) $item['id'],
+						'name'         => isset( $item['name'] ) ? (string) $item['name'] : (string) $item['id'],
+						'active_count' => isset( $item['active'] ) ? (int) $item['active'] : null,
 					);
 				}
 			}
@@ -52,8 +56,9 @@ class MPMLS_MailerLite_Client {
 			foreach ( $items as $item ) {
 				if ( is_array( $item ) && isset( $item['id'] ) ) {
 					$groups[] = array(
-						'id'   => (string) $item['id'],
-						'name' => isset( $item['name'] ) ? (string) $item['name'] : (string) $item['id'],
+						'id'           => (string) $item['id'],
+						'name'         => isset( $item['name'] ) ? (string) $item['name'] : (string) $item['id'],
+						'active_count' => isset( $item['active_count'] ) ? (int) $item['active_count'] : null,
 					);
 				}
 			}
