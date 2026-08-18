@@ -128,6 +128,7 @@ require_once MPMLS_PATH . 'includes/class-mailerlite-client.php';
 require_once MPMLS_PATH . 'includes/class-sync-engine.php';
 require_once MPMLS_PATH . 'includes/class-mp-hooks.php';
 require_once MPMLS_PATH . 'includes/class-auto-sync.php';
+require_once MPMLS_PATH . 'includes/class-retry.php';
 require_once MPMLS_PATH . 'admin/class-admin-settings.php';
 
 add_action( 'after_setup_theme', function () {
@@ -136,9 +137,12 @@ add_action( 'after_setup_theme', function () {
 	$hooks->register();
 	$auto_sync = new MPMLS_Auto_Sync();
 	$auto_sync->register();
+	$retry = new MPMLS_Retry();
+	$retry->register();
 } );
 
 add_action( 'switch_theme', function () {
 	wp_clear_scheduled_hook( 'mpmls_auto_sync_daily' );
 	wp_clear_scheduled_hook( 'mpmls_auto_sync_batch' );
+	wp_unschedule_hook( 'mpmls_retry_user_sync' );
 } );

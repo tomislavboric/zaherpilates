@@ -342,6 +342,63 @@ class MPMLS_Sync_Engine {
 		return 'synced';
 	}
 
+	/* -------------------------------------------------- per-user sync -- */
+
+	/**
+	 * Converge one user to their current desired state: every active
+	 * membership into its plan group, or — when fully churned — into the
+	 * inactive group. Used by the retry mechanism.
+	 */
+	public function sync_user( $user_id, $event_name = 'retry_sync', $client = null ) {
+		global $wpdb;
+
+		$user_id = (int) $user_id;
+		if ( ! $user_id ) {
+			return new WP_Error( 'mpmls_no_user', 'Invalid user ID.' );
+		}
+
+		$mapping = $this->get_mapping();
+		if ( empty( $mapping ) ) {
+			return new WP_Error( 'mpmls_no_mapping', 'No membership - group mapping found.' );
+		}
+
+		if ( null === $client ) {
+			$client = $this->get_client();
+		}
+		if ( is_wp_error( $client ) ) {
+			return $client;
+		}
+
+		$had_error   = false;
+		$active_rows = $wpdb->get_results( $this->get_active_members_sql( $user_id, true ), ARRAY_A );
+
+		if ( ! empty( $active_rows ) ) {
+			foreach ( $active_rows as $row ) {
+				if ( 'error' === $this->sync_active_member( $row, $client, $mapping, $event_name ) ) {
+					$had_error = true;
+				}
+			}
+		} else {
+			$inactive_group_id = $this->get_inactive_group_id();
+			if ( '' !== $inactive_group_id ) {
+				$expired_rows = $wpdb->get_results( $this->get_expired_members_sql( true, $user_id ), ARRAY_A );
+				if ( ! empty( $expired_rows ) ) {
+					// One representative row (latest expiry) is enough — the
+					// member-level guards inside sync_inactive_member() apply.
+					usort( $expired_rows, function ( $a, $b ) {
+						return strcmp( (string) $a['expires_at'], (string) $b['expires_at'] );
+					} );
+					$row = end( $expired_rows );
+					if ( 'error' === $this->sync_inactive_member( $row, $client, $inactive_group_id, $event_name ) ) {
+						$had_error = true;
+					}
+				}
+			}
+		}
+
+		return $had_error ? new WP_Error( 'mpmls_sync_user_failed', 'One or more sync operations failed for this user.' ) : true;
+	}
+
 	/* --------------------------------------------------- batch runners -- */
 
 	public function run_active_batch( $offset, $batch_size, $event_name, $client = null ) {

@@ -520,5 +520,11 @@ class MPMLS_MemberPress_Hooks {
 			'success'       => 0,
 			'message'       => $message,
 		) );
+
+		// A failed live sync gets retried with backoff (the retry converges
+		// the user to current state, it does not replay this event).
+		if ( class_exists( 'MPMLS_Retry' ) && ! empty( $context['user_id'] ) ) {
+			MPMLS_Retry::schedule( (int) $context['user_id'] );
+		}
 	}
 }
