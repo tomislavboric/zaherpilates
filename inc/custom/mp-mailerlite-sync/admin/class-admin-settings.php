@@ -309,6 +309,46 @@ class MPMLS_Admin_Settings {
 				.mpmls-wrap .mpmls-section-spacer { margin-top: 24px; }
 				.mpmls-wrap .mpmls-logs-actions { display: flex; align-items: center; gap: 10px; margin: 10px 0 16px; }
 				.mpmls-wrap .mpmls-quick-actions { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+
+				/* Sync panel */
+				.mpmls-wrap .mpmls-sync-panel { margin-top: 8px; padding: 16px 18px; background: #fff; border: 1px solid #dcdcde; border-left: 4px solid #2271b1; border-radius: 8px; max-width: 860px; }
+				.mpmls-wrap .mpmls-sync-head { display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+				.mpmls-wrap .mpmls-sync-head__text { flex: 1 1 320px; min-width: 260px; }
+				.mpmls-wrap .mpmls-sync-head__text strong { display: block; margin-bottom: 2px; }
+				.mpmls-wrap .mpmls-sync-head .description { margin: 0; }
+				.mpmls-wrap .mpmls-dot { flex: 0 0 auto; width: 10px; height: 10px; margin-top: 5px; border-radius: 50%; background: #8c8f94; }
+				.mpmls-wrap .mpmls-dot.is-ok { background: #00a32a; }
+				.mpmls-wrap .mpmls-dot.is-idle { background: #2271b1; }
+				.mpmls-wrap .mpmls-dot.is-warn { background: #d63638; }
+				.mpmls-wrap .mpmls-dot.is-off { background: #8c8f94; }
+				.mpmls-wrap .mpmls-dot.is-running { background: #2271b1; animation: mpmls-pulse 1.4s ease-in-out infinite; }
+				@keyframes mpmls-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(34,113,177,.5); } 50% { box-shadow: 0 0 0 6px rgba(34,113,177,0); } }
+
+				/* Progress */
+				.mpmls-wrap .mpmls-progress { margin-top: 16px; }
+				.mpmls-wrap .mpmls-steps { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+				.mpmls-wrap .mpmls-step { font-size: 12px; line-height: 1.6; padding: 3px 12px; border-radius: 999px; background: #f0f0f1; color: #646970; border: 1px solid #dcdcde; }
+				.mpmls-wrap .mpmls-step.is-active { background: #f0f6fc; color: #0a4b78; border-color: #a7cced; font-weight: 600; }
+				.mpmls-wrap .mpmls-step.is-done { background: #edfaef; color: #00733f; border-color: #a7e3b8; }
+				.mpmls-wrap .mpmls-step.is-done::before { content: '\2713\00a0'; }
+				.mpmls-wrap .mpmls-progress-track { height: 10px; background: #f0f0f1; border-radius: 999px; overflow: hidden; }
+				.mpmls-wrap .mpmls-progress-bar { height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, #2271b1, #00a32a); transition: width .35s ease; }
+				.mpmls-wrap .mpmls-progress-meta { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: 12px; color: #646970; }
+				.mpmls-wrap .mpmls-progress-meta strong { color: #1d2327; font-variant-numeric: tabular-nums; }
+
+				/* Result chips */
+				.mpmls-wrap .mpmls-result { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+				.mpmls-wrap .mpmls-chip { font-size: 12px; line-height: 1.6; padding: 3px 12px; border-radius: 999px; border: 1px solid; }
+				.mpmls-wrap .mpmls-chip.is-synced { background: #edfaef; color: #00733f; border-color: #a7e3b8; }
+				.mpmls-wrap .mpmls-chip.is-skipped { background: #f6f7f7; color: #50575e; border-color: #dcdcde; }
+				.mpmls-wrap .mpmls-chip.is-errors { background: #fcf0f1; color: #b32d2e; border-color: #f0b4b6; }
+				.mpmls-wrap .mpmls-chip.is-errors.is-zero { background: #f6f7f7; color: #50575e; border-color: #dcdcde; }
+				.mpmls-wrap .mpmls-chip.is-message { background: #fcf0f1; color: #b32d2e; border-color: #f0b4b6; }
+
+				/* Keep-open notice */
+				.mpmls-wrap .mpmls-note { margin-top: 14px; padding: 9px 14px; border-radius: 4px; font-size: 13px; line-height: 1.6; background: #f6f7f7; border-left: 4px solid #8c8f94; color: #50575e; }
+				.mpmls-wrap .mpmls-note.is-live { background: #fcf9e8; border-left-color: #dba617; color: #614f18; }
+				.mpmls-wrap .mpmls-save-status { margin-left: 10px; font-size: 12px; color: #646970; }
 			</style>
 			<h1>MP - MailerLite &mdash; Sync</h1>
 
@@ -361,7 +401,7 @@ class MPMLS_Admin_Settings {
 							<?php if ( $groups_error ) : ?>
 								<p class="description">Could not load MailerLite groups: <?php echo esc_html( $groups_error ); ?></p>
 							<?php endif; ?>
-							<p><button type="button" class="button" id="mpmls-add-row">Add mapping</button></p>
+							<p><button type="button" class="button" id="mpmls-add-row">Add mapping</button><span class="mpmls-save-status" id="mpmls-save-status"></span></p>
 						</td>
 					</tr>
 					<tr>
@@ -384,13 +424,31 @@ class MPMLS_Admin_Settings {
 						</td>
 					</tr>
 				</table>
-			<div class="mpmls-quick-actions">
-				<p class="description"><?php echo esc_html( $this->get_auto_sync_status_text() ); ?></p>
-				<p>
+			<div class="mpmls-sync-panel">
+				<div class="mpmls-sync-head">
+					<span class="mpmls-dot is-<?php echo esc_attr( $this->get_auto_sync_status_state() ); ?>"></span>
+					<div class="mpmls-sync-head__text">
+						<strong>Automatic sync</strong>
+						<p class="description"><?php echo esc_html( $this->get_auto_sync_status_text() ); ?></p>
+					</div>
 					<button type="button" class="button button-primary" id="mpmls-sync-now" data-nonce="<?php echo esc_attr( $nonce ); ?>">Sync now</button>
-					<span id="mpmls-sync-result"></span>
-				</p>
-				<p class="description">Everything syncs automatically on membership changes and every night at 03:30. &ldquo;Sync now&rdquo; runs the same full sync immediately: active members into their plan groups, churned members into the inactive group.</p>
+				</div>
+
+				<div class="mpmls-progress" id="mpmls-progress" style="display:none;">
+					<div class="mpmls-steps">
+						<span class="mpmls-step" data-step="1">1. Active members &rarr; plan groups</span>
+						<span class="mpmls-step" data-step="2">2. Churned members &rarr; inactive group</span>
+					</div>
+					<div class="mpmls-progress-track"><div class="mpmls-progress-bar" id="mpmls-progress-bar"></div></div>
+					<div class="mpmls-progress-meta">
+						<span id="mpmls-progress-label">Starting&hellip;</span>
+						<strong id="mpmls-progress-pct">0%</strong>
+					</div>
+				</div>
+
+				<div class="mpmls-result" id="mpmls-sync-result"></div>
+
+				<p class="mpmls-note" id="mpmls-sync-note">Everything syncs automatically on membership changes and every night at 03:30 &mdash; that runs on the server, so no browser window needs to stay open. &ldquo;Sync now&rdquo; instead runs in this tab: <strong>keep it open until it finishes.</strong> Closing it early only stops the run &mdash; nothing breaks, and you can safely start it again.</p>
 			</div>
 
 			<hr class="mpmls-section-spacer" />
@@ -663,7 +721,7 @@ class MPMLS_Admin_Settings {
 			}
 
 			var saveTimer = null;
-			var $status = $('#mpmls-sync-result');
+			var $status = $('#mpmls-save-status');
 			function autosave() {
 				clearTimeout(saveTimer);
 				saveTimer = setTimeout(function(){
@@ -708,6 +766,40 @@ class MPMLS_Admin_Settings {
 				autosave();
 			});
 
+			var $progress   = $('#mpmls-progress');
+			var $bar        = $('#mpmls-progress-bar');
+			var $label      = $('#mpmls-progress-label');
+			var $pct        = $('#mpmls-progress-pct');
+			var $result     = $('#mpmls-sync-result');
+			var $note       = $('#mpmls-sync-note');
+			var $dot        = $('.mpmls-sync-head .mpmls-dot');
+			var syncRunning = false;
+
+			$(window).on('beforeunload', function(){
+				if (syncRunning) {
+					return 'A sync is still running. If you leave now it will stop before finishing.';
+				}
+			});
+
+			function setBar(fraction) {
+				var pct = Math.max(0, Math.min(100, Math.round(fraction * 100)));
+				$bar.css('width', pct + '%');
+				$pct.text(pct + '%');
+			}
+
+			function setStep(current) {
+				$('.mpmls-step').each(function(){
+					var step = parseInt($(this).data('step'), 10);
+					$(this).toggleClass('is-active', step === current)
+					       .toggleClass('is-done', step < current);
+				});
+			}
+
+			function chip(cls, label, value) {
+				var zero = (cls === 'is-errors' && !value) ? ' is-zero' : '';
+				return '<span class="mpmls-chip ' + cls + zero + '">' + label + ': <strong>' + value + '</strong></span>';
+			}
+
 			$('#mpmls-sync-now').on('click', function(){
 				var $btn = $(this);
 				var nonce = $btn.data('nonce');
@@ -717,46 +809,76 @@ class MPMLS_Admin_Settings {
 					return;
 				}
 
-				$btn.prop('disabled', true);
-				$status.text('Starting\u2026');
+				syncRunning = true;
+				$btn.prop('disabled', true).text('Syncing\u2026');
+				$dot.attr('class', 'mpmls-dot is-running');
+				$note.addClass('is-live').html('<strong>Sync in progress \u2014 please keep this tab open.</strong> Closing it early only stops the run; nothing breaks and you can start it again.');
+				$result.empty();
+				$progress.show();
+				setStep(1);
+				setBar(0);
+				$label.text('Starting\u2026');
+
+				function stop() {
+					syncRunning = false;
+					$btn.prop('disabled', false).text('Sync now');
+					$note.removeClass('is-live').html('Everything syncs automatically on membership changes and every night at 03:30 \u2014 that runs on the server, so no browser window needs to stay open. \u201cSync now\u201d instead runs in this tab: <strong>keep it open until it finishes.</strong> Closing it early only stops the run \u2014 nothing breaks, and you can safely start it again.');
+				}
 
 				function fail(message) {
-					$status.text(message);
-					$btn.prop('disabled', false);
+					$dot.attr('class', 'mpmls-dot is-warn');
+					$label.text('Stopped');
+					$result.html('<span class="mpmls-chip is-message">' + message + '</span>');
+					stop();
 				}
 
 				function finish(suffix) {
-					$status.text('Done! Active synced: ' + totals.activeSynced +
-						', inactive synced: ' + totals.inactiveSynced +
-						', skipped: ' + totals.skipped +
-						', errors: ' + totals.errors + (suffix || ''));
-					$btn.prop('disabled', false);
+					setStep(3);
+					setBar(1);
+					$label.text('Finished');
+					$dot.attr('class', 'mpmls-dot is-' + (totals.errors ? 'warn' : 'ok'));
+					$result.html(
+						chip('is-synced', 'Active synced', totals.activeSynced) +
+						chip('is-synced', 'Inactive synced', totals.inactiveSynced) +
+						chip('is-skipped', 'Skipped', totals.skipped) +
+						chip('is-errors', 'Errors', totals.errors) +
+						(suffix ? '<span class="mpmls-chip is-skipped">' + suffix + '</span>' : '')
+					);
+					stop();
+				}
+
+				// Each phase fills half of the bar.
+				function advance(phase, d) {
+					var fraction = d.total ? (d.processed / d.total) : 1;
+					setBar(phase === 1 ? fraction * 0.5 : 0.5 + fraction * 0.5);
+					$label.text('Step ' + phase + '/2 \u2014 ' + (phase === 1 ? 'active' : 'churned') +
+						' members: ' + d.processed + ' / ' + d.total);
 				}
 
 				function activeBatch(offset) {
 					$.post(ajaxurl, { action: 'mpmls_reconcile_active_members', nonce: nonce, offset: offset }, function(response){
-						if (!response.success) { fail('Error: ' + response.data.message); return; }
+						if (!response.success) { fail(response.data.message); return; }
 						var d = response.data;
 						totals.activeSynced += d.synced;
 						totals.skipped += d.skipped;
 						totals.errors += d.errors;
-						$status.text('Step 1/2 \u2014 active members: ' + d.processed + '/' + d.total);
-						if (!d.done) { activeBatch(d.offset); } else { inactiveBatch(0); }
+						advance(1, d);
+						if (!d.done) { activeBatch(d.offset); } else { setStep(2); inactiveBatch(0); }
 					}).fail(function(){ fail('Request failed. Check server logs.'); });
 				}
 
 				function inactiveBatch(offset) {
 					$.post(ajaxurl, { action: 'mpmls_sync_expired_members', nonce: nonce, offset: offset }, function(response){
 						if (!response.success) {
-							// Inactive group not configured is not fatal - step 2 is skipped.
-							finish(' (inactive step skipped: ' + response.data.message + ')');
+							// No inactive group configured is not fatal - step 2 is simply skipped.
+							finish('Step 2 skipped: ' + response.data.message);
 							return;
 						}
 						var d = response.data;
 						totals.inactiveSynced += d.synced;
 						totals.skipped += d.skipped;
 						totals.errors += d.errors;
-						$status.text('Step 2/2 \u2014 inactive members: ' + d.processed + '/' + d.total);
+						advance(2, d);
 						if (!d.done) { inactiveBatch(d.offset); } else { finish(); }
 					}).fail(function(){ fail('Request failed. Check server logs.'); });
 				}
@@ -1197,6 +1319,31 @@ class MPMLS_Admin_Settings {
 
 	protected function build_subscriber_fields( $user, $product_id, $expires_at, $status ) {
 		return MPMLS_Sync_Engine::instance()->build_subscriber_fields( $user, $product_id, $expires_at, $status );
+	}
+
+	protected function get_auto_sync_status_state() {
+		if ( ! class_exists( 'MPMLS_Auto_Sync' ) ) {
+			return 'off';
+		}
+
+		if ( ! MPMLS_Auto_Sync::is_enabled() ) {
+			return 'off';
+		}
+
+		if ( MPMLS_Auto_Sync::is_running() ) {
+			return 'running';
+		}
+
+		$last = MPMLS_Auto_Sync::get_last_run();
+		if ( empty( $last['finished'] ) ) {
+			return 'idle';
+		}
+
+		if ( ! empty( $last['error'] ) || ! empty( $last['totals']['errors'] ) ) {
+			return 'warn';
+		}
+
+		return 'ok';
 	}
 
 	protected function get_auto_sync_status_text() {
