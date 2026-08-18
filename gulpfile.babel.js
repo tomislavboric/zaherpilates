@@ -7,6 +7,7 @@ import gulp          from 'gulp';
 import rimraf        from 'rimraf';
 import yaml          from 'js-yaml';
 import fs            from 'fs';
+import path          from 'path';
 import dateFormat    from 'dateformat';
 import webpackStream from 'webpack-stream';
 import webpack2      from 'webpack';
@@ -28,6 +29,10 @@ const DEV = !!(yargs.argv.dev);
 
 // Load settings from settings.yml
 const { BROWSERSYNC, REVISIONING, PATHS } = loadConfig();
+
+// Source and destination folders for images
+const IMAGES_SRC  = 'src/assets/images';
+const IMAGES_DEST = PATHS.dist + '/assets/images';
 
 // Check if file exists synchronously
 function checkFileExists(filepath) {
@@ -64,10 +69,15 @@ function loadConfig() {
   }
 }
 
-// Delete the "dist" folder
-// This happens every time a build starts
+// Delete the "dist" folder, except the generated images
+// The images folder is kept so images can be processed incrementally
+// (see the "images" and "prune-images" tasks below)
 function clean(done) {
-  rimraf(PATHS.dist, done);
+  // Everything in "dist" that is not the "assets" folder
+  rimraf(PATHS.dist + '/!(assets)', () => {
+    // Everything in "dist/assets" that is not the "images" folder
+    rimraf(PATHS.dist + '/assets/!(images)', done);
+  });
 }
 
 // Copy files out of the assets folder
@@ -163,10 +173,99 @@ const webpack = {
 gulp.task('webpack:build', webpack.build);
 gulp.task('webpack:watch', webpack.watch);
 
+// List all files inside a folder, recursively, as paths relative to that folder
+// Dotfiles (.DS_Store etc.) are skipped, just like gulp.src does by default
+function listFiles(dir, base = dir, found = []) {
+  if (!checkFileExists(dir)) {
+    return found;
+  }
+
+  fs.readdirSync(dir, { withFileTypes: true }).forEach(entry => {
+    if (entry.name.startsWith('.')) {
+      return;
+    }
+
+    const full = path.join(dir, entry.name);
+
+    if (entry.isDirectory()) {
+      listFiles(full, base, found);
+    } else {
+      found.push(path.relative(base, full));
+    }
+  });
+
+  return found;
+}
+
+// Source images that are missing in "dist" or newer than their processed copy
+function outdatedImages() {
+  return listFiles(IMAGES_SRC).filter(file => {
+    const source = fs.statSync(path.join(IMAGES_SRC, file));
+    let dest;
+
+    try {
+      dest = fs.statSync(path.join(IMAGES_DEST, file));
+    } catch (e) {
+      // Not built yet
+      return true;
+    }
+
+    return source.mtimeMs > dest.mtimeMs;
+  });
+}
+
+// Delete images in "dist" that no longer exist in "src", plus any empty folders
+function pruneImages(done) {
+  let removed = 0;
+
+  listFiles(IMAGES_DEST).forEach(file => {
+    if (!checkFileExists(path.join(IMAGES_SRC, file))) {
+      fs.unlinkSync(path.join(IMAGES_DEST, file));
+      log('Image ' + colors.bold(colors.magenta(file)) + ' was removed from dist.');
+      removed++;
+    }
+  });
+
+  removeEmptyFolders(IMAGES_DEST);
+
+  if (!removed) {
+    log('Images: nothing to remove.');
+  }
+
+  done();
+}
+
+// Recursively remove folders that are left empty after pruning
+function removeEmptyFolders(dir) {
+  if (!checkFileExists(dir)) {
+    return;
+  }
+
+  fs.readdirSync(dir, { withFileTypes: true }).forEach(entry => {
+    if (entry.isDirectory()) {
+      removeEmptyFolders(path.join(dir, entry.name));
+    }
+  });
+
+  if (dir !== IMAGES_DEST && fs.readdirSync(dir).length === 0) {
+    fs.rmdirSync(dir);
+  }
+}
+
 // Copy images to the "dist" folder
+// Only new or changed images are processed
 // In production, the images are compressed
-function images() {
-  return gulp.src('src/assets/images/**/*')
+function images(done) {
+  const outdated = outdatedImages();
+
+  if (!outdated.length) {
+    log('Images: all up to date, nothing to process.');
+    return done();
+  }
+
+  log('Images: processing ' + colors.bold(colors.cyan(outdated.length)) + ' new or changed file(s).');
+
+  return gulp.src(outdated.map(file => path.join(IMAGES_SRC, file)), { base: IMAGES_SRC })
     .pipe($.if(PRODUCTION, imagemin([
       imagemin.gifsicle({interlaced: true}),
       imagemin.mozjpeg({quality: 100, progressive: true}),
@@ -178,11 +277,12 @@ function images() {
         ]
       })
     ])))
-    .pipe(gulp.dest(PATHS.dist + '/assets/images'));
+    .pipe(gulp.dest(IMAGES_DEST));
 }
 
-// Images task
-gulp.task('images', images); // Define the 'images' task
+// Images tasks
+gulp.task('prune-images', pruneImages);
+gulp.task('images', gulp.series('prune-images', images));
 
 // Create a .zip archive of the theme
 function archive() {
@@ -246,7 +346,9 @@ function watch() {
   gulp.watch('**/*.php', reload)
     .on('change', path => log('File ' + colors.bold(colors.magenta(path)) + ' changed.'))
     .on('unlink', path => log('File ' + colors.bold(colors.magenta(path)) + ' was removed.'));
-  gulp.watch('src/assets/images/**/*', gulp.series('images', reload));
+  gulp.watch(IMAGES_SRC + '/**/*', gulp.series('images', reload))
+    .on('change', path => log('File ' + colors.bold(colors.magenta(path)) + ' changed.'))
+    .on('unlink', path => log('File ' + colors.bold(colors.magenta(path)) + ' was removed.'));
 }
 
 // Build the "dist" folder by running all of the below tasks

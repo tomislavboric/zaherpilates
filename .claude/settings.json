@@ -3,7 +3,11 @@
     "allow": [
       "Bash(awk -F'function ' '{print $2}')",
       "Bash(awk -F'\\(' '{print $1}')",
-      "Bash(awk '$1 > 1')"
+      "Bash(awk '$1 > 1')",
+      "Bash(php -l inc/custom/memberpress/core.php)",
+      "Bash(php \"/private/tmp/claude-501/-Users-tomislavboric-Sites-zaherpilates-local-wp-content-themes-zaherpilates/f12903d9-647c-43ec-9084-cea76a69ac04/scratchpad/verify3.php\")",
+      "Bash(git commit -m ' *)",
+      "Bash(git fetch *)"
     ]
   }
 }
