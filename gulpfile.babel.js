@@ -33,6 +33,13 @@ const { BROWSERSYNC, REVISIONING, PATHS } = loadConfig();
 const IMAGES_SRC  = 'src/assets/images';
 const IMAGES_DEST = PATHS.dist + '/assets/images';
 
+// How much newer a source image must be before it counts as changed.
+// gulp.dest copies the source mtime but drops its fractional milliseconds, so a
+// freshly copied file reads back very slightly older than its source and would
+// otherwise be reprocessed on every single build. A second also absorbs the
+// coarser mtime resolution of non-APFS volumes.
+const IMAGES_MTIME_TOLERANCE_MS = 1000;
+
 // Check if file exists synchronously
 function checkFileExists(filepath) {
   let flag = true;
@@ -197,7 +204,7 @@ function listFiles(dir, base = dir, found = []) {
   return found;
 }
 
-// Source images that are missing in "dist" or newer than their processed copy
+// Source images that are missing in "dist" or meaningfully newer than their copy
 function outdatedImages() {
   return listFiles(IMAGES_SRC).filter(file => {
     const source = fs.statSync(path.join(IMAGES_SRC, file));
@@ -210,7 +217,7 @@ function outdatedImages() {
       return true;
     }
 
-    return source.mtimeMs > dest.mtimeMs;
+    return source.mtimeMs > dest.mtimeMs + IMAGES_MTIME_TOLERANCE_MS;
   });
 }
 
