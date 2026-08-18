@@ -958,6 +958,39 @@ class MPMLS_Admin_Settings {
 			var $note       = $('#mpmls-sync-note');
 			var $dot        = $('.mpmls-sync-head .mpmls-dot');
 			var syncRunning = false;
+			var wakeLock    = null;
+
+			// A long manual sync dies if the machine falls asleep, so hold a
+			// screen wake lock while it runs. Needs HTTPS; unsupported browsers
+			// and a refused request both just fall through to the old behaviour.
+			function liveNote() {
+				var extra = wakeLock
+					? ' The screen is kept awake until it finishes \u2014 closing the laptop lid still stops it.'
+					: '';
+				$note.addClass('is-live').html('<strong>Sync in progress \u2014 please keep this tab open.</strong> Closing it early only stops the run; nothing breaks and you can start it again.' + extra);
+			}
+
+			function requestWakeLock() {
+				if (!('wakeLock' in navigator)) { return; }
+				navigator.wakeLock.request('screen').then(function(lock){
+					wakeLock = lock;
+					lock.addEventListener('release', function(){ wakeLock = null; });
+					if (syncRunning) { liveNote(); }
+				}).catch(function(){});
+			}
+
+			function releaseWakeLock() {
+				if (!wakeLock) { return; }
+				wakeLock.release().catch(function(){});
+				wakeLock = null;
+			}
+
+			// The browser drops the lock every time the tab is hidden.
+			document.addEventListener('visibilitychange', function(){
+				if (syncRunning && !wakeLock && document.visibilityState === 'visible') {
+					requestWakeLock();
+				}
+			});
 
 			$(window).on('beforeunload', function(){
 				if (syncRunning) {
@@ -997,7 +1030,8 @@ class MPMLS_Admin_Settings {
 				syncRunning = true;
 				$btn.prop('disabled', true).text('Syncing\u2026');
 				$dot.attr('class', 'mpmls-dot is-running');
-				$note.addClass('is-live').html('<strong>Sync in progress \u2014 please keep this tab open.</strong> Closing it early only stops the run; nothing breaks and you can start it again.');
+				liveNote();
+				requestWakeLock();
 				$result.empty();
 				$progress.show();
 				setStep(1);
@@ -1006,6 +1040,7 @@ class MPMLS_Admin_Settings {
 
 				function stop() {
 					syncRunning = false;
+					releaseWakeLock();
 					$btn.prop('disabled', false).text('Sync now');
 					$note.removeClass('is-live').html('Everything syncs automatically on membership changes and every night at 03:30 \u2014 that runs on the server, so no browser window needs to stay open. \u201cSync now\u201d instead runs in this tab: <strong>keep it open until it finishes.</strong> Closing it early only stops the run \u2014 nothing breaks, and you can safely start it again.');
 				}
