@@ -419,51 +419,17 @@ class MPMLS_MemberPress_Hooks {
 			}
 		}
 
-		$now   = current_time( 'mysql' );
-		$parts = array();
-
-		$subscriptions_table = $wpdb->prefix . 'mepr_subscriptions';
-		$subscriptions_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $subscriptions_table ) );
-		if ( $subscriptions_exists === $subscriptions_table ) {
-			$subscriptions_expires = $wpdb->get_var( $wpdb->prepare(
-				"SHOW COLUMNS FROM {$subscriptions_table} LIKE %s",
-				'expires_at'
-			) );
-			$sql = "SELECT s.product_id
-				FROM {$subscriptions_table} s
-				WHERE s.status = 'active'
-				AND s.user_id = %d";
-			if ( $subscriptions_expires ) {
-				// Note: no comparison against '' — that is an invalid DATETIME
-				// literal on MySQL 8 and silently kills the whole query.
-				$sql .= ' AND (s.expires_at IS NULL OR s.expires_at = \'0000-00-00 00:00:00\' OR s.expires_at >= %s)';
-				$parts[] = $wpdb->prepare( $sql, $user_id, $now );
-			} else {
-				$parts[] = $wpdb->prepare( $sql, $user_id );
-			}
-		}
-
-		$subscription_id_exists = $wpdb->get_var( $wpdb->prepare(
-			"SHOW COLUMNS FROM {$wpdb->prefix}mepr_transactions LIKE %s",
-			'subscription_id'
-		) );
-
-		$sql = "SELECT t.product_id
+		// Fallback: the same definition in SQL — an unexpired complete/confirmed
+		// transaction, regardless of subscription status.
+		$ids = $wpdb->get_col( $wpdb->prepare(
+			"SELECT DISTINCT t.product_id
 			FROM {$wpdb->prefix}mepr_transactions t
 			WHERE t.status IN ('complete', 'confirmed')
 			AND (t.expires_at IS NULL OR t.expires_at = '0000-00-00 00:00:00' OR t.expires_at >= %s)
-			AND t.user_id = %d";
-		if ( $subscription_id_exists ) {
-			$sql .= ' AND (t.subscription_id IS NULL OR t.subscription_id = 0)';
-		}
-		$parts[] = $wpdb->prepare( $sql, $now, $user_id );
-
-		if ( empty( $parts ) ) {
-			return array();
-		}
-
-		$union = implode( ' UNION ALL ', $parts );
-		$ids = $wpdb->get_col( "SELECT DISTINCT product_id FROM ( {$union} ) active_rows" );
+			AND t.user_id = %d",
+			current_time( 'mysql' ),
+			$user_id
+		) );
 
 		return array_map( 'intval', $ids );
 	}

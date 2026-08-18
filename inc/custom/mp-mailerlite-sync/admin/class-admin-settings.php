@@ -1467,68 +1467,26 @@ class MPMLS_Admin_Settings {
 	protected function get_active_members_sql( $user_id = 0, $with_order = true ) {
 		global $wpdb;
 
-		$now   = current_time( 'mysql' );
-		$parts = array();
+		$now = current_time( 'mysql' );
 
-		$subscriptions_table = $wpdb->prefix . 'mepr_subscriptions';
-		$subscriptions_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $subscriptions_table ) );
-		if ( $subscriptions_exists === $subscriptions_table ) {
-			$subscriptions_expires = $wpdb->get_var( $wpdb->prepare(
-				"SHOW COLUMNS FROM {$subscriptions_table} LIKE %s",
-				'expires_at'
-			) );
-			$expires_select = $subscriptions_expires ? 's.expires_at' : 'NULL AS expires_at';
-
-			$sql = "SELECT s.user_id, s.product_id, {$expires_select}
-				FROM {$subscriptions_table} s
-				WHERE s.status = 'active'";
-			if ( $subscriptions_expires ) {
-				// No '' comparison: invalid DATETIME literal on MySQL 8.
-				$sql .= ' AND (s.expires_at IS NULL OR s.expires_at = \'0000-00-00 00:00:00\' OR s.expires_at >= %s)';
-			}
-			if ( $user_id ) {
-				$sql .= ' AND s.user_id = %d';
-			}
-			if ( $subscriptions_expires && $user_id ) {
-				$sql = $wpdb->prepare( $sql, $now, $user_id );
-			} elseif ( $subscriptions_expires ) {
-				$sql = $wpdb->prepare( $sql, $now );
-			} elseif ( $user_id ) {
-				$sql = $wpdb->prepare( $sql, $user_id );
-			}
-			$parts[] = $sql;
-		}
-
-		$subscription_id_exists = $wpdb->get_var( $wpdb->prepare(
-			"SHOW COLUMNS FROM {$wpdb->prefix}mepr_transactions LIKE %s",
-			'subscription_id'
-		) );
-
-		$sql = "SELECT t.user_id, t.product_id, t.expires_at
+		// MemberPress' own definition of an active member: an unexpired
+		// complete/confirmed transaction for the product. Subscription status is
+		// irrelevant here — a stopped subscription that is paid until the end of
+		// the period still counts as active (matches the MP Members screen).
+		$sql = "SELECT t.user_id, t.product_id, MAX(t.expires_at) AS expires_at
 			FROM {$wpdb->prefix}mepr_transactions t
-			WHERE t.status IN ('complete', 'confirmed')
+			WHERE t.user_id > 0
+			AND t.status IN ('complete', 'confirmed')
 			AND (t.expires_at IS NULL OR t.expires_at = '0000-00-00 00:00:00' OR t.expires_at >= %s)";
-		if ( $subscription_id_exists ) {
-			$sql .= ' AND (t.subscription_id IS NULL OR t.subscription_id = 0)';
-		}
 		if ( $user_id ) {
 			$sql .= ' AND t.user_id = %d';
-			$sql = $wpdb->prepare( $sql, $now, $user_id );
+			$sql  = $wpdb->prepare( $sql, $now, $user_id );
 		} else {
 			$sql = $wpdb->prepare( $sql, $now );
 		}
-		$parts[] = $sql;
-
-		if ( empty( $parts ) ) {
-			return '';
-		}
-
-		$union = implode( ' UNION ALL ', $parts );
-		$sql = "SELECT user_id, product_id, MAX(expires_at) AS expires_at
-			FROM ( {$union} ) active_rows
-			GROUP BY user_id, product_id";
+		$sql .= ' GROUP BY t.user_id, t.product_id';
 		if ( $with_order ) {
-			$sql .= ' ORDER BY user_id, product_id';
+			$sql .= ' ORDER BY t.user_id, t.product_id';
 		}
 		return $sql;
 	}
@@ -1675,67 +1633,23 @@ class MPMLS_Admin_Settings {
 	protected function get_expired_members_sql( $with_order = true, $user_id = 0 ) {
 		global $wpdb;
 
-		$now   = current_time( 'mysql' );
-		$parts = array();
+		$now = current_time( 'mysql' );
 
-		$subscriptions_table = $wpdb->prefix . 'mepr_subscriptions';
-		$subscriptions_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $subscriptions_table ) );
-		if ( $subscriptions_exists === $subscriptions_table ) {
-			$subscriptions_expires = $wpdb->get_var( $wpdb->prepare(
-				"SHOW COLUMNS FROM {$subscriptions_table} LIKE %s",
-				'expires_at'
-			) );
-			$expires_select = $subscriptions_expires ? 's.expires_at' : 'NULL AS expires_at';
-
-			$sql = "SELECT s.user_id, s.product_id, {$expires_select}
-				FROM {$subscriptions_table} s
-				WHERE s.status IN ('expired', 'cancelled', 'suspended', 'stopped')";
-			if ( $user_id ) {
-				$sql .= ' AND s.user_id = %d';
-				$sql = $wpdb->prepare( $sql, $user_id );
-			}
-			$parts[] = $sql;
-		}
-
-		$transactions_expires = $wpdb->get_var( $wpdb->prepare(
-			"SHOW COLUMNS FROM {$wpdb->prefix}mepr_transactions LIKE %s",
-			'expires_at'
-		) );
-
-		$expires_select = $transactions_expires ? 't.expires_at' : 'NULL AS expires_at';
-
-		$conditions = array();
-		if ( $transactions_expires ) {
-			$conditions[] = "(t.status IN ('complete', 'confirmed')
-				AND t.expires_at IS NOT NULL
-				AND t.expires_at <> '0000-00-00 00:00:00'
-				AND t.expires_at < %s)";
-		}
-		$conditions[] = "t.status IN ('expired', 'refunded')";
-
-		$sql = "SELECT t.user_id, t.product_id, {$expires_select}
+		// Complement of get_active_members_sql(): paid (or refunded) history on
+		// the product, but no currently valid transaction for it.
+		$sql = "SELECT t.user_id, t.product_id, MAX(t.expires_at) AS expires_at
 			FROM {$wpdb->prefix}mepr_transactions t
-			WHERE (" . implode( ' OR ', $conditions ) . ')';
+			WHERE t.user_id > 0
+			AND t.status IN ('complete', 'confirmed', 'refunded')";
 		if ( $user_id ) {
-			$sql .= ' AND t.user_id = %d';
+			$sql .= $wpdb->prepare( ' AND t.user_id = %d', $user_id );
 		}
-		if ( $transactions_expires ) {
-			$sql = $user_id ? $wpdb->prepare( $sql, $now, $user_id ) : $wpdb->prepare( $sql, $now );
-		} elseif ( $user_id ) {
-			$sql = $wpdb->prepare( $sql, $user_id );
-		}
-		$parts[] = $sql;
-
-		if ( empty( $parts ) ) {
-			return '';
-		}
-
-		$union = implode( ' UNION ALL ', $parts );
-		$sql = "SELECT user_id, product_id, MAX(expires_at) AS expires_at
-			FROM ( {$union} ) expired_rows
-			GROUP BY user_id, product_id";
+		$sql .= " GROUP BY t.user_id, t.product_id
+			HAVING SUM( CASE WHEN t.status IN ('complete', 'confirmed')
+				AND ( t.expires_at IS NULL OR t.expires_at = '0000-00-00 00:00:00' OR t.expires_at >= " . $wpdb->prepare( '%s', $now ) . ' )
+				THEN 1 ELSE 0 END ) = 0';
 		if ( $with_order ) {
-			$sql .= ' ORDER BY user_id, product_id';
+			$sql .= ' ORDER BY t.user_id, t.product_id';
 		}
 		return $sql;
 	}
