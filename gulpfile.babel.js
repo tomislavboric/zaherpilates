@@ -14,7 +14,6 @@ import webpack2      from 'webpack';
 import named         from 'vinyl-named';
 import log           from 'fancy-log';
 import colors        from 'ansi-colors';
-import imagemin      from 'gulp-imagemin';
 
 var dartSass = require('gulp-sass')(require('sass'));
 
@@ -83,7 +82,8 @@ function clean(done) {
 // Copy files out of the assets folder
 // This task skips over the "images", "js", and "scss" folders, which are parsed separately
 function copy() {
-  return gulp.src(PATHS.assets)
+  // encoding: false keeps binary assets intact under gulp 5 (vinyl-fs 4)
+  return gulp.src(PATHS.assets, { encoding: false })
     .pipe(gulp.dest(PATHS.dist + '/assets'));
 }
 
@@ -254,7 +254,7 @@ function removeEmptyFolders(dir) {
 
 // Copy images to the "dist" folder
 // Only new or changed images are processed
-// In production, the images are compressed
+// Images are copied as-is: optimise them at the source instead
 function images(done) {
   const outdated = outdatedImages();
 
@@ -265,18 +265,8 @@ function images(done) {
 
   log('Images: processing ' + colors.bold(colors.cyan(outdated.length)) + ' new or changed file(s).');
 
-  return gulp.src(outdated.map(file => path.join(IMAGES_SRC, file)), { base: IMAGES_SRC })
-    .pipe($.if(PRODUCTION, imagemin([
-      imagemin.gifsicle({interlaced: true}),
-      imagemin.mozjpeg({quality: 100, progressive: true}),
-      imagemin.optipng({optimizationLevel: 0}),
-      imagemin.svgo({
-        plugins: [
-          {removeViewBox: true},
-          {cleanupIDs: true}
-        ]
-      })
-    ])))
+  // encoding: false keeps binary assets intact under gulp 5 (vinyl-fs 4)
+  return gulp.src(outdated.map(file => path.join(IMAGES_SRC, file)), { base: IMAGES_SRC, encoding: false })
     .pipe(gulp.dest(IMAGES_DEST));
 }
 
@@ -290,7 +280,8 @@ function archive() {
   var pkg = JSON.parse(fs.readFileSync('./package.json'));
   var title = pkg.name + '_' + time + '.zip';
 
-  return gulp.src(PATHS.package)
+  // encoding: false keeps binary assets intact under gulp 5 (vinyl-fs 4)
+  return gulp.src(PATHS.package, { encoding: false })
     .pipe($.zip(title))
     .pipe(gulp.dest('packaged'));
 }
@@ -304,18 +295,6 @@ gulp.task('phpcs', function() {
       showSniffCode: true,
     }))
     .pipe($.phpcs.reporter('log'));
-});
-
-// PHP Code Beautifier task
-gulp.task('phpcbf', function () {
-  return gulp.src(PATHS.phpcs)
-  .pipe($.phpcbf({
-    bin: 'wpcs/vendor/bin/phpcbf',
-    standard: './codesniffer.ruleset.xml',
-    warningSeverity: 0
-  }))
-  .on('error', log)
-  .pipe(gulp.dest('.'));
 });
 
 // Start BrowserSync to preview the site in

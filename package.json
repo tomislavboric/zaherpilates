@@ -11,8 +11,7 @@
     "dev": "gulp build --dev",
     "build": "gulp build --production",
     "package": "gulp package --production",
-    "phpcs": "gulp phpcs",
-    "phpcbf": "gulp phpcbf"
+    "phpcs": "gulp phpcs"
   },
   "keywords": [
     "FoundationPress",
@@ -45,9 +44,7 @@
     "gulp-clean-css": "^4.2.0",
     "gulp-cli": "^3.1.0",
     "gulp-if": "^2.0.0",
-    "gulp-imagemin": "^7.1.0",
     "gulp-load-plugins": "^2.0.8",
-    "gulp-phpcbf": "^0.1.2",
     "gulp-phpcs": "^3.1.0",
     "gulp-rev": "^8.1.1",
     "gulp-sass": "^5.0.1",
