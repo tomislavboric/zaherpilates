@@ -140,15 +140,21 @@ class MPMLS_MailerLite_Client {
 	}
 
 	/**
-	* One page of a group's ACTIVE members (new API only). Only active-status
-	* subscribers inflate the member count MailerLite shows for a group;
-	* unsubscribed and bounced contacts are left untouched so their history
-	* survives.
-	*
-	* $page_args is the opaque 'next' value returned by the previous call
-	* (empty array for the first page). Returns
-	* array( 'subscribers' => array( array( id, email, status ) ), 'next' => array|null ).
-	*/
+	 * One page of a group's ACTIVE members (new API only). Only active-status
+	 * subscribers inflate the member count MailerLite shows for a group;
+	 * unsubscribed and bounced contacts are left untouched so their history
+	 * survives.
+	 *
+	 * Listed through /subscribers with a group filter rather than the more
+	 * obvious /groups/{id}/subscribers: a token can be issued without access to
+	 * the /groups namespace, which then answers every request there with HTTP
+	 * 403, while this route needs only the subscriber permission the rest of
+	 * the sync already depends on.
+	 *
+	 * $page_args is the opaque 'next' value returned by the previous call
+	 * (empty array for the first page). Returns
+	 * array( 'subscribers' => array( array( id, email, status ) ), 'next' => array|null ).
+	 */
 	public function get_group_subscribers( $group_id, $page_args = array() ) {
 		if ( $this->is_classic() ) {
 			return new WP_Error( 'mpmls_prune_unsupported', 'Group member listing requires the new MailerLite API.' );
@@ -156,6 +162,7 @@ class MPMLS_MailerLite_Client {
 
 		$query = array(
 			'limit'          => 100,
+			'filter[group]'  => (string) $group_id,
 			'filter[status]' => 'active',
 		);
 		if ( ! empty( $page_args['cursor'] ) ) {
@@ -164,7 +171,7 @@ class MPMLS_MailerLite_Client {
 			$query['page'] = (int) $page_args['page'];
 		}
 
-		$response = $this->request( 'GET', '/groups/' . rawurlencode( (string) $group_id ) . '/subscribers', $query );
+		$response = $this->request( 'GET', '/subscribers', $query );
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
