@@ -61,9 +61,7 @@ if ( have_rows('catalog_builder', $term) ) {
 						<?php while ( $q->have_posts() ) : $q->the_post();
 
 							// Variables for video information
-							$vimeoUrl     = get_field('video', get_the_ID());
 							$video_length = get_field('video_length', get_the_ID());
-							$videoId      = getVimeoVideoId($vimeoUrl);
 							$subscription_type = get_field('subscription_type', get_the_ID());
 
 							// Thumbnail or placeholder URL
@@ -172,7 +170,6 @@ if ( have_rows('catalog_builder', $term) ) {
 									if ( !$pid || isset($seen[$pid]) ) continue;
 									$seen[$pid] = true;
 
-									$vimeoUrl      = get_field('video', $pid);
 									$video_length  = get_field('video_length', $pid);
 									$subscription_type = get_field('subscription_type', $pid);
 									$thumbnail_url = has_post_thumbnail($pid)

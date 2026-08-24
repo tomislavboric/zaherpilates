@@ -21,7 +21,7 @@ $progress_nonce    = is_user_logged_in() ? wp_create_nonce( 'wp_rest' ) : '';
 
         // vars
         $program_id = get_the_ID();
-        $vimeo_url = get_field('video');
+        $vimeo_url = get_field('video', false, false);
         $vimeo_length = get_field('video_length');
         $videoId = getVimeoVideoId($vimeo_url);
 				$subscription_type = get_field('subscription_type');

@@ -51,7 +51,7 @@ get_header(); ?>
 										<?php while ( $query->have_posts() ) : $query->the_post();
 
 										// vars
-										$vimeoUrl = get_field('video', get_the_ID());
+										$vimeoUrl = get_field('video', get_the_ID(), false);
 										$videoId = getVimeoVideoId($vimeoUrl);
 										?>
 											<div class="swiper-slide">

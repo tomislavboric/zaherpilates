@@ -37,12 +37,25 @@ function theme_parse_video_length_minutes( $value ) {
 	return null;
 }
 
-// Extracts ID from Vimeo link.
+/**
+ * Pull the numeric video id out of a Vimeo reference.
+ *
+ * Callers now pass the raw ACF value, which looks like
+ * "https://vimeo.com/1048552060?share=copy". Older callers passed the embed
+ * markup ACF returned after fetching the oEmbed, so player URLs are matched
+ * too and stored values that still carry a privacy hash do not lose the id.
+ *
+ * @param string $vimeoUrl Vimeo URL, or embed markup containing one.
+ * @return string|false
+ */
 function getVimeoVideoId( $vimeoUrl ) {
-	$parts = parse_url( $vimeoUrl );
-	if ( isset( $parts['path'] ) ) {
-		$pathParts = explode( '/', trim( $parts['path'], '/' ) );
-		return $pathParts[ count( $pathParts ) - 1 ];
+	if ( ! is_string( $vimeoUrl ) || '' === $vimeoUrl ) {
+		return false;
 	}
+
+	if ( preg_match( '#vimeo\.com/(?:video/)?(\d+)#', $vimeoUrl, $matches ) ) {
+		return $matches[1];
+	}
+
 	return false;
 }
