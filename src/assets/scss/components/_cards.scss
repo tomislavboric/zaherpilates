@@ -245,9 +245,7 @@
   &__title {
     font-size: 16px;
     margin: 0;
-    @include breakpoint(xxlarge) {
-      font-size: 18px;
-    }
+    line-height: 1.4;
   }
   &__figure {
     position: relative;
