@@ -16,7 +16,7 @@
 			</div>
 
 			<div class="about__image">
-				<img src="<?php echo get_stylesheet_directory_uri(); ?>/dist/assets/images/ivana/ivana-zaher.jpeg" alt="Ivana Zaher">
+				<img src="<?php echo get_stylesheet_directory_uri(); ?>/dist/assets/images/ivana/ivana-zaher.webp" alt="Ivana Zaher">
 			</div>
 
 		</div>

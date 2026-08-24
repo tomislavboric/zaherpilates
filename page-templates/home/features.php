@@ -12,7 +12,7 @@
 			<div class="features__item">
 				<a href="https://postpartum.zaherpilates.ch/">
 					<figure class="features__figure">
-						<img src="<?php echo get_stylesheet_directory_uri(); ?>/dist/assets/images/ivana/1.jpg" alt="">
+						<img src="<?php echo get_stylesheet_directory_uri(); ?>/dist/assets/images/ivana/1.webp" alt="">
 					</figure>
 					<div class="features__content">
 						<h3 class="features__title">Postpartum</h2>
@@ -23,7 +23,7 @@
 			<div class="features__item">
 				<a href="<?php echo home_url(); ?>/loop/">
 					<figure class="features__figure">
-						<img src="<?php echo get_stylesheet_directory_uri(); ?>/dist/assets/images/ivana/2.jpg" alt="">
+						<img src="<?php echo get_stylesheet_directory_uri(); ?>/dist/assets/images/ivana/2.webp" alt="">
 					</figure>
 					<div class="features__content">
 						<h3 class="features__title">LOOP</h3>
