@@ -19,7 +19,6 @@
 
 		<?php wp_footer(); ?>
 
-		<script src="https://vjs.zencdn.net/8.3.0/video.min.js"></script>
 
 	</body>
 </html>
