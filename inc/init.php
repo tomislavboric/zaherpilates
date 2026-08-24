@@ -77,6 +77,7 @@ require_once( 'custom/admin-ui.php' );
 require_once( 'custom/gtm.php' );
 require_once( 'custom/cache-control.php' );
 require_once( 'custom/hero-preload.php' );
+require_once( 'custom/cache-purge-on-deploy.php' );
 
 // MemberPress integration
 require_once( 'custom/memberpress/core.php' );
