@@ -599,6 +599,12 @@ function theme_account_subscription_cancelled_at( $sub ) {
 	return $date;
 }
 
+function theme_account_subscription_is_cancelled( $sub ) {
+	return class_exists( 'MeprSubscription' )
+		&& $sub instanceof MeprSubscription
+		&& MeprSubscription::$cancelled_str === (string) $sub->status;
+}
+
 /**
  * Badge label and modifier for a subscription. A cancelled subscription reads
  * as cancelled while access lasts, then as lapsed once it runs out.

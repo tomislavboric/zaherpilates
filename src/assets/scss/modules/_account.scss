@@ -501,6 +501,16 @@
       line-height: 1.45;
     }
 
+    // Marks the plan a cancelled member is coming back from.
+    .account-page__plan-option-hint {
+      margin: 0 0 4px;
+      color: #c2410c;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
     @media (max-width: 640px) {
       align-items: stretch;
       flex-direction: column;

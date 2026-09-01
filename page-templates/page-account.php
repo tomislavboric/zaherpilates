@@ -415,10 +415,12 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 									)
 									&& ( ! method_exists( $sub, 'in_grace_period' ) || ! $sub->in_grace_period() );
 
-								if ( $can_manage && function_exists( 'theme_account_subscription_action_available' ) && function_exists( 'theme_account_subscription_action_url' ) ) {
-									$payment_method = method_exists( $sub, 'payment_method' ) ? $sub->payment_method() : null;
+								if ( function_exists( 'theme_account_subscription_action_available' ) && function_exists( 'theme_account_subscription_action_url' ) ) {
+									$payment_method   = method_exists( $sub, 'payment_method' ) ? $sub->payment_method() : null;
+									$is_cancelled_sub = function_exists( 'theme_account_subscription_is_cancelled' )
+										&& theme_account_subscription_is_cancelled( $sub );
 
-									if ( theme_account_subscription_action_available( 'update', $sub, $payment_method ) ) {
+									if ( $can_manage && theme_account_subscription_action_available( 'update', $sub, $payment_method ) ) {
 										$subscription_action_links[] = array(
 											'url'   => theme_account_subscription_action_url( 'update', $sub->id ),
 											'label' => 'Ažuriraj karticu',
@@ -426,15 +428,17 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 										);
 									}
 
-									if ( theme_account_subscription_action_available( 'upgrade', $sub, $payment_method ) ) {
+									// A cancelled subscription keeps its way back, including after
+									// access has already run out and nothing else is manageable.
+									if ( ( $can_manage || $is_cancelled_sub ) && theme_account_subscription_action_available( 'upgrade', $sub, $payment_method ) ) {
 										$subscription_action_links[] = array(
 											'url'   => theme_account_subscription_action_url( 'upgrade', $sub->id ),
-											'label' => 'Promijeni plan',
-											'class' => 'button--hollow',
+											'label' => $is_cancelled_sub ? 'Ponovo se pretplati' : 'Promijeni plan',
+											'class' => $is_cancelled_sub ? '' : 'button--hollow',
 										);
 									}
 
-									if ( theme_account_subscription_action_available( 'resume', $sub, $payment_method ) ) {
+									if ( $can_manage && theme_account_subscription_action_available( 'resume', $sub, $payment_method ) ) {
 										$subscription_action_links[] = array(
 											'url'   => theme_account_subscription_action_url( 'resume', $sub->id ),
 											'label' => 'Nastavi pretplatu',
@@ -442,7 +446,7 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 										);
 									}
 
-									if ( theme_account_subscription_action_available( 'cancel', $sub, $payment_method ) ) {
+									if ( $can_manage && theme_account_subscription_action_available( 'cancel', $sub, $payment_method ) ) {
 										$subscription_action_links[] = array(
 											'url'   => theme_account_subscription_action_url( 'cancel', $sub->id ),
 											'label' => 'Otkaži pretplatu',
@@ -512,7 +516,7 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 										</div>
 									<?php endif; ?>
 								</div>
-								<?php if ( $is_subscription && $can_manage && ! empty( $subscription_action_links ) ) : ?>
+								<?php if ( $is_subscription && ! empty( $subscription_action_links ) ) : ?>
 									<div class="account-page__subscription-actions">
 										<?php foreach ( $subscription_action_links as $action_link ) : ?>
 											<a href="<?php echo esc_url( $action_link['url'] ); ?>" class="button button--small <?php echo esc_attr( $action_link['class'] ); ?>">

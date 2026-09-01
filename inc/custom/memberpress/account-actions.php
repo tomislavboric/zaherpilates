@@ -213,9 +213,12 @@ function theme_render_account_subscription_action( $action, $sub_id ) {
 		return;
 	}
 
+	$is_cancelled = function_exists( 'theme_account_subscription_is_cancelled' )
+		&& theme_account_subscription_is_cancelled( $sub );
+
 	$action_titles = array(
 		'update'  => 'Ažuriraj karticu',
-		'upgrade' => 'Promijeni plan',
+		'upgrade' => $is_cancelled ? 'Ponovo se pretplati' : 'Promijeni plan',
 		'cancel'  => 'Otkaži pretplatu',
 		'suspend' => 'Zaustavi pretplatu',
 		'resume'  => 'Nastavi pretplatu',
@@ -260,12 +263,28 @@ function theme_render_account_subscription_action( $action, $sub_id ) {
 			$plans = $group && method_exists( $group, 'products' ) ? $group->products() : array();
 			$user  = method_exists( $sub, 'user' ) ? $sub->user() : null;
 			?>
-			<p class="account-page__action-text">Odaberi plan na koji želiš prijeći. MemberPress će na checkoutu obračunati promjenu plana.</p>
+			<p class="account-page__action-text">
+				<?php
+				echo esc_html(
+					$is_cancelled
+						? 'Odaberi plan i nastavi tamo gdje si stao. Naplata kreće od trenutka plaćanja.'
+						: 'Odaberi plan na koji želiš prijeći. MemberPress će na checkoutu obračunati promjenu plana.'
+				);
+				?>
+			</p>
 			<div class="account-page__plan-options">
 				<?php $has_plan_options = false; ?>
 				<?php foreach ( $plans as $plan ) : ?>
 					<?php
-					if ( ! $plan instanceof MeprProduct || (int) $plan->ID === (int) $product->ID || ! $plan->can_you_buy_me() ) {
+					if ( ! $plan instanceof MeprProduct || ! $plan->can_you_buy_me() ) {
+						continue;
+					}
+
+					$is_current_plan = (int) $plan->ID === (int) $product->ID;
+
+					// Someone who cancelled most likely wants the plan they just
+					// left, so it stays on the list for them.
+					if ( $is_current_plan && ! $is_cancelled ) {
 						continue;
 					}
 
@@ -275,6 +294,9 @@ function theme_render_account_subscription_action( $action, $sub_id ) {
 					<div class="account-page__plan-option">
 						<div>
 							<h3><?php echo esc_html( $plan->post_title ); ?></h3>
+							<?php if ( $is_current_plan ) : ?>
+								<p class="account-page__plan-option-hint">Tvoj dosadašnji plan</p>
+							<?php endif; ?>
 							<?php if ( $terms ) : ?>
 								<p><?php echo esc_html( wp_strip_all_tags( $terms ) ); ?></p>
 							<?php endif; ?>
@@ -284,7 +306,7 @@ function theme_render_account_subscription_action( $action, $sub_id ) {
 				<?php endforeach; ?>
 				<?php if ( ! $has_plan_options ) : ?>
 					<div class="account-page__message account-page__message--error account-page__message--inline">
-						Trenutno nema dostupnih planova za promjenu.
+						<?php echo esc_html( $is_cancelled ? 'Trenutno nema dostupnih planova.' : 'Trenutno nema dostupnih planova za promjenu.' ); ?>
 					</div>
 				<?php endif; ?>
 			</div>
