@@ -87,6 +87,18 @@
     padding: 14px 16px;
   }
 
+  // A cancelled subscription must not borrow the reassuring green-tick styling
+  // of an active one.
+  &--cancelled {
+    border-color: #fed7aa;
+    background: #fffbf7;
+
+    .pricing-status-bar__icon {
+      color: #c2410c;
+      background: rgba(#c2410c, 0.1);
+    }
+  }
+
   &__icon {
     display: grid;
     place-items: center;

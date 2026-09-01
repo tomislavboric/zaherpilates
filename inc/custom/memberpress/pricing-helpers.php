@@ -529,16 +529,30 @@ function theme_render_pricing_status_bar() {
 
     ob_start();
     ?>
-    <div class="pricing-status-bar" role="status">
+    <div class="pricing-status-bar <?php echo $is_cancelled ? 'pricing-status-bar--cancelled' : ''; ?>" role="status">
         <div class="pricing-status-bar__icon" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <path d="M9 12l2 2 4-4"></path>
-                <circle cx="12" cy="12" r="10"></circle>
-            </svg>
+            <?php if ( $is_cancelled ) : ?>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 7v6"></path>
+                    <path d="M12 16.5v.01"></path>
+                </svg>
+            <?php else : ?>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M9 12l2 2 4-4"></path>
+                    <circle cx="12" cy="12" r="10"></circle>
+                </svg>
+            <?php endif; ?>
         </div>
         <div class="pricing-status-bar__copy">
             <p class="pricing-status-bar__label">
-                <?php esc_html_e( 'Tvoja aktivna pretplata', 'foundationpress' ); ?>
+                <?php
+                if ( $is_cancelled ) {
+                    esc_html_e( 'Tvoja otkazana pretplata', 'foundationpress' );
+                } else {
+                    esc_html_e( 'Tvoja aktivna pretplata', 'foundationpress' );
+                }
+                ?>
             </p>
             <p class="pricing-status-bar__plan">
                 <strong><?php echo esc_html( $plan_title ); ?></strong>
@@ -562,8 +576,8 @@ function theme_render_pricing_status_bar() {
                     <?php
                     if ( $is_cancelled ) {
                         printf(
-                            /* translators: %s: date subscription ends, in d.m.Y format */
-                            esc_html__( 'Završava %s', 'foundationpress' ),
+                            /* translators: %s: date access ends, in d.m.Y format */
+                            esc_html__( 'Više se ne naplaćuje. Pristup vrijedi do %s', 'foundationpress' ),
                             '<strong>' . esc_html( $meta_date ) . '</strong>'
                         );
                     } else {

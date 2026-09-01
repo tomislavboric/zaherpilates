@@ -370,6 +370,16 @@
     margin-bottom: 16px;
   }
 
+  // Sits directly under the plan name so a cancellation cannot be missed by
+  // someone who came back to cancel again.
+  &__subscription-note {
+    margin: -8px 0 18px;
+    font-size: 14px;
+    line-height: 1.45;
+    font-weight: 500;
+    color: #c2410c;
+  }
+
   &__subscription-details {
     display: flex;
     flex-wrap: wrap;

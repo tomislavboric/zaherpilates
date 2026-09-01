@@ -425,52 +425,78 @@ function theme_account_subscription_period_end( $sub ) {
 	return $latest_end;
 }
 
-function theme_account_stripe_subscription_period_end( $sub ) {
-	if ( ! $sub instanceof MeprSubscription || empty( $sub->subscr_id ) || 0 !== strpos( (string) $sub->subscr_id, 'sub_' ) ) {
+function theme_account_timestamp_to_date( $timestamp ) {
+	$timestamp = (int) $timestamp;
+
+	if ( $timestamp <= 0 ) {
 		return '';
 	}
 
-	$cache_key = 'theme_acc_stripe_period_' . md5( (string) $sub->subscr_id );
+	return function_exists( 'wp_date' )
+		? wp_date( 'Y-m-d H:i:s', $timestamp )
+		: date_i18n( 'Y-m-d H:i:s', $timestamp );
+}
+
+function theme_account_stripe_subscription_data( $sub ) {
+	$empty = array(
+		'period_end'  => '',
+		'canceled_at' => '',
+	);
+
+	if ( ! $sub instanceof MeprSubscription || empty( $sub->subscr_id ) || 0 !== strpos( (string) $sub->subscr_id, 'sub_' ) ) {
+		return $empty;
+	}
+
+	$cache_key = 'theme_acc_stripe_data_' . md5( (string) $sub->subscr_id );
 	$cached    = get_transient( $cache_key );
 
-	if ( is_string( $cached ) && '' !== $cached ) {
-		return $cached;
+	if ( is_array( $cached ) ) {
+		return array_merge( $empty, $cached );
 	}
 
 	$pm = method_exists( $sub, 'payment_method' ) ? $sub->payment_method() : null;
 	if ( ! is_object( $pm ) || ! method_exists( $pm, 'retrieve_subscription' ) ) {
-		return '';
+		return $empty;
 	}
 
 	try {
 		$stripe_sub = $pm->retrieve_subscription( $sub->subscr_id );
 	} catch ( Throwable $e ) {
-		return '';
+		return $empty;
 	}
+
+	$data = $empty;
 
 	$current_period_end = isset( $stripe_sub->current_period_end ) ? (int) $stripe_sub->current_period_end : 0;
-	if ( $current_period_end <= 0 ) {
+	if ( $current_period_end > 0 ) {
+		$data['period_end'] = theme_account_timestamp_to_date( $current_period_end );
+	}
+
+	$canceled_at = isset( $stripe_sub->canceled_at ) ? (int) $stripe_sub->canceled_at : 0;
+	if ( $canceled_at > 0 ) {
+		$data['canceled_at'] = theme_account_timestamp_to_date( $canceled_at );
+	}
+
+	set_transient( $cache_key, $data, 15 * MINUTE_IN_SECONDS );
+
+	return $data;
+}
+
+function theme_account_stripe_subscription_period_end( $sub ) {
+	$data = theme_account_stripe_subscription_data( $sub );
+
+	return $data['period_end'];
+}
+
+/**
+ * Resolve the end of the period the member has already paid for, preferring
+ * whichever of the local transactions or Stripe reaches furthest into the future.
+ */
+function theme_account_subscription_resolved_period_end( $sub ) {
+	if ( ! $sub instanceof MeprSubscription ) {
 		return '';
 	}
 
-	$period_end = function_exists( 'wp_date' )
-		? wp_date( 'Y-m-d H:i:s', $current_period_end )
-		: date_i18n( 'Y-m-d H:i:s', $current_period_end );
-
-	set_transient( $cache_key, $period_end, 15 * MINUTE_IN_SECONDS );
-
-	return $period_end;
-}
-
-function theme_account_subscription_date_display( $sub ) {
-	if ( ! $sub instanceof MeprSubscription ) {
-		return array(
-			'label' => '',
-			'value' => '',
-		);
-	}
-
-	$status     = isset( $sub->status ) ? (string) $sub->status : '';
 	$period_end = theme_account_subscription_period_end( $sub );
 	$stripe_end = theme_account_stripe_subscription_period_end( $sub );
 
@@ -482,6 +508,171 @@ function theme_account_subscription_date_display( $sub ) {
 			$period_end = $stripe_end;
 		}
 	}
+
+	return $period_end;
+}
+
+/**
+ * The date access actually runs out on, regardless of subscription status.
+ */
+function theme_account_subscription_access_end( $sub ) {
+	if ( ! $sub instanceof MeprSubscription ) {
+		return '';
+	}
+
+	$period_end = theme_account_subscription_resolved_period_end( $sub );
+
+	return $period_end ? $period_end : ( isset( $sub->expires_at ) ? $sub->expires_at : '' );
+}
+
+/**
+ * True once the paid-for period is behind us, so a cancelled subscription can
+ * stop promising access it no longer grants.
+ */
+function theme_account_subscription_access_ended( $sub ) {
+	$end = theme_account_subscription_access_end( $sub );
+
+	if ( '' === $end || theme_account_is_lifetime_date( $end ) ) {
+		return false;
+	}
+
+	$end_ts = theme_account_date_timestamp( $end );
+	if ( ! $end_ts ) {
+		return false;
+	}
+
+	$today = function_exists( 'wp_date' ) ? wp_date( 'Y-m-d' ) : date_i18n( 'Y-m-d' );
+
+	return $end_ts < theme_account_date_timestamp( $today );
+}
+
+/**
+ * When the subscription was cancelled. MemberPress records this as a
+ * 'subscription-stopped' event; Stripe's own timestamp is the fallback for
+ * subscriptions cancelled outside that path.
+ */
+function theme_account_subscription_cancelled_at( $sub ) {
+	if ( ! $sub instanceof MeprSubscription || empty( $sub->id ) ) {
+		return '';
+	}
+
+	if ( MeprSubscription::$cancelled_str !== (string) $sub->status ) {
+		return '';
+	}
+
+	$cache_key = 'theme_acc_cancelled_at_' . (int) $sub->id;
+	$cached    = get_transient( $cache_key );
+
+	if ( is_string( $cached ) ) {
+		return $cached;
+	}
+
+	$date = '';
+
+	if ( class_exists( 'MeprEvent' ) && class_exists( 'MeprDb' ) ) {
+		global $wpdb;
+
+		$mepr_db = is_object( $wpdb ) ? new MeprDb() : null;
+	}
+
+	if ( isset( $mepr_db ) && is_object( $mepr_db ) ) {
+		$date = (string) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT created_at FROM {$mepr_db->events}
+				  WHERE event = %s AND evt_id = %d AND evt_id_type = %s
+				  ORDER BY created_at DESC, id DESC
+				  LIMIT 1",
+				'subscription-stopped',
+				(int) $sub->id,
+				MeprEvent::$subscriptions_str
+			)
+		);
+	}
+
+	if ( '' === $date ) {
+		$stripe_data = theme_account_stripe_subscription_data( $sub );
+		$date        = $stripe_data['canceled_at'];
+	}
+
+	set_transient( $cache_key, $date, HOUR_IN_SECONDS );
+
+	return $date;
+}
+
+/**
+ * Badge label and modifier for a subscription. A cancelled subscription reads
+ * as cancelled while access lasts, then as lapsed once it runs out.
+ */
+function theme_account_subscription_status_display( $sub ) {
+	$status = ( $sub instanceof MeprSubscription && isset( $sub->status ) ) ? (string) $sub->status : '';
+
+	if ( MeprSubscription::$cancelled_str === $status ) {
+		if ( theme_account_subscription_access_ended( $sub ) ) {
+			return array(
+				'label' => 'Istekla',
+				'class' => 'lapsed',
+			);
+		}
+
+		return array(
+			'label' => 'Otkazana',
+			'class' => 'cancelled',
+		);
+	}
+
+	if ( MeprSubscription::$suspended_str === $status ) {
+		return array(
+			'label' => 'Zaustavljena',
+			'class' => 'pending',
+		);
+	}
+
+	if ( MeprSubscription::$pending_str === $status ) {
+		return array(
+			'label' => 'Na čekanju',
+			'class' => 'pending',
+		);
+	}
+
+	return array(
+		'label' => 'Aktivna',
+		'class' => 'active',
+	);
+}
+
+/**
+ * Plain-language confirmation that the cancellation happened, and when, so a
+ * member who returns to cancel again can see it is already done.
+ */
+function theme_account_subscription_note( $sub ) {
+	if ( ! $sub instanceof MeprSubscription || MeprSubscription::$cancelled_str !== (string) $sub->status ) {
+		return '';
+	}
+
+	$cancelled_at = theme_account_subscription_cancelled_at( $sub );
+	$formatted    = $cancelled_at ? theme_account_format_date( $cancelled_at ) : '';
+
+	if ( theme_account_subscription_access_ended( $sub ) ) {
+		return $formatted
+			? sprintf( 'Pretplata je otkazana %s', $formatted )
+			: 'Pretplata je otkazana.';
+	}
+
+	return $formatted
+		? sprintf( 'Pretplata je otkazana %s Više se neće naplaćivati.', $formatted )
+		: 'Pretplata je otkazana i više se neće naplaćivati.';
+}
+
+function theme_account_subscription_date_display( $sub ) {
+	if ( ! $sub instanceof MeprSubscription ) {
+		return array(
+			'label' => '',
+			'value' => '',
+		);
+	}
+
+	$status     = isset( $sub->status ) ? (string) $sub->status : '';
+	$period_end = theme_account_subscription_resolved_period_end( $sub );
 
 	if ( MeprSubscription::$active_str === $status && ! empty( $sub->next_billing_at ) ) {
 		$date = $sub->next_billing_at;
@@ -510,8 +701,15 @@ function theme_account_subscription_date_display( $sub ) {
 		);
 	}
 
+	if ( MeprSubscription::$cancelled_str === $status ) {
+		return array(
+			'label' => theme_account_subscription_access_ended( $sub ) ? 'Pristup je istekao' : 'Pristup vrijedi do',
+			'value' => theme_account_format_date( $date ),
+		);
+	}
+
 	return array(
-		'label' => MeprSubscription::$cancelled_str === $status ? 'Pristup vrijedi do' : 'Ističe',
+		'label' => 'Ističe',
 		'value' => theme_account_format_date( $date ),
 	);
 }

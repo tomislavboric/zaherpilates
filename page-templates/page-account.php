@@ -335,13 +335,18 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 							$date_value        = '';
 							$card_exp_value    = '';
 							$can_manage        = false;
+							$subscription_note = '';
 							$subscription_action_links = array();
 
 							if ( $is_subscription ) {
 								$sub = new MeprSubscription( $subscription_row->id );
-								if ( isset( $sub->status ) ) {
+								if ( function_exists( 'theme_account_subscription_status_display' ) ) {
+									$status_display = theme_account_subscription_status_display( $sub );
+									$status_label   = $status_display['label'];
+									$status_class   = $status_display['class'];
+								} elseif ( isset( $sub->status ) ) {
 									if ( MeprSubscription::$cancelled_str === $sub->status ) {
-										$status_label = 'Završava';
+										$status_label = 'Otkazana';
 										$status_class = 'cancelled';
 									} elseif ( MeprSubscription::$suspended_str === $sub->status ) {
 										$status_label = 'Zaustavljena';
@@ -350,6 +355,10 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 										$status_label = 'Na čekanju';
 										$status_class = 'pending';
 									}
+								}
+
+								if ( function_exists( 'theme_account_subscription_note' ) ) {
+									$subscription_note = theme_account_subscription_note( $sub );
 								}
 
 								$product = $sub->product();
@@ -386,7 +395,8 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 									}
 								}
 
-								if ( ! empty( $sub->cc_exp_month ) && ! empty( $sub->cc_exp_year ) ) {
+								if ( ! empty( $sub->cc_exp_month ) && ! empty( $sub->cc_exp_year )
+									&& MeprSubscription::$cancelled_str !== $sub->status ) {
 									$card_exp_value = sprintf( '%1$02d/%2$d', (int) $sub->cc_exp_month, (int) $sub->cc_exp_year );
 								}
 
@@ -479,6 +489,9 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 									</span>
 								</div>
 								<h3 class="account-page__subscription-name"><?php echo esc_html( $product_title ); ?></h3>
+								<?php if ( ! empty( $subscription_note ) ) : ?>
+									<p class="account-page__subscription-note"><?php echo esc_html( $subscription_note ); ?></p>
+								<?php endif; ?>
 								<div class="account-page__subscription-details">
 									<?php if ( ! empty( $date_value ) ) : ?>
 										<div class="account-page__subscription-detail">
