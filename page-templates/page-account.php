@@ -89,7 +89,7 @@ if ( ! in_array( $current_tab, $allowed_tabs, true ) ) {
 
 $account_action        = isset( $_GET['action'] ) ? sanitize_key( $_GET['action'] ) : '';
 $account_action_sub_id = isset( $_GET['sub'] ) ? absint( $_GET['sub'] ) : 0;
-$account_actions       = array( 'update', 'upgrade', 'cancel', 'suspend', 'resume' );
+$account_actions       = array( 'update', 'upgrade', 'cancel', 'suspend', 'resume', 'reactivate' );
 if ( in_array( $account_action, $account_actions, true ) ) {
 	$current_tab = 'subscription';
 }
@@ -428,13 +428,27 @@ if ( in_array( $account_action, $account_actions, true ) ) {
 										);
 									}
 
+									// While the paid period is still running, the subscription can
+									// be revived outright instead of bought again.
+									$can_reactivate = theme_account_subscription_action_available( 'reactivate', $sub, $payment_method );
+
+									if ( $can_reactivate ) {
+										$subscription_action_links[] = array(
+											'url'   => theme_account_subscription_action_url( 'reactivate', $sub->id ),
+											'label' => 'Reaktiviraj pretplatu',
+											'class' => '',
+										);
+									}
+
 									// A cancelled subscription keeps its way back, including after
 									// access has already run out and nothing else is manageable.
+									$is_resubscribe = $is_cancelled_sub && ! $can_reactivate;
+
 									if ( ( $can_manage || $is_cancelled_sub ) && theme_account_subscription_action_available( 'upgrade', $sub, $payment_method ) ) {
 										$subscription_action_links[] = array(
 											'url'   => theme_account_subscription_action_url( 'upgrade', $sub->id ),
-											'label' => $is_cancelled_sub ? 'Ponovo se pretplati' : 'Promijeni plan',
-											'class' => $is_cancelled_sub ? '' : 'button--hollow',
+											'label' => $is_resubscribe ? 'Ponovo se pretplati' : 'Promijeni plan',
+											'class' => $is_resubscribe ? '' : 'button--hollow',
 										);
 									}
 

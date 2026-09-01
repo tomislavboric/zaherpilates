@@ -39,7 +39,7 @@ function theme_handle_account_subscription_action() {
 
 	$redirect_url = theme_account_tab_url( 'subscription' );
 
-	if ( ! in_array( $action, array( 'cancel', 'suspend', 'resume' ), true ) || ! wp_verify_nonce( $nonce, 'theme_account_subscription_' . $action . '_' . $sub_id ) ) {
+	if ( ! in_array( $action, array( 'cancel', 'suspend', 'resume', 'reactivate' ), true ) || ! wp_verify_nonce( $nonce, 'theme_account_subscription_' . $action . '_' . $sub_id ) ) {
 		wp_safe_redirect( add_query_arg( 'account_error', 'security', $redirect_url ) );
 		exit;
 	}
@@ -65,6 +65,9 @@ function theme_handle_account_subscription_action() {
 		} elseif ( 'suspend' === $action ) {
 			$pm->process_suspend_subscription( $sub->id );
 			$message = 'suspended';
+		} elseif ( 'reactivate' === $action ) {
+			$pm->process_resume_subscription( $sub->id );
+			$message = 'reactivated';
 		} else {
 			$pm->process_resume_subscription( $sub->id );
 			$message = 'resumed';
@@ -88,9 +91,10 @@ function theme_handle_account_subscription_action() {
 
 function theme_account_subscription_action_success_code( $action ) {
 	$messages = array(
-		'cancel'  => 'cancelled',
-		'suspend' => 'suspended',
-		'resume'  => 'resumed',
+		'cancel'     => 'cancelled',
+		'suspend'    => 'suspended',
+		'resume'     => 'resumed',
+		'reactivate' => 'reactivated',
 	);
 
 	$action = sanitize_key( $action );
@@ -123,7 +127,7 @@ function theme_account_subscription_action_was_applied( $action, $sub_id ) {
 		return MeprSubscription::$suspended_str === $status;
 	}
 
-	if ( 'resume' === $action ) {
+	if ( 'resume' === $action || 'reactivate' === $action ) {
 		return MeprSubscription::$active_str === $status;
 	}
 
@@ -151,9 +155,10 @@ function theme_account_notice_text( $type, $code ) {
 
 	if ( 'success' === $type ) {
 		$messages = array(
-			'cancelled' => 'Pretplata je otkazana.',
-			'suspended' => 'Pretplata je zaustavljena.',
-			'resumed'   => 'Pretplata je ponovno aktivna.',
+			'cancelled'   => 'Pretplata je otkazana.',
+			'suspended'   => 'Pretplata je zaustavljena.',
+			'resumed'     => 'Pretplata je ponovno aktivna.',
+			'reactivated' => 'Pretplata je reaktivirana. Pristup ti se nastavlja bez prekida.',
 		);
 
 		return isset( $messages[ $code ] ) ? $messages[ $code ] : '';
@@ -217,11 +222,12 @@ function theme_render_account_subscription_action( $action, $sub_id ) {
 		&& theme_account_subscription_is_cancelled( $sub );
 
 	$action_titles = array(
-		'update'  => 'Ažuriraj karticu',
-		'upgrade' => $is_cancelled ? 'Ponovo se pretplati' : 'Promijeni plan',
-		'cancel'  => 'Otkaži pretplatu',
-		'suspend' => 'Zaustavi pretplatu',
-		'resume'  => 'Nastavi pretplatu',
+		'update'     => 'Ažuriraj karticu',
+		'upgrade'    => $is_cancelled ? 'Ponovo se pretplati' : 'Promijeni plan',
+		'cancel'     => 'Otkaži pretplatu',
+		'suspend'    => 'Zaustavi pretplatu',
+		'resume'     => 'Nastavi pretplatu',
+		'reactivate' => 'Reaktiviraj pretplatu',
 	);
 	?>
 	<div class="account-page__card account-page__action-card account-page__action-card--<?php echo esc_attr( $action ); ?>">
@@ -312,15 +318,31 @@ function theme_render_account_subscription_action( $action, $sub_id ) {
 			</div>
 		<?php else : ?>
 			<?php
+			$access_end = function_exists( 'theme_account_subscription_access_end' )
+				? theme_account_subscription_access_end( $sub )
+				: '';
+			$next_charge = $access_end && function_exists( 'theme_account_format_date' )
+				? theme_account_format_date( $access_end )
+				: '';
+
+			$reactivate_copy = $next_charge
+				? sprintf(
+					'Pretplata se nastavlja bez prekida. Sada ne naplaćujemo ništa — prva sljedeća naplata je %s, na karticu koja je već spremljena.',
+					$next_charge
+				)
+				: 'Pretplata se nastavlja bez prekida. Sada ne naplaćujemo ništa — naplata kreće tek kad istekne pristup koji si već platio.';
+
 			$copy = array(
-				'cancel'  => 'Nakon potvrde pretplata se više neće automatski obnavljati.',
-				'suspend' => 'Nakon potvrde pretplata će biti zaustavljena.',
-				'resume'  => 'Nakon potvrde pretplata će se ponovno aktivirati.',
+				'cancel'     => 'Nakon potvrde pretplata se više neće automatski obnavljati.',
+				'suspend'    => 'Nakon potvrde pretplata će biti zaustavljena.',
+				'resume'     => 'Nakon potvrde pretplata će se ponovno aktivirati.',
+				'reactivate' => $reactivate_copy,
 			);
 			$button_labels = array(
-				'cancel'  => 'Da, otkaži pretplatu',
-				'suspend' => 'Da, zaustavi pretplatu',
-				'resume'  => 'Da, nastavi pretplatu',
+				'cancel'     => 'Da, otkaži pretplatu',
+				'suspend'    => 'Da, zaustavi pretplatu',
+				'resume'     => 'Da, nastavi pretplatu',
+				'reactivate' => 'Da, reaktiviraj pretplatu',
 			);
 			?>
 			<p class="account-page__action-text"><?php echo esc_html( $copy[ $action ] ); ?></p>

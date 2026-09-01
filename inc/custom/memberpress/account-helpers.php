@@ -828,6 +828,18 @@ function theme_account_subscription_action_available( $action, $sub, $pm = null 
 				&& is_object( $pm )
 				&& theme_account_gateway_can( $pm, 'suspend-subscriptions' )
 				&& method_exists( $pm, 'process_resume_subscription' );
+
+		// Reviving a cancelled subscription while its paid period is still
+		// running costs the member nothing now: the gateway resumes it with a
+		// free trial covering the days they have already paid for. Once that
+		// period is gone the same call would charge immediately, so this stays
+		// limited to the no-charge case and lapsed members go through checkout.
+		case 'reactivate':
+			return MeprSubscription::$cancelled_str === $status
+				&& ! theme_account_subscription_access_ended( $sub )
+				&& is_object( $pm )
+				&& theme_account_gateway_can( $pm, 'suspend-subscriptions' )
+				&& method_exists( $pm, 'process_resume_subscription' );
 	}
 
 	return false;

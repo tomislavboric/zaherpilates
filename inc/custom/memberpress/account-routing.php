@@ -132,7 +132,7 @@ function theme_redirect_legacy_memberpress_account_urls() {
 		exit;
 	}
 
-	$subscription_actions = array( 'update', 'upgrade', 'cancel', 'suspend', 'resume' );
+	$subscription_actions = array( 'update', 'upgrade', 'cancel', 'suspend', 'resume', 'reactivate' );
 
 	if ( $is_legacy_account_page && in_array( $action, $subscription_actions, true ) ) {
 		$args = array(
