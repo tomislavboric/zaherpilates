@@ -19,7 +19,7 @@ $moment_images = get_template_directory_uri() . '/dist/assets/images/aktivni-mom
 
 // Read the actual membership price and coupon rules so an expired or disabled
 // offer cannot leave a hard-coded promotional price on the landing page.
-$moment_membership_id     = 'local' === wp_get_environment_type() ? 1581 : 1659;
+$moment_membership_id     = theme_get_aktivni_moment_membership_id();
 $moment_coupon_code       = 'AMEarlyBird';
 $moment_checkout_url      = '';
 $moment_price_text        = '';

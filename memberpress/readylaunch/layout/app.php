@@ -11,8 +11,7 @@ $is_thankyou_page  = function_exists( 'theme_is_memberpress_thankyou_context' ) 
 $is_checkout_shell = $is_checkout_page || $is_thankyou_page;
 $header_classes    = isset( $is_account_page ) ? 'account-header' : '';
 $body_classes      = 'mepr-pro-template mepr-app-layout';
-$pricing_page     = get_page_by_path( 'cjenik' );
-$pricing_url      = $pricing_page instanceof WP_Post ? get_permalink( $pricing_page ) : home_url( '/cjenik/' );
+$checkout_back_link = $is_checkout_page ? theme_get_memberpress_checkout_back_link() : array();
 
 if ( $is_checkout_shell ) {
   $header_classes = trim( $header_classes . ' mepr-checkout-header' );
@@ -36,11 +35,11 @@ if ( $is_checkout_shell ) {
   <div id="page" class="site app-layout">
     <header id="masthead" class="site-header <?php echo esc_attr( $header_classes ); ?>">
       <?php if ( $is_checkout_page ) : ?>
-        <a class="mepr-checkout-header__back" href="<?php echo esc_url( $pricing_url ); ?>">
+        <a class="mepr-checkout-header__back" href="<?php echo esc_url( $checkout_back_link['url'] ); ?>">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <polyline points="15 18 9 12 15 6"></polyline>
           </svg>
-          Natrag na cjenik
+          <?php echo esc_html( $checkout_back_link['label'] ); ?>
         </a>
       <?php endif; ?>
 

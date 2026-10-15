@@ -316,6 +316,39 @@ add_filter(
 );
 
 
+function theme_get_aktivni_moment_membership_id() {
+    return 'local' === wp_get_environment_type() ? 1581 : 1659;
+}
+
+/**
+ * Return to the offer belonging to the membership being purchased.
+ */
+function theme_get_memberpress_checkout_back_link() {
+    if ( (int) get_queried_object_id() === theme_get_aktivni_moment_membership_id() ) {
+        // Resolve the landing by template, so its slug can differ online.
+        $landing_ids = get_posts(
+            array(
+                'post_type'      => 'page',
+                'post_status'    => 'publish',
+                'posts_per_page' => 1,
+                'fields'         => 'ids',
+                'meta_key'       => '_wp_page_template',
+                'meta_value'     => 'page-templates/page-aktivni-moment.php',
+            )
+        );
+
+        return array(
+            'url'   => $landing_ids ? get_permalink( $landing_ids[0] ) : home_url( '/aktivni-moment-za-mene/' ),
+            'label' => __( 'Natrag na izazov', 'foundationpress' ),
+        );
+    }
+
+    return array(
+        'url'   => function_exists( 'theme_pricing_page_url' ) ? theme_pricing_page_url() : home_url( '/cjenik/' ),
+        'label' => __( 'Natrag na cjenik', 'foundationpress' ),
+    );
+}
+
 function theme_is_memberpress_checkout_context() {
     $is_checkout_post = isset( $_POST['mepr_process_signup_form'] );
     $ajax_action      = isset( $_POST['action'] ) ? sanitize_key( wp_unslash( $_POST['action'] ) ) : '';
