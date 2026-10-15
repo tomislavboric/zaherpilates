@@ -7,7 +7,7 @@
  * Source: https://postpartum.zaherpilates.ch/aktivni-moment-za-mene
  * Landing page publication is planned for 2026-11-01, not the challenge start.
  * Public copy describes the offer without a launch announcement. Checkout uses
- * MemberPress membership 1581 and automatically includes coupon AMEarlyBird.
+ * MemberPress membership 1581 locally / 1659 online, with coupon AMEarlyBird.
  * Photos in dist/assets/images/aktivni-moment come from the same source page.
  *
  * @package FoundationPress
@@ -19,7 +19,7 @@ $moment_images = get_template_directory_uri() . '/dist/assets/images/aktivni-mom
 
 // Read the actual membership price and coupon rules so an expired or disabled
 // offer cannot leave a hard-coded promotional price on the landing page.
-$moment_membership_id     = 1581;
+$moment_membership_id     = 'local' === wp_get_environment_type() ? 1581 : 1659;
 $moment_coupon_code       = 'AMEarlyBird';
 $moment_checkout_url      = '';
 $moment_price_text        = '';
