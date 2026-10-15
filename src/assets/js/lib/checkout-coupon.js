@@ -134,7 +134,6 @@ import $ from 'jquery';
   const getCouponState = function($field) {
     const $label = $field.find('.mepr-coupon-feedback').first();
     const $loader = $label.find('.mepr-coupon-loader').first();
-    const $success = $label.find('.cc-success').first();
     const $error = $label.find('.cc-error').first();
     const $input = $field.find('.mepr-coupon-code').first();
     const inputValue = $.trim($input.val() || '');
@@ -145,14 +144,6 @@ import $ from 'jquery';
     }
 
     if (appliedValue && appliedValue === inputValue) {
-      return 'success';
-    }
-
-    if (isElementVisible($success)) {
-      if (appliedValue && appliedValue !== inputValue) {
-        return inputValue ? 'idle' : 'empty';
-      }
-
       return 'success';
     }
 
@@ -190,10 +181,7 @@ import $ from 'jquery';
       .prop('disabled', isDisabled)
       .attr('aria-disabled', String(isDisabled));
 
-    if (state === 'success') {
-      const $input = $field.find('.mepr-coupon-code').first();
-      $input.data('coupon-applied-value', $.trim($input.val() || ''));
-    } else if (state === 'idle' || state === 'empty' || state === 'error') {
+    if (state === 'idle' || state === 'empty' || state === 'error') {
       const $input = $field.find('.mepr-coupon-code').first();
       $input.removeData('coupon-applied-value');
     }
@@ -303,11 +291,21 @@ import $ from 'jquery';
       .replace(/'/g, '&#039;');
   };
 
-  const wrapInvoiceAmountHtml = function($form, priceHtml) {
+  const wrapInvoiceAmountHtml = function($form, priceHtml, invoiceHtml) {
     const $cell = $form.find('div.mepr_price_cell.invoice-amount').first();
     const periodText = $cell.length ? String($cell.attr('data-billing-period') || '') : '';
     const price = getCheckoutPriceParts(priceHtml, periodText);
-    let html = '<span class="invoice-amount-value">' + escapeHtml(price.value) + '</span>';
+    const $invoice = $('<div />').html(invoiceHtml || '').find('.mp_invoice').first();
+    const originalPrice = $invoice.attr('data-coupon-original-price') || '';
+    const saving = $invoice.attr('data-coupon-saving') || '';
+    let html = '<span class="invoice-amount-prices"><span class="invoice-amount-value">' + escapeHtml(price.value) + '</span>';
+
+    if (originalPrice && saving) {
+      html += '<del class="invoice-amount-original" aria-label="Cijena prije popusta">' + escapeHtml(originalPrice) + '</del>';
+      html += '<span class="invoice-amount-discount">Popust −' + escapeHtml(saving) + '</span>';
+    }
+
+    html += '</span>';
 
     if (price.period) {
       html += '<span class="invoice-amount-period">' + escapeHtml(price.period) + '</span>';
@@ -326,7 +324,7 @@ import $ from 'jquery';
     }
 
     if (data && data.price_string) {
-      data.price_string = wrapInvoiceAmountHtml($(this), data.price_string);
+      data.price_string = wrapInvoiceAmountHtml($(this), data.price_string, data.invoice_html);
     }
   });
 
@@ -354,6 +352,39 @@ import $ from 'jquery';
   });
 
   $(function() {
+    $('.mepr-checkout-coupon-field .mepr-coupon-code').each(function() {
+      const $input = $(this);
+      const appliedCode = $input.attr('data-applied-coupon');
+
+      if (appliedCode && appliedCode === $.trim($input.val() || '')) {
+        $input.data('coupon-applied-value', appliedCode);
+      }
+
+      $input.removeAttr('data-applied-coupon');
+
+      // A visible success message can outlive an edit. Only the server-rendered
+      // marker or MemberPress' actual validation event establishes validity.
+      // triggerHandler() does not bubble, so listen on the input itself.
+      $input.on('mepr-validate-field.themeAppliedCoupon', function(event, valid) {
+        if (valid === true) {
+          $input.data('coupon-applied-value', $.trim($input.val() || ''));
+        } else {
+          $input.removeData('coupon-applied-value');
+        }
+
+        scheduleCouponFeedbackUpdate($input.prev('.mepr-coupon-feedback'));
+      });
+
+      // MemberPress validates coupon inputs on every blur. A code already
+      // applied by the server needs no additional AJAX round-trip until edited.
+      // Final purchase validation remains the responsibility of MemberPress.
+      $input.on('blur.themeAppliedCoupon focusout.themeAppliedCoupon', function(event) {
+        if (hasAppliedCoupon($input.closest('.mepr-checkout-coupon-field'))) {
+          event.stopPropagation();
+        }
+      });
+    });
+
     observeCouponFeedback();
     updateCouponFeedback(document);
   });

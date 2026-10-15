@@ -47,6 +47,18 @@ if ( ! function_exists( 'foundationpress_scripts' ) ) :
 		$css_version = file_exists( $css_path ) ? filemtime( $css_path ) : '2.10.4';
 		wp_enqueue_style( 'main-stylesheet', get_stylesheet_directory_uri() . '/dist/assets/css/' . foundationpress_asset_path( 'app.css' ), array(), $css_version, 'all' );
 
+		if ( is_page_template( 'page-templates/page-aktivni-moment.php' ) ) {
+			$moment_style_path = get_template_directory() . '/dist/assets/css/aktivni-moment.css';
+			if ( file_exists( $moment_style_path ) ) {
+				wp_enqueue_style(
+					'aktivni-moment-styles',
+					get_template_directory_uri() . '/dist/assets/css/aktivni-moment.css',
+					array( 'main-stylesheet' ),
+					filemtime( $moment_style_path )
+				);
+			}
+		}
+
 		$landing_style_path  = get_stylesheet_directory() . '/dist/assets/css/landing-page.css';
 		$should_load_landing = is_page_template( 'page-templates/page-landing.php' );
 		if ( ! $should_load_landing && is_singular() ) {

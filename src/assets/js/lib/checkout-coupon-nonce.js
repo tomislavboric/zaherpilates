@@ -166,19 +166,17 @@
     }
 
     options.data = setDataValue(options.data, nonceFieldForAction(payload.action), nonce);
+
+    var $input = findCouponInput(payload);
+    if ($input.length && $input.data('themeCouponNonceRetrying')) {
+      options.themeCouponNonceRetried = true;
+    }
   });
 
-  $(document).ajaxError(function(event, jqXHR, settings) {
-    var payload;
+  function retryCouponRequest(payload, settings) {
     var $input;
 
-    if (!jqXHR || jqXHR.status !== 403) {
-      return;
-    }
-
-    payload = parseData(settings && settings.data);
-
-    if (!isCouponRequest(payload)) {
+    if (!isCouponRequest(payload) || (settings && settings.themeCouponNonceRetried)) {
       return;
     }
 
@@ -201,43 +199,24 @@
         $input.removeData('themeCouponNonceRetrying');
       }, 250);
     });
+  }
+
+  $(document).ajaxError(function(event, jqXHR, settings) {
+    if (jqXHR && jqXHR.status === 403) {
+      retryCouponRequest(parseData(settings && settings.data), settings);
+    }
   });
 
-  document.addEventListener('click', function(event) {
-    var button = event.target && event.target.closest
-      ? event.target.closest('.mepr-checkout-coupon-apply')
-      : null;
+  $(document).ajaxSuccess(function(event, jqXHR, settings, response) {
+    var payload = parseData(settings && settings.data);
 
-    if (!button || button.disabled) {
-      return;
+    // MemberPress returns HTTP 200 with success:false for an expired checkout
+    // nonce. Retry it once, just as we do for validation's explicit HTTP 403.
+    if (payload.action === 'mepr_get_checkout_state' && response && response.success === false) {
+      retryCouponRequest(payload, settings);
     }
+  });
 
-    if (button.getAttribute('data-theme-coupon-nonce-ready') === '1') {
-      button.removeAttribute('data-theme-coupon-nonce-ready');
-      return;
-    }
-
-    event.preventDefault();
-    event.stopImmediatePropagation();
-
-    refreshCouponNonce().always(function() {
-      button.setAttribute('data-theme-coupon-nonce-ready', '1');
-      button.click();
-    });
-  }, true);
-
-  document.addEventListener('keydown', function(event) {
-    var input = event.target;
-
-    if (!input || event.key !== 'Enter' || !input.matches || !input.matches('.mepr-signup-form .mepr-coupon-code')) {
-      return;
-    }
-
-    event.preventDefault();
-    event.stopImmediatePropagation();
-
-    refreshCouponNonce().always(function() {
-      input.blur();
-    });
-  }, true);
+  // Use the page's nonce normally. Only a failed request refreshes it;
+  // refreshing before every click/Enter needlessly serializes three requests.
 })(window, window.jQuery);

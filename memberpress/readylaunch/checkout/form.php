@@ -8,6 +8,7 @@ $first_name_value       = isset( $first_name_value ) ? $first_name_value : '';
 $last_name_value        = isset( $last_name_value ) ? $last_name_value : '';
 $user_email_value       = isset( $user_email ) ? $user_email : '';
 $has_coupon_code        = '' !== trim( (string) $mepr_coupon_code_value );
+$checkout_coupon_applied = $has_coupon_code && MeprCoupon::is_valid_coupon_code( $mepr_coupon_code_value, $product->ID );
 $payment_methods        = isset( $payment_methods ) && is_array( $payment_methods ) ? $payment_methods : array();
 $payment_methods_count  = count( $payment_methods );
 $checkout_is_recurring  = method_exists( $product, 'is_one_time_payment' ) ? ! $product->is_one_time_payment() : true;
@@ -90,6 +91,19 @@ ob_start();
 MeprProductsHelper::display_invoice( $product, $mepr_coupon_code_value );
 $checkout_price_parts = $parse_checkout_price( ob_get_clean(), $checkout_period_text );
 $checkout_price_label = $checkout_price_parts['value'];
+
+ob_start();
+MeprProductsHelper::display_spc_invoice( $product, $mepr_coupon_code_value );
+$checkout_invoice_html   = ob_get_clean();
+$checkout_invoice_tags   = new WP_HTML_Tag_Processor( $checkout_invoice_html );
+$checkout_original_price = '';
+$checkout_coupon_saving  = '';
+
+if ( $checkout_invoice_tags->next_tag( array( 'class_name' => 'mp_invoice' ) ) ) {
+    $checkout_original_price = (string) $checkout_invoice_tags->get_attribute( 'data-coupon-original-price' );
+    $checkout_coupon_saving  = (string) $checkout_invoice_tags->get_attribute( 'data-coupon-saving' );
+}
+
 $signup_button_text   = trim( wp_strip_all_tags( stripslashes( $product->signup_button_text ) ) );
 
 if ( '' === $signup_button_text ) {
@@ -150,7 +164,13 @@ $checkout_form_action .= '#mepr_jump';
                 <div class="mp-form-row mepr_bold mepr_price">
                     <div class="mepr_price_cell_label"><?php esc_html_e( 'Ukupno danas', 'foundationpress' ); ?></div>
                     <div class="mepr_price_cell invoice-amount" data-billing-period="<?php echo esc_attr( $checkout_period_text ); ?>">
-                        <span class="invoice-amount-value"><?php echo esc_html( $checkout_price_parts['value'] ); ?></span>
+                        <span class="invoice-amount-prices">
+                            <span class="invoice-amount-value"><?php echo esc_html( $checkout_price_parts['value'] ); ?></span>
+                            <?php if ( '' !== $checkout_original_price && '' !== $checkout_coupon_saving ) : ?>
+                                <del class="invoice-amount-original" aria-label="<?php esc_attr_e( 'Cijena prije popusta', 'foundationpress' ); ?>"><?php echo esc_html( $checkout_original_price ); ?></del>
+                                <span class="invoice-amount-discount"><?php echo esc_html( sprintf( __( 'Popust −%s', 'foundationpress' ), $checkout_coupon_saving ) ); ?></span>
+                            <?php endif; ?>
+                        </span>
                         <?php if ( '' !== $checkout_price_parts['period'] ) : ?>
                             <span class="invoice-amount-period"><?php echo esc_html( $checkout_price_parts['period'] ); ?></span>
                         <?php endif; ?>
@@ -169,11 +189,7 @@ $checkout_form_action .= '#mepr_jump';
                             title="<?php echo esc_attr_x( 'Loading icon', 'ui', 'memberpress' ); ?>" width="100" height="10" />
                     </span>
                     <div>
-                        <?php
-                        if ( class_exists( 'MeprProductsHelper' ) && method_exists( 'MeprProductsHelper', 'display_spc_invoice' ) ) {
-                            MeprProductsHelper::display_spc_invoice( $product, $mepr_coupon_code_value );
-                        }
-                        ?>
+                        <?php echo $checkout_invoice_html; // Rendered by MemberPress above. ?>
                     </div>
                 </div>
             <?php endif; ?>
@@ -204,7 +220,7 @@ $checkout_form_action .= '#mepr_jump';
                         </button>
 
                         <div id="mepr_coupon_row<?php echo esc_attr( $unique_suffix ); ?>" class="mp-form-row mepr_coupon mepr_coupon_<?php echo esc_attr( $product->ID ); ?> mepr-checkout-coupon-field<?php echo $has_coupon_code ? '' : ' mepr-hidden'; ?>">
-                            <div class="mp-form-label mepr-coupon-feedback is-empty">
+                            <div class="mp-form-label mepr-coupon-feedback <?php echo $checkout_coupon_applied ? 'is-applied' : 'is-empty'; ?>">
                                 <span class="mepr-coupon-loader mepr-hidden">
                                     <img src="<?php echo esc_url( includes_url( 'js/thickbox/loadingAnimation.gif' ) ); ?>"
                                         alt="<?php esc_attr_e( 'Loading...', 'memberpress' ); ?>"
@@ -217,9 +233,10 @@ $checkout_form_action .= '#mepr_jump';
                                 placeholder="<?php esc_attr_e( 'Unesi kod', 'foundationpress' ); ?>"
                                 name="mepr_coupon_code"
                                 value="<?php echo esc_attr( stripslashes( $mepr_coupon_code_value ) ); ?>"
+                                <?php if ( $checkout_coupon_applied ) : ?>data-applied-coupon="<?php echo esc_attr( stripslashes( $mepr_coupon_code_value ) ); ?>"<?php endif; ?>
                                 data-prdid="<?php echo esc_attr( $product->ID ); ?>" />
-                            <button type="button" class="mepr-checkout-coupon-apply">
-                                <?php esc_html_e( 'Primijeni', 'foundationpress' ); ?>
+                            <button type="button" class="mepr-checkout-coupon-apply" data-coupon-state="<?php echo $checkout_coupon_applied ? 'success' : 'idle'; ?>">
+                                <?php echo esc_html( $checkout_coupon_applied ? __( 'Ukloni', 'foundationpress' ) : __( 'Primijeni', 'foundationpress' ) ); ?>
                             </button>
                         </div>
                     <?php else : ?>

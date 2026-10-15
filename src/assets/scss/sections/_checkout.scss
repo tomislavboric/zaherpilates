@@ -283,6 +283,29 @@ body.mepr-checkout-surface {
   text-align: left;
 }
 
+.mepr-checkout-container.mp_wrapper .invoice-wrapper .invoice-amount-prices {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.mepr-checkout-container.mp_wrapper .invoice-wrapper .invoice-amount-original {
+  color: $gray-500;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.mepr-checkout-container.mp_wrapper .invoice-wrapper .invoice-amount-discount {
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba($primary-color, .15);
+  color: $gray-700;
+  font-size: .75rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
 .mepr-checkout-container.mp_wrapper .invoice-wrapper .invoice-amount-value {
   color: $gray-900;
   font-size: 1.625rem;
